@@ -1,0 +1,15 @@
+## Machine-specific SSH config (not tracked). Missing files are ignored.
+Include ~/.ssh/config.local
+
+host localhost
+     StrictHostKeyChecking no
+     UserKnownHostsFile /dev/null
+
+host *
+     HashKnownHosts no
+     NoHostAuthenticationForLocalhost yes
+     CheckHostIP no
+     ControlMaster auto
+     ControlPath ~/.ssh/sock/%r@%h:%p
+     VisualHostKey yes
+     ServerAliveInterval 900

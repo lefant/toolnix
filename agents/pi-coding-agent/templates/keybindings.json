@@ -1,0 +1,25 @@
+{
+  "tui.editor.cursorUp": [
+    "up",
+    "ctrl+p"
+  ],
+  "tui.input.newLine": [
+    "ctrl+j",
+    "ctrl+m",
+    "shift+enter",
+    "alt+enter",
+    "enter"
+  ],
+  "tui.input.submit": [
+    "alt+j",
+    "alt+m"
+  ],
+  "app.model.cycleForward": [],
+  "app.message.followUp": [
+    "alt+q"
+  ],
+  "app.message.dequeue": [
+    "alt+up",
+    "alt+p"
+  ]
+}

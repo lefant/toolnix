@@ -1,0 +1,25 @@
+{
+  "numStartups": 0,
+  "installMethod": "global",
+  "autoUpdates": false,
+  "tipsHistory": {},
+  "promptQueueUseCount": 0,
+  "cachedStatsigGates": {
+    "tengu_disable_bypass_permissions_mode": false,
+    "tengu_use_file_checkpoints": true,
+    "tengu_tool_pear": false
+  },
+  "cachedDynamicConfigs": {
+    "tengu-top-of-feed-tip": {
+      "tip": "",
+      "color": ""
+    }
+  },
+  "hasCompletedOnboarding": true,
+  "bypassPermissionsModeAccepted": true,
+  "terminal": {
+    "theme": "dark"
+  },
+  "firstStartTime": "",
+  "projects": {}
+}

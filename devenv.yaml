@@ -1,0 +1,11 @@
+inputs:
+  agent-skills:
+    url: github:lefant/agent-skills
+    flake: false
+  claude-code-plugins:
+    url: github:lefant/claude-code-plugins
+    flake: false
+  llm-agents:
+    url: github:numtide/llm-agents.nix
+  nixpkgs:
+    url: github:cachix/devenv-nixpkgs/rolling

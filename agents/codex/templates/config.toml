@@ -1,0 +1,14 @@
+# Toolbox default Codex configuration.
+#
+# This file is copied to ~/.codex/config.toml on container startup if it does not exist yet.
+# If you already have a config.toml, toolnix will not overwrite it.
+
+personality = "pragmatic"
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+
+[projects."/home/exedev/git/lefant/toolnix"]
+trust_level = "trusted"
+
+[projects."/home/exedev/sources/toolnix"]
+trust_level = "trusted"

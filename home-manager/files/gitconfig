@@ -1,0 +1,40 @@
+[color]
+    ui = auto
+[core]
+    excludesfile = "~/.gitignore"
+[push]
+    default = current
+[url "https://github.com/"]
+    insteadOf = "gh:"
+[github]
+    user = lefant
+[user]
+    name = Fabian Linzberger
+[alias]
+    lola = log --graph --decorate --pretty=oneline  --abbrev-commit --all
+    l = log --graph --abbrev-commit --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+[user]
+    email = e@lefant.net
+
+[includeIf "gitdir:~/git/altego/**"]
+    path = .gitconfig.altego
+[includeIf "hasconfig:remote.*.url:git@github.com:altego/"]
+    path = .gitconfig.altego
+[includeIf "hasconfig:remote.*.url:https://github.com/altego/"]
+    path = .gitconfig.altego
+[includeIf "hasconfig:remote.*.url:https://github.com/lefant/**"]
+    path = .gitconfig.gh-auth
+
+[pull]
+    rebase = false
+[init]
+    defaultBranch = master
+
+[user]
+[commit]
+    gpgsign = false
+[worktree]
+    useRelativePaths = true
+
+[include]
+    path = ~/.gitconfig.local

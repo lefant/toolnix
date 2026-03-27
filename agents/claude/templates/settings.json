@@ -1,0 +1,17 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [],
+  "disabledMcpjsonServers": [],
+  "forceLoginMethod": "claudeai",
+  "alwaysThinkingEnabled": true,
+  "model": "opus",
+  "effortLevel": "max",
+  "statusLine": {
+    "type": "command",
+    "command": "toolnix-claude-statusline",
+    "padding": 0
+  }
+}
