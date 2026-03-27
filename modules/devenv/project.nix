@@ -1,12 +1,13 @@
-args@{ inputs ? {}, ... }:
+{ inputs ? {}, ... }:
 let
   toolnixFlake = builtins.getFlake (toString ../..);
-in
-import ./default.nix (args // {
-  inputs =
+in {
+  _module.args.inputs =
     inputs
     // {
       toolnix = toolnixFlake;
     }
     // toolnixFlake.devenvSources;
-})
+
+  imports = [ ./default.nix ];
+}
