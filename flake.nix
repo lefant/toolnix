@@ -43,6 +43,10 @@
 
       homeManagerModules.default = import ./modules/home-manager/toolnix-host.nix;
 
+      devenvSources = {
+        inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
+      };
+
       devenvModules.default =
         args:
         import ./modules/devenv/default.nix (args // {
