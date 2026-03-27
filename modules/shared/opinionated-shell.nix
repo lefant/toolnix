@@ -1,6 +1,56 @@
-{ pkgs }:
+{ pkgs, lib ? pkgs.lib }:
 let
   zshPath = "${pkgs.zsh}/bin/zsh";
+  aliasesBody = ''
+    if command -v emacsclient >/dev/null 2>&1; then
+      alias e='emacsclient -nw'
+    elif command -v mg >/dev/null 2>&1; then
+      alias e='mg -n'
+    else
+      alias e='vi'
+    fi
+  '';
+  agentWrappersBody = ''
+    alias claude='claude --dangerously-skip-permissions --model opus'
+    alias codex='codex --yolo'
+  '';
+  tmuxHelpersBody = ''
+    _tmux-set-colour() {
+      if command -v md5 >/dev/null 2>&1; then
+        export TMUX_COLOUR="colour$((0x$(md5 -qs "$1" | cut -c1-2)))"
+      elif command -v md5sum >/dev/null 2>&1; then
+        export TMUX_COLOUR="colour$((0x$(printf '%s' "$1" | md5sum | cut -c1-2)))"
+      else
+        export TMUX_COLOUR="colour241"
+      fi
+    }
+
+    _tmux-apply-colour() {
+      local socket="$1"
+      tmux -L "$socket" start-server 2>/dev/null || true
+      tmux -L "$socket" source-file "$HOME/.tmux.conf" 2>/dev/null || true
+      tmux -L "$socket" set-option -g extended-keys on 2>/dev/null || true
+      tmux -L "$socket" set-option -g extended-keys-format csi-u 2>/dev/null || true
+      tmux -L "$socket" set-environment -g TZ "Europe/Stockholm" 2>/dev/null || true
+      tmux -L "$socket" set-environment -g TMUX_COLOUR "''${TMUX_COLOUR:-colour241}" 2>/dev/null || true
+      tmux -L "$socket" set-option -g status-bg "''${TMUX_COLOUR:-colour241}" 2>/dev/null || true
+      tmux -L "$socket" set-option -g status-right "#h #(env TZ=Europe/Stockholm date +%%Y-%%m-%%d\\ %%H:%%M)" 2>/dev/null || true
+    }
+
+    tmux-default() {
+      _tmux-set-colour default
+      _tmux-apply-colour default
+      tmux -L default new-session -A -s default "$@"
+    }
+
+    tmux-here() {
+      local s="''${PWD##*/}"
+      s="''${s//[^A-Za-z0-9_.-]/_}"
+      _tmux-set-colour "''${s}@''${HOST%%.*}"
+      _tmux-apply-colour "$s"
+      tmux -L "$s" new-session -A -s "$s" "$@"
+    }
+  '';
   zshPrelude = ''
     # Home Manager managed interactive shell additions for toolnix hosts.
 
@@ -39,54 +89,11 @@ let
 
     PROMPT='%n@%m:%~''${vcs_info_msg_0_}%# '
   '';
-  zshBody = ''
-    if (( $+commands[emacsclient] )); then
-      alias e='emacsclient -nw'
-    elif (( $+commands[mg] )); then
-      alias e='mg -n'
-    else
-      alias e='vi'
-    fi
-
-    alias claude='claude --dangerously-skip-permissions --model opus'
-    alias codex='codex --yolo'
-
-    _tmux-set-colour() {
-      if command -v md5 >/dev/null 2>&1; then
-        export TMUX_COLOUR="colour$((0x$(md5 -qs "$1" | cut -c1-2)))"
-      elif command -v md5sum >/dev/null 2>&1; then
-        export TMUX_COLOUR="colour$((0x$(printf '%s' "$1" | md5sum | cut -c1-2)))"
-      else
-        export TMUX_COLOUR="colour241"
-      fi
-    }
-
-    _tmux-apply-colour() {
-      local socket="$1"
-      tmux -L "$socket" start-server 2>/dev/null || true
-      tmux -L "$socket" source-file "$HOME/.tmux.conf" 2>/dev/null || true
-      tmux -L "$socket" set-option -g extended-keys on 2>/dev/null || true
-      tmux -L "$socket" set-option -g extended-keys-format csi-u 2>/dev/null || true
-      tmux -L "$socket" set-environment -g TZ "Europe/Stockholm" 2>/dev/null || true
-      tmux -L "$socket" set-environment -g TMUX_COLOUR "''${TMUX_COLOUR:-colour241}" 2>/dev/null || true
-      tmux -L "$socket" set-option -g status-bg "''${TMUX_COLOUR:-colour241}" 2>/dev/null || true
-      tmux -L "$socket" set-option -g status-right "#h #(env TZ=Europe/Stockholm date +%%Y-%%m-%%d\\ %%H:%%M)" 2>/dev/null || true
-    }
-
-    tmux-default() {
-      _tmux-set-colour default
-      _tmux-apply-colour default
-      tmux -L default new-session -A -s default "$@"
-    }
-
-    tmux-here() {
-      local s="''${PWD##*/}"
-      s="''${s//[^A-Za-z0-9_.-]/_}"
-      _tmux-set-colour "''${s}@''${HOST%%.*}"
-      _tmux-apply-colour "$s"
-      tmux -L "$s" new-session -A -s "$s" "$@"
-    }
-  '';
+  zshBody = lib.concatStringsSep "\n" [
+    aliasesBody
+    agentWrappersBody
+    tmuxHelpersBody
+  ];
   tmuxConf = ''
     set-option -g default-shell ${zshPath}
     set-option -g default-command '${zshPath} -il'
@@ -119,6 +126,17 @@ in {
   };
 
   inherit zshBody tmuxConf;
+
+  renderProjectShell = {
+    includeAliases ? true,
+    includeAgentWrappers ? true,
+    includeTmuxHelpers ? true,
+  }:
+    lib.concatStringsSep "\n" (
+      lib.optionals includeAliases [ aliasesBody ]
+      ++ lib.optionals includeAgentWrappers [ agentWrappersBody ]
+      ++ lib.optionals includeTmuxHelpers [ tmuxHelpersBody ]
+    );
 
   renderZshRc = { extraBody ? "" }:
     ''
