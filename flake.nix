@@ -18,7 +18,7 @@
     };
   };
 
-  outputs = inputs@{ nixpkgs, home-manager, ... }:
+  outputs = inputs@{ self, nixpkgs, home-manager, ... }:
     let
       system = "x86_64-linux";
       mkHome = hostName:
@@ -42,5 +42,16 @@
       };
 
       homeManagerModules.default = import ./modules/home-manager/toolnix-host.nix;
+
+      devenvModules.default =
+        args:
+        import ./modules/devenv/default.nix (args // {
+          inputs =
+            (args.inputs or {})
+            // {
+              toolnix = self;
+              inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
+            };
+        });
     };
 }
