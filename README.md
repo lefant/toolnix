@@ -22,6 +22,35 @@ The intended consumption modes are:
 - support a minimal project consumer proof on `asimov-hex`
 - remove sibling-path and subtree assumptions from the published interface
 
+## Project Consumer Shape
+
+Minimal project consumer:
+
+```yaml
+# devenv.yaml
+inputs:
+  toolnix:
+    url: github:lefant/toolnix
+```
+
+```nix
+# devenv.nix
+{ inputs, ... }: {
+  imports = [ "${inputs.toolnix}/modules/devenv/project.nix" ];
+}
+```
+
+Opinionated shell defaults are enabled by default for project consumers.
+
+Top-level opt-out:
+
+```nix
+{ inputs, ... }: {
+  imports = [ "${inputs.toolnix}/modules/devenv/project.nix" ];
+  toolnix.opinionated.enable = false;
+}
+```
+
 ## Documentation & Process
 
 ### Documentation (`docs/`)

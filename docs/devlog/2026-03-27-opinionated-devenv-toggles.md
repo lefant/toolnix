@@ -49,21 +49,24 @@ Verified against:
 - self-hosted `devenv shell` on `lefant-toolnix`
 - published-GitHub project consumption on `asimov-hex`
 
-Default-on behavior expected in interactive `zsh` shells:
+Default-on behavior verified:
 
-- `TZ=Europe/Stockholm`
-- `e`
-- `claude`
-- `codex`
-- `tmux-here`
+- self-hosted interactive `zsh` on `lefant-toolnix` exposes:
+  - `TZ=Europe/Stockholm`
+  - `e`
+  - `claude`
+  - `codex`
+  - `tmux-here`
+- published `github:lefant/toolnix` project consumption on `asimov-hex` exports `TZ=Europe/Stockholm` from the project shell by default
 
-Opt-out behavior expected:
+Opt-out behavior verified:
 
 - core required and agent packages still present
-- opinionated aliases/functions absent
 - timezone override absent
+- on `asimov-hex`, `toolnix.opinionated.enable = false` removed the project-level `TZ` export while leaving the required and agent package set intact
 
 ## Notes
 
 - the opinionated layer is injected into the interactive shell path, not into arbitrary nested `bash -lc` subprocesses
 - that is acceptable for the intended project-consumer UX, since the feature is about interactive ergonomics rather than bash-compatible shell scripting
+- shell-local aliases and functions are easiest to verify in the actual interactive shell that `devenv shell` launches; plain subprocess checks are reliable for environment variables, but not for shell-local functions
