@@ -1,13 +1,17 @@
 { inputs ? {}, ... }:
 let
   toolnixFlake = builtins.getFlake (toString ../..);
-in {
-  _module.args.inputs =
+  mergedInputs =
     inputs
     // {
       toolnix = toolnixFlake;
     }
     // toolnixFlake.devenvSources;
-
-  imports = [ ./default.nix ];
+in {
+  imports = [
+    ({ ... }: {
+      _module.args.inputs = mergedInputs;
+    })
+    ./default.nix
+  ];
 }
