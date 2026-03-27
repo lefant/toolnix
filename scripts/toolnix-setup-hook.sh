@@ -244,6 +244,8 @@ init_skills() {
     ensure_agents_skills_path() {
         local target_path="$1"
 
+        mkdir -p "$(dirname "$agents_skills")"
+
         if [ -L "$agents_skills" ] && [ "$(readlink -f "$agents_skills" 2>/dev/null)" = "$target_path" ]; then
             return
         fi
