@@ -1,7 +1,13 @@
 { pkgs, lib, inputs }:
 let
   toolnixRoot = ../..;
-  agentSkillsInput = inputs."agent-skills";
+  toolnixFlake = builtins.getFlake (toString toolnixRoot);
+  resolvedInputs =
+    if inputs ? "agent-skills" && inputs ? "llm-agents"
+    then inputs
+    else toolnixFlake.devenvSources // { toolnix = toolnixFlake; };
+
+  agentSkillsInput = resolvedInputs."agent-skills";
   agentSkillsPath =
     if builtins.isAttrs agentSkillsInput && agentSkillsInput ? outPath
     then agentSkillsInput.outPath
@@ -51,7 +57,7 @@ in
 {
   packages =
     [ toolnixClaudeStatusline ]
-    ++ (with inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
+    ++ (with resolvedInputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
       claude-code
       codex
       beads

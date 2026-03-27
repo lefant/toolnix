@@ -1,9 +1,14 @@
 { pkgs, lib, config, inputs, ... }:
 let
   toolnixRoot = ../..;
+  toolnixFlake = builtins.getFlake (toString toolnixRoot);
+  resolvedInputs =
+    if inputs ? "agent-skills" && inputs ? "claude-code-plugins" && inputs ? "llm-agents"
+    then inputs
+    else toolnixFlake.devenvSources // { toolnix = toolnixFlake; };
   required = import ../shared/required-baseline.nix { inherit pkgs; };
   opinionated = import ../shared/opinionated-shell.nix { inherit pkgs; };
-  agent = import ../shared/agent-baseline.nix { inherit pkgs lib inputs; };
+  agent = import ../shared/agent-baseline.nix { inherit pkgs lib; inputs = resolvedInputs; };
 in {
   packages = required.packages ++ (with pkgs; [
     zsh
@@ -33,8 +38,8 @@ in {
 
   enterShell = ''
     export TOOLNIX_SOURCE_DIR="${toolnixRoot}"
-    export SKILLS_SOURCE_DIR="${inputs.agent-skills}"
-    export PLUGINS_SOURCE_DIR="${inputs.claude-code-plugins}"
+    export SKILLS_SOURCE_DIR="${resolvedInputs.agent-skills}"
+    export PLUGINS_SOURCE_DIR="${resolvedInputs.claude-code-plugins}"
     export TZ="${opinionated.env.TZ}"
 ${agent.enterShell}
 
