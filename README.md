@@ -60,6 +60,36 @@ Optional `agent-browser` support for project consumers:
 }
 ```
 
+### Agent-Browser First Run
+
+On a newly enabled host or project:
+
+- the `agent-browser` wrapper is available on `PATH` immediately
+- the real CLI is installed lazily on first `agent-browser` invocation
+- the browser runtime still needs a one-time install step
+
+Minimal first-run flow:
+
+```bash
+agent-browser --version
+agent-browser install
+```
+
+After that, ordinary usage works without Docker:
+
+```bash
+agent-browser open https://example.com
+agent-browser wait --load networkidle
+agent-browser get title
+agent-browser close
+```
+
+Host-local state paths used by the opt-in integration:
+
+- npm prefix: `~/.local/share/toolnix/agent-browser/npm-prefix`
+- npm cache: `~/.cache/toolnix-agent-browser/npm`
+- browser runtime state: `~/.agent-browser`
+
 ## Common Commands
 
 SSH into a Home Manager-managed VM and land in its normal host shell:
