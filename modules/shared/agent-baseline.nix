@@ -55,6 +55,8 @@ let
   '';
 in
 {
+  inherit managedSkillTree managedSkillManifest;
+
   packages =
     [ toolnixClaudeStatusline ]
     ++ (with resolvedInputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
@@ -74,8 +76,5 @@ in
     AMP_SKIP_UPDATE_CHECK = "1";
   };
 
-  enterShell = ''
-    export TOOLNIX_USE_MANAGED_CONFIG_LINKS=1
-    export TOOLNIX_MANAGED_SKILL_MANIFEST="${managedSkillManifest}"
-  '';
+  enterShell = "";
 }

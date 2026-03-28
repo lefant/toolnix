@@ -76,6 +76,58 @@ in {
     home.file.".gitconfig.altego".source = ../../home-manager/files/gitconfig.altego;
     home.file.".gitconfig.gh-auth".source = ../../home-manager/files/gitconfig.gh-auth;
     home.file.".ssh/config".source = ../../home-manager/files/ssh-config;
+    home.file.".claude/settings.json" = {
+      source = ../../agents/claude/templates/settings.json;
+      force = true;
+    };
+    home.file.".codex/config.toml" = {
+      source = ../../agents/codex/templates/config.toml;
+      force = true;
+    };
+    home.file.".config/opencode/opencode.json" = {
+      source = ../../agents/opencode/templates/opencode.json;
+      force = true;
+    };
+    home.file.".config/amp/settings.json" = {
+      source = ../../agents/amp/templates/settings.json;
+      force = true;
+    };
+    home.file.".openclaw/openclaw.json" = {
+      source = ../../agents/openclaw/templates/openclaw.json;
+      force = true;
+    };
+    home.file.".pi/agent/settings.json" = {
+      source = ../../agents/pi-coding-agent/templates/settings.json;
+      force = true;
+    };
+    home.file.".pi/agent/keybindings.json" = {
+      source = ../../agents/pi-coding-agent/templates/keybindings.json;
+      force = true;
+    };
+    home.file.".agents/skills" = {
+      source = agent.managedSkillTree;
+      force = true;
+    };
+    home.file.".claude/skills" = {
+      source = agent.managedSkillTree;
+      force = true;
+    };
+    home.file.".config/opencode/skills" = {
+      source = agent.managedSkillTree;
+      force = true;
+    };
+    home.file.".config/amp/skills" = {
+      source = agent.managedSkillTree;
+      force = true;
+    };
+    home.file.".openclaw/skills" = {
+      source = agent.managedSkillTree;
+      force = true;
+    };
+    home.file.".pi/agent/skills" = {
+      source = agent.managedSkillTree;
+      force = true;
+    };
     home.file.".tmux.conf".text = opinionated.renderTmuxConf { };
     home.file.".tmux.conf.meta" = lib.mkIf cfg.enableHostControl {
       text = hostControl.tmuxConf;
