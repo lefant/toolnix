@@ -9,7 +9,7 @@ Public Nix-first development environment and host-profile repo.
 
 ## Scope
 
-`toolnix` publishes the shared Nix layer currently prototyped in `toolbox`:
+`toolnix` is the shared Nix layer for:
 
 - shared `A/R/O/H` baselines
 - Home Manager host profiles
@@ -21,11 +21,11 @@ The intended consumption modes are:
 - read-only GitHub flake refs for projects and hosts
 - local `path:` overrides for active development
 
-## First goals
+## Current goals
 
 - support self-hosted development on `lefant-toolnix`
-- support a minimal project consumer proof on `asimov-hex`
-- remove sibling-path and subtree assumptions from the published interface
+- provide a clean published interface for project consumers
+- keep host-native runtime state declarative and Nix-managed
 
 ## Project Consumer Shape
 
