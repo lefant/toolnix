@@ -5,6 +5,7 @@ This document covers the practical maintainer workflow for the self-hosted `tool
 See also:
 
 - [`architecture.md`](architecture.md)
+- [`credentials.md`](credentials.md)
 - [`../plans/2026-03-28-remove-imperative-setup-hook.md`](../plans/2026-03-28-remove-imperative-setup-hook.md)
 
 ## What owns what

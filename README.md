@@ -145,6 +145,7 @@ Start with:
 
 - [`docs/reference/architecture.md`](docs/reference/architecture.md)
 - [`docs/reference/maintaining-toolnix.md`](docs/reference/maintaining-toolnix.md)
+- [`docs/reference/credentials.md`](docs/reference/credentials.md)
 - relevant active plans in `docs/plans/`
 - recent implementation notes in `docs/devlog/`
 
