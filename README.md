@@ -51,6 +51,32 @@ Top-level opt-out:
 }
 ```
 
+## Common Commands
+
+SSH into a Home Manager-managed VM and land in its normal host shell:
+
+```bash
+ssh -tt lefant-toolnix.exe.xyz 'zsh -il'
+```
+
+SSH into a Home Manager-managed VM and open a repo-local tmux session:
+
+```bash
+ssh -tt lefant-toolnix.exe.xyz 'zsh -ilc "cd ~/git/lefant/toolnix && tmux-here"'
+```
+
+Start the project environment explicitly in bash:
+
+```bash
+ssh -tt lefant-toolnix.exe.xyz 'zsh -ilc "cd ~/git/lefant/toolnix && devenv shell"'
+```
+
+Start the project environment and then enter interactive `zsh` from within it:
+
+```bash
+ssh -tt lefant-toolnix.exe.xyz 'zsh -ilc "cd ~/git/lefant/toolnix && devenv shell -- zsh -il"'
+```
+
 ## Documentation & Process
 
 ### Documentation (`docs/`)
