@@ -9,9 +9,12 @@ tags: [research, codebase, toolnix, devenv, home-manager, agents]
 status: complete
 last_updated: 2026-03-28
 last_updated_by: pi
+last_updated_note: "Follow-up added after removing the self-hosted setup hook"
 ---
 
 # Research: Review of toolnix as the current self-hosted development environment
+
+> Follow-up: this document captures the repo before the self-hosted setup-hook removal completed. For the current architecture, see [`docs/reference/architecture.md`](../reference/architecture.md). For implementation history, see [`docs/devlog/2026-03-28-home-manager-agent-state.md`](../devlog/2026-03-28-home-manager-agent-state.md) and [`docs/devlog/2026-03-28-remove-setup-hook.md`](../devlog/2026-03-28-remove-setup-hook.md).
 
 **Date**: 2026-03-28T10:08:10+00:00  
 **Researcher**: pi  

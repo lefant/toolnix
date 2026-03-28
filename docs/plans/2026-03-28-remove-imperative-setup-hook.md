@@ -71,33 +71,33 @@ Keep the existing `.claude.json` merge behavior under Home Manager activation un
 
 ### Step 1 — Add stable docs entrypoints
 
-- add minimal `docs/reference/architecture.md`
-- add README pointers to architecture and this plan
-- symlink `AGENTS.md` and `CLAUDE.md` to `README.md`
+- [x] add minimal `docs/reference/architecture.md`
+- [x] add README pointers to architecture and this plan
+- [x] symlink `AGENTS.md` and `CLAUDE.md` to `README.md`
 
 ### Step 2 — Move persistent agent config and skills wiring into Home Manager
 
-- expose the managed skill tree from `modules/shared/agent-baseline.nix`
-- manage agent config files via `home.file` in `modules/home-manager/toolnix-host.nix`
-- manage shared skills and agent skill symlinks declaratively in Home Manager
-- verify Home Manager activation package builds successfully
+- [x] expose the managed skill tree from `modules/shared/agent-baseline.nix`
+- [x] manage agent config files via `home.file` in `modules/home-manager/toolnix-host.nix`
+- [x] manage shared skills and agent skill symlinks declaratively in Home Manager
+- [x] verify Home Manager activation package builds successfully
 
 ### Step 3 — Remove setup-hook use from the self-hosted devenv path
 
-- stop invoking `scripts/toolnix-setup-hook.sh` from `modules/devenv/default.nix`
-- remove now-unused hook-specific shell exports from shared modules if no longer needed
-- smoke test `devenv shell`
+- [x] stop invoking `scripts/toolnix-setup-hook.sh` from `modules/devenv/default.nix`
+- [x] remove now-unused hook-specific shell exports from shared modules if no longer needed
+- [x] smoke test `devenv shell`
 
 ### Step 4 — Remove the obsolete hook and legacy assumptions
 
-- delete `scripts/toolnix-setup-hook.sh` if no code path still uses it
-- remove stale references in docs and code
-- ensure no remaining references to Docker-era setup-hook behavior remain in the self-hosted path
+- [x] delete `scripts/toolnix-setup-hook.sh` after removing its last code path
+- [x] remove stale references in code
+- [x] refresh older research/docs that still described the hook as current
 
 ### Step 5 — Finalize docs after migration completes
 
-- expand `docs/reference/architecture.md` to reflect the completed post-hook architecture
-- write a devlog summarizing the migration
+- [x] expand `docs/reference/architecture.md` to reflect the completed post-hook architecture
+- [x] write devlogs summarizing the migration
 
 ## Verification
 

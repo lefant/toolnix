@@ -44,18 +44,13 @@ let
   managedSkillTree = pkgs.linkFarm "toolnix-managed-skills"
     (map (item: { name = item.name; path = item.path; }) dedupedSkillLinks);
 
-  managedSkillManifest = pkgs.writeText "toolnix-managed-skills.tsv"
-    (lib.concatLines
-      ([ "__TREE__\t${managedSkillTree}" ]
-       ++ map (item: "${item.name}\t${item.path}") dedupedSkillLinks));
-
   toolnixClaudeStatusline = pkgs.writeShellScriptBin "toolnix-claude-statusline" ''
     toolnix_root="''${TOOLNIX_SOURCE_DIR:-${toolnixRoot}}"
     exec "$toolnix_root/agents/claude/scripts/statusline.sh" "$@"
   '';
 in
 {
-  inherit managedSkillTree managedSkillManifest;
+  inherit managedSkillTree;
 
   packages =
     [ toolnixClaudeStatusline ]
@@ -75,6 +70,4 @@ in
     CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
     AMP_SKIP_UPDATE_CHECK = "1";
   };
-
-  enterShell = "";
 }

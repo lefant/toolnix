@@ -93,10 +93,7 @@ in {
 
   enterShell = ''
     export TOOLNIX_SOURCE_DIR="${toolnixRoot}"
-    export SKILLS_SOURCE_DIR="${resolvedInputs.agent-skills}"
-    export PLUGINS_SOURCE_DIR="${resolvedInputs.claude-code-plugins}"
 ${lib.optionalString useTimezone ''    export TZ="${opinionated.env.TZ}"''}
-${agent.enterShell}
 
 ${projectOpinionatedShell}
 
@@ -109,8 +106,6 @@ ${projectOpinionatedShell}
       source "$HOME/.env.toolbox"
       set +a
     fi
-
-    TOOLNIX_SEED_ONLY=1 "${toolnixRoot}/scripts/toolnix-setup-hook.sh" true
   '';
 };
 }
