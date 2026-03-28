@@ -27,6 +27,22 @@ The intended consumption modes are:
 - provide a clean published interface for project consumers
 - keep host-native runtime state declarative and Nix-managed
 
+## Repo boundaries
+
+When working in `toolnix`, prioritize:
+
+- `toolnix` docs, architecture, and module boundaries
+- self-hosted workflow quality on `lefant-toolnix`
+- the published Nix interface exposed by this repo
+
+Do not treat these as the default focus here:
+
+- control-host or inventory workflow expansion
+- downstream project-consumer implementation details
+- assumptions that require SSH access to consumer hosts
+
+`modules/shared/host-control.nix` is intentionally opt-in and outside the default toolnix path.
+
 ## Project Consumer Shape
 
 Minimal project consumer:
@@ -128,9 +144,9 @@ ssh -tt lefant-toolnix.exe.xyz 'zsh -ilc "cd ~/git/lefant/toolnix && devenv shel
 Start with:
 
 - [`docs/reference/architecture.md`](docs/reference/architecture.md)
+- [`docs/reference/maintaining-toolnix.md`](docs/reference/maintaining-toolnix.md)
 - relevant active plans in `docs/plans/`
 - recent implementation notes in `docs/devlog/`
-
 
 - **`docs/specs/`**: Feature specifications and architecture docs
 - **`docs/decisions/`**: Architecture Decision Records (ADRs) for key technical choices
