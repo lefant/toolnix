@@ -2,6 +2,11 @@
 
 Public Nix-first development environment and host-profile repo.
 
+## Start Here
+
+- Architecture reference: [`docs/reference/architecture.md`](docs/reference/architecture.md)
+- Setup-hook migration plan: [`docs/plans/2026-03-28-remove-imperative-setup-hook.md`](docs/plans/2026-03-28-remove-imperative-setup-hook.md)
+
 ## Scope
 
 `toolnix` publishes the shared Nix layer currently prototyped in `toolbox`:
@@ -119,6 +124,13 @@ ssh -tt lefant-toolnix.exe.xyz 'zsh -ilc "cd ~/git/lefant/toolnix && devenv shel
 ## Documentation & Process
 
 ### Documentation (`docs/`)
+
+Start with:
+
+- [`docs/reference/architecture.md`](docs/reference/architecture.md)
+- relevant active plans in `docs/plans/`
+- recent implementation notes in `docs/devlog/`
+
 
 - **`docs/specs/`**: Feature specifications and architecture docs
 - **`docs/decisions/`**: Architecture Decision Records (ADRs) for key technical choices
