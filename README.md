@@ -51,6 +51,15 @@ Top-level opt-out:
 }
 ```
 
+Optional `agent-browser` support for project consumers:
+
+```nix
+{ inputs, ... }: {
+  imports = [ "${inputs.toolnix}/modules/devenv/project.nix" ];
+  toolnix.agentBrowser.enable = true;
+}
+```
+
 ## Common Commands
 
 SSH into a Home Manager-managed VM and land in its normal host shell:

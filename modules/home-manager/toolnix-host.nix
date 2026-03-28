@@ -4,6 +4,7 @@ let
   cfg = config.toolnix;
   required = import ../shared/required-baseline.nix { inherit pkgs; };
   agent = import ../shared/agent-baseline.nix { inherit pkgs lib inputs; };
+  agentBrowser = import ../shared/agent-browser.nix { inherit pkgs; };
   opinionated = import ../shared/opinionated-shell.nix { inherit pkgs; };
   hostControl = import ../shared/host-control.nix { inherit pkgs; };
 in {
@@ -25,16 +26,24 @@ in {
     description = "Enable the shared agent baseline on Home Manager hosts.";
   };
 
+  options.toolnix.agentBrowser.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    description = "Enable opt-in host-native agent-browser support on the host.";
+  };
+
   config = {
     programs.home-manager.enable = true;
 
     home.packages =
       required.homePackages
-      ++ lib.optionals cfg.enableAgentBaseline agent.packages;
+      ++ lib.optionals cfg.enableAgentBaseline agent.packages
+      ++ lib.optionals cfg.agentBrowser.enable agentBrowser.packages;
     home.sessionVariables =
       required.env
       // opinionated.env
-      // lib.optionalAttrs cfg.enableAgentBaseline agent.env;
+      // lib.optionalAttrs cfg.enableAgentBaseline agent.env
+      // lib.optionalAttrs cfg.agentBrowser.enable agentBrowser.env;
 
     home.file.".zshrc".text = ''
       source ~/.zsh/zshrc.sh

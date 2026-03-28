@@ -9,7 +9,14 @@ let
   required = import ../shared/required-baseline.nix { inherit pkgs; };
   opinionated = import ../shared/opinionated-shell.nix { inherit pkgs; };
   agent = import ../shared/agent-baseline.nix { inherit pkgs lib; inputs = resolvedInputs; };
+  agentBrowser = import ../shared/agent-browser.nix { inherit pkgs; };
 in {
+  options.toolnix.agentBrowser.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    description = "Enable opt-in host-native agent-browser support in the project shell.";
+  };
+
   options.toolnix.opinionated.enable = lib.mkOption {
     type = lib.types.bool;
     default = true;
@@ -47,6 +54,7 @@ in {
       useAliases = opinionatedCfg.enable && opinionatedCfg.aliases.enable;
       useTmuxHelpers = opinionatedCfg.enable && opinionatedCfg.tmuxHelpers.enable;
       useAgentWrappers = opinionatedCfg.enable && opinionatedCfg.agentWrappers.enable;
+      useAgentBrowser = config.toolnix.agentBrowser.enable;
       projectOpinionatedShell = opinionated.renderProjectShell {
         includeAliases = useAliases;
         includeTmuxHelpers = useTmuxHelpers;
@@ -72,9 +80,13 @@ in {
     shellcheck
     procps
     less
-  ]) ++ agent.packages;
+  ]) ++ agent.packages ++ lib.optionals useAgentBrowser agentBrowser.packages;
 
-  env = required.env // lib.optionalAttrs useTimezone opinionated.env // agent.env // {
+  env = required.env
+    // lib.optionalAttrs useTimezone opinionated.env
+    // agent.env
+    // lib.optionalAttrs useAgentBrowser agentBrowser.env
+    // {
     EDITOR = "emacsclient -c -t";
     VISUAL = "emacsclient -c -t";
   };
