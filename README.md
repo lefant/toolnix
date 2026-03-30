@@ -113,6 +113,29 @@ Host-local state paths used by the opt-in integration:
 
 ## Common Commands
 
+### Wrapped portable tools
+
+Run the wrapped tmux proof directly from a repo checkout:
+
+```bash
+nix run .#toolnix-tmux
+```
+
+This uses the tracked toolnix tmux defaults without requiring `~/.tmux.conf`.
+
+Run the wrapped pi proof directly from a repo checkout:
+
+```bash
+nix run .#toolnix-pi
+```
+
+This bootstraps tracked pi settings, keybindings, and skills automatically.
+
+Auth for the wrapped pi path remains machine-local:
+
+- if you already have ordinary pi auth in `~/.pi/agent/auth.json`, the wrapped path reuses it
+- otherwise first-run interactive `/login` is an acceptable path
+
 SSH into a Home Manager-managed VM and land in its normal host shell:
 
 ```bash
