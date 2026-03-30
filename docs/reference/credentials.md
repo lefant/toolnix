@@ -12,6 +12,7 @@ See also:
 
 - [`architecture.md`](architecture.md)
 - [`maintaining-toolnix.md`](maintaining-toolnix.md)
+- [`../decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md`](../decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md)
 
 ## Design intent
 

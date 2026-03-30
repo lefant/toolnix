@@ -109,7 +109,26 @@ Observed remotely:
 - wrapped pi bootstrap creates the expected state/config symlinks
 - a live wrapped pi startup under a pseudo-TTY also starts successfully from the fresh repo/home path; a timed proof run on `lefant-toolbox-nix2` produced a non-empty session log before timeout, confirming the interactive path comes up without preinstalled config
 
+## Auth reuse follow-up
+
+A follow-up fix addressed the main mismatch discovered during interactive use.
+
+Problem:
+
+- wrapped `pi` used its own state directory under `~/.local/state/toolnix/pi/agent`
+- existing successful non-wrapped `pi` sessions were using auth in `~/.pi/agent/auth.json`
+- wrapped pi therefore booted correctly but could fail prompt execution until re-authenticated
+
+Fix:
+
+- when wrapped `pi` starts and no wrapped `auth.json` exists yet, it now reuses existing local auth by symlinking:
+  - `~/.local/state/toolnix/pi/agent/auth.json`
+  - to `~/.pi/agent/auth.json`
+
+That keeps credentials machine-local while making the wrapped path behave like the already-working ordinary pi path for existing users.
+
 ## Notes
 
 - `tmux` and `pi` are now the strongest proven wrapped-tool paths in `toolnix`
 - `pi` is the best next candidate for real day-to-day portable single-command use because `/login` makes first-run auth acceptable without extra repo-specific setup
+- wrapped pi now also reuses existing local auth state when present, which removes the main practical mismatch between wrapped and non-wrapped use

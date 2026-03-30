@@ -6,6 +6,12 @@ For the migration sequence and intermediate steps, see:
 
 - [`docs/plans/2026-03-28-remove-imperative-setup-hook.md`](../plans/2026-03-28-remove-imperative-setup-hook.md)
 
+Key architecture decisions:
+
+- [`docs/decisions/2026-03-30_adopt-flake-parts-for-toolnix.md`](../decisions/2026-03-30_adopt-flake-parts-for-toolnix.md)
+- [`docs/decisions/2026-03-30_adopt-dendritic-feature-profile-layout.md`](../decisions/2026-03-30_adopt-dendritic-feature-profile-layout.md)
+- [`docs/decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md`](../decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md)
+
 ## Flake Outputs
 
 `flake.nix` is now constructed with internal `flake-parts` composition.
