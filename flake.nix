@@ -2,6 +2,7 @@
   description = "Toolnix: shared Nix modules for dev environments and hosts";
 
   inputs = {
+    flake-parts.url = "github:hercules-ci/flake-parts";
     agent-skills = {
       url = "github:lefant/agent-skills";
       flake = false;
@@ -18,44 +19,50 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, home-manager, ... }:
-    let
-      system = "x86_64-linux";
-      mkHome = hostName:
-        home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs { inherit system; };
-          extraSpecialArgs = { inherit inputs; };
-          modules = [
-            ./modules/home-manager/toolnix-host.nix
-            {
-              home.username = "exedev";
-              home.homeDirectory = "/home/exedev";
-              home.stateVersion = "25.05";
+  outputs = inputs@{ flake-parts, home-manager, nixpkgs, self, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [ "x86_64-linux" ];
+      imports = import ./flake-parts;
 
-              toolnix.hostName = hostName;
-            }
-          ];
-        };
-    in {
-      homeConfigurations = {
-        lefant-toolnix = mkHome "lefant-toolnix";
-      };
+      flake =
+        let
+          system = "x86_64-linux";
+          mkHome = hostName:
+            home-manager.lib.homeManagerConfiguration {
+              pkgs = import nixpkgs { inherit system; };
+              extraSpecialArgs = { inherit inputs; };
+              modules = [
+                ./modules/home-manager/toolnix-host.nix
+                {
+                  home.username = "exedev";
+                  home.homeDirectory = "/home/exedev";
+                  home.stateVersion = "25.05";
 
-      homeManagerModules.default = import ./modules/home-manager/toolnix-host.nix;
-
-      devenvSources = {
-        inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
-      };
-
-      devenvModules.default =
-        args:
-        import ./modules/devenv/default.nix (args // {
-          inputs =
-            (args.inputs or {})
-            // {
-              toolnix = self;
-              inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
+                  toolnix.hostName = hostName;
+                }
+              ];
             };
-        });
+        in {
+          homeConfigurations = {
+            lefant-toolnix = mkHome "lefant-toolnix";
+          };
+
+          homeManagerModules.default = import ./modules/home-manager/toolnix-host.nix;
+
+          devenvSources = {
+            inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
+          };
+
+          devenvModules.default =
+            args:
+            import ./modules/devenv/default.nix (args // {
+              inputs =
+                (args.inputs or {})
+                // {
+                  toolnix = self;
+                  inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
+                };
+            });
+        };
     };
 }
