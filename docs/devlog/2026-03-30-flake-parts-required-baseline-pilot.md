@@ -107,7 +107,52 @@ The following remain untouched as flake-parts feature slices:
 - `agent-browser`
 - `host-control`
 
+## Full flake-parts functional coverage
+
+A third implementation slice extended the migration from the initial Home Manager proof to the remaining top-level functional surface.
+
+### What changed in the full-coverage slice
+
+Added:
+
+- `internal/devenv/default-base.nix`
+
+Changed:
+
+- `flake.nix`
+- `flake-parts/required-baseline.nix`
+- `modules/devenv/default.nix`
+
+The `devenv` path is now composed this way:
+
+- `flake-parts/required-baseline.nix` publishes `self.lib.toolnix.profiles.devenv.defaultModule`
+- `flake.nix` exports `devenvModules.default` from that flake-parts-owned profile module
+- `modules/devenv/default.nix` is reduced to a compatibility wrapper that forwards to `toolnixFlake.devenvModules.default`
+- `modules/devenv/project.nix` remains stable and continues to import `./default.nix`
+
+At this point both public runtime entry surfaces are flake-parts-owned:
+
+- Home Manager host profile export/build path
+- `devenv` module export path
+
+### Validation after the full-coverage slice
+
+Validated locally with:
+
+```bash
+nix build .#homeConfigurations.lefant-toolnix.activationPackage
+nix run github:cachix/devenv/latest -- shell -- true
+nix run github:cachix/devenv/latest -- shell -- bash -lc 'command -v mg && command -v bat && command -v tmux && command -v just && locale | head -5'
+```
+
+Observed:
+
+- `homeConfigurations.lefant-toolnix` still builds
+- `homeManagerModules.default` still resolves
+- `devenvModules.default` still resolves and works through the compatibility path
+- baseline shell behavior remains stable
+
 ## Notes
 
-- the repo now has a completed flake-parts proof for one real consumer path: the Home Manager host profile export/build path
-- dendritic-style widening should still wait until remote deployment verification passes on `lefant-toolnix` and `lefant-toolbox-nix{,2,3}`
+- the repo now has full flake-parts coverage for the current public functional surfaces: `homeConfigurations`, `homeManagerModules.default`, `devenvModules.default`, and `devenvSources`
+- the remaining step after rollout verification is not more top-level flake migration, but deciding whether and how to widen into dendritic-style per-feature modules

@@ -10,7 +10,7 @@ For the migration sequence and intermediate steps, see:
 
 `flake.nix` is now constructed with internal `flake-parts` composition.
 
-The current proof routes the Home Manager host profile path through a flake-parts-owned internal profile module, while keeping the published output names stable.
+The current flake-parts migration now routes both the Home Manager host profile path and the `devenv` module export path through flake-parts-owned internal profile modules, while keeping the published output names stable.
 
 `flake.nix` exposes three primary interfaces:
 
@@ -48,11 +48,15 @@ These layers are assembled in two main entry modules:
 The current Home Manager export/build path is internally composed from:
 
 - `flake-parts/required-baseline.nix`
-  - publishes the flake-parts-owned Home Manager proof profile for the required baseline pilot
+  - publishes the flake-parts-owned Home Manager and `devenv` profile modules for the current migration
 - `internal/home-manager/toolnix-host-base.nix`
   - holds the non-required-baseline host module body
+- `internal/devenv/default-base.nix`
+  - holds the non-wrapper `devenv` module body
 - `modules/home-manager/toolnix-host.nix`
-  - forwards legacy call sites to the flake-parts-owned exported module
+  - forwards legacy call sites to the flake-parts-owned exported Home Manager module
+- `modules/devenv/default.nix`
+  - forwards legacy call sites to the flake-parts-owned exported `devenv` module
 
 ## Host vs Project Responsibilities
 

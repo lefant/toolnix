@@ -187,13 +187,18 @@ Implementation now includes a completed flake-parts-owned proof for the Home Man
 - `homeManagerModules.default` exports that same composed module
 - `modules/home-manager/toolnix-host.nix` remains as a compatibility wrapper
 
+Implementation now covers the full current top-level functional surface through flake-parts-owned profiles:
+
+- `homeConfigurations.lefant-toolnix`
+- `homeManagerModules.default`
+- `devenvModules.default`
+- `devenvSources`
+
 Still pending for this plan:
 
 - remote rollout and verification on `lefant-toolnix`
 - remote rollout and verification on `lefant-toolbox-nix`
-- remote rollout and verification on `lefant-toolbox-nix2`
-- remote rollout and verification on `lefant-toolbox-nix3`
-- only after that, planning the dendritic-style widening
+- after that, document readiness and suggest the dendritic-style next steps
 
 ## Definition of done
 
