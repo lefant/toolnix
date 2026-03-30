@@ -107,6 +107,7 @@ Observed remotely:
 - `nix run .#toolnix-tmux` uses the wrapped config and reports prefix `C-a`
 - `nix run .#toolnix-pi -- --help` works from the fresh repo/home path
 - wrapped pi bootstrap creates the expected state/config symlinks
+- a live wrapped pi startup under a pseudo-TTY also starts successfully from the fresh repo/home path; a timed proof run on `lefant-toolbox-nix2` produced a non-empty session log before timeout, confirming the interactive path comes up without preinstalled config
 
 ## Notes
 
