@@ -1,3 +1,6 @@
 { ... }: {
-  flake.lib.toolnix.internal.requiredBaselineModule = ../internal/shared/required-baseline.nix;
+  flake.lib.toolnix.internal = {
+    requiredBaselinePath = ../internal/shared/required-baseline.nix;
+    requiredBaseline = import ../internal/shared/required-baseline.nix;
+  };
 }
