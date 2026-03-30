@@ -56,7 +56,7 @@
 
           devenvModules.default =
             args:
-            import ./modules/devenv/default.nix (args // {
+            self.lib.toolnix.profiles.devenv.defaultModule (args // {
               inputs =
                 (args.inputs or {})
                 // {

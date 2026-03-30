@@ -18,17 +18,21 @@
           };
       };
 
-      profiles.homeManager.defaultModule = {
-        imports = [
-          ({ pkgs, ... }:
-            let
-              required = import ../internal/shared/required-baseline.nix { inherit pkgs; };
-            in {
-              home.packages = required.homePackages;
-              home.sessionVariables = required.env;
-            })
-          ../internal/home-manager/toolnix-host-base.nix
-        ];
+      profiles = {
+        homeManager.defaultModule = {
+          imports = [
+            ({ pkgs, ... }:
+              let
+                required = import ../internal/shared/required-baseline.nix { inherit pkgs; };
+              in {
+                home.packages = required.homePackages;
+                home.sessionVariables = required.env;
+              })
+            ../internal/home-manager/toolnix-host-base.nix
+          ];
+        };
+
+        devenv.defaultModule = import ../internal/devenv/default-base.nix;
       };
     };
   };
