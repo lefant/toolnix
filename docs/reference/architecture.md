@@ -27,6 +27,11 @@ The current architecture uses a dendritic-style internal layout:
 
 The repo also exports `devenvSources`, which centralizes the shared flake inputs used by the toolnix `devenv` layer.
 
+As additive wrapped-tool proofs, the flake also exports portable package/app entries for:
+
+- `toolnix-tmux`
+- `toolnix-pi`
+
 ## Module Layering
 
 `toolnix` is structured around shared layers in `modules/shared/`:

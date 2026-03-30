@@ -123,6 +123,15 @@ On `lefant-toolbox-nix2`:
 - write a devlog
 - document the auth handling conclusions for future wrapped proofs
 
+## Current status
+
+Implementation now includes:
+
+- `toolnix-tmux` flake package/app
+- `toolnix-pi` flake package/app
+- remote fresh-like verification on `lefant-toolbox-nix2` using a temporary HOME and temporary repo clone
+- documented auth conclusions for wrapped pi and future wrapped agent tools
+
 ## Definition of done
 
 This plan is done when:
@@ -131,3 +140,7 @@ This plan is done when:
 - both work from a fresh HOME and fresh repo checkout on `lefant-toolbox-nix2`
 - pi auth expectations are documented clearly
 - the next wrapped-tool candidates are clearer as a result of the proof
+
+## Outcome
+
+Done.

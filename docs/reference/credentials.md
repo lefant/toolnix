@@ -122,6 +122,21 @@ Coding-agent packages and config files are installed declaratively by `toolnix`,
 - local tool login state
 - CLI-managed auth stores where the tool supports them
 
+Wrapped-tool proofs follow the same rule.
+
+Current wrapped pi behavior:
+
+- `nix run .#toolnix-pi` seeds tracked config and skills automatically
+- auth can then come from env vars or interactive `/login`
+- wrapped pi auth state remains local under the wrapped pi agent directory, by default:
+  - `${XDG_STATE_HOME:-~/.local/state}/toolnix/pi/agent/auth.json`
+
+A future wrapped `claude-code` or `codex` path should follow the same ownership rule:
+
+- wrapper-managed config is acceptable
+- machine-local auth state is acceptable
+- tracked secrets in this repo are not
+
 ## What toolnix manages vs does not manage
 
 ### Toolnix manages
