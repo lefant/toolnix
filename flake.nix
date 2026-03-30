@@ -19,51 +19,9 @@
     };
   };
 
-  outputs = inputs@{ flake-parts, home-manager, nixpkgs, self, ... }:
+  outputs = inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
       imports = import ./flake-parts;
-
-      flake =
-        let
-          system = "x86_64-linux";
-          homeManagerDefaultModule = self.lib.toolnix.profiles.homeManager.defaultModule;
-          mkHome = hostName:
-            home-manager.lib.homeManagerConfiguration {
-              pkgs = import nixpkgs { inherit system; };
-              extraSpecialArgs = { inherit inputs; };
-              modules = [
-                homeManagerDefaultModule
-                {
-                  home.username = "exedev";
-                  home.homeDirectory = "/home/exedev";
-                  home.stateVersion = "25.05";
-
-                  toolnix.hostName = hostName;
-                }
-              ];
-            };
-        in {
-          homeConfigurations = {
-            lefant-toolnix = mkHome "lefant-toolnix";
-          };
-
-          homeManagerModules.default = homeManagerDefaultModule;
-
-          devenvSources = {
-            inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
-          };
-
-          devenvModules.default =
-            args:
-            self.lib.toolnix.profiles.devenv.defaultModule (args // {
-              inputs =
-                (args.inputs or {})
-                // {
-                  toolnix = self;
-                  inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
-                };
-            });
-        };
     };
 }

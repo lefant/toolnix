@@ -1,34 +1,17 @@
-{ config, lib, pkgs, inputs, ... }:
+{ config, lib, pkgs, inputs, toolnixFeatures, ... }:
 let
-  toolnixRoot = ../..;
+  toolnixRoot = ../../..;
+  features = toolnixFeatures;
   cfg = config.toolnix;
-  agent = import ../../modules/shared/agent-baseline.nix { inherit pkgs lib inputs; };
-  agentBrowser = import ../../modules/shared/agent-browser.nix { inherit pkgs; };
-  opinionated = import ../../modules/shared/opinionated-shell.nix { inherit pkgs; };
-  hostControl = import ../../modules/shared/host-control.nix { inherit pkgs; };
+  agent = features.agentBaseline.data { inherit pkgs lib inputs; };
+  agentBrowser = features.agentBrowser.data { inherit pkgs; };
+  opinionated = features.opinionatedShell.data { inherit pkgs; };
+  hostControl = features.hostControl.data { inherit pkgs; };
 in {
   options.toolnix.hostName = lib.mkOption {
     type = lib.types.str;
     default = "toolnix";
     description = "Short host label used in the tmux status line.";
-  };
-
-  options.toolnix.enableHostControl = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-    description = "Enable host/control-only shell helpers such as tmux-meta.";
-  };
-
-  options.toolnix.enableAgentBaseline = lib.mkOption {
-    type = lib.types.bool;
-    default = true;
-    description = "Enable the shared agent baseline on Home Manager hosts.";
-  };
-
-  options.toolnix.agentBrowser.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-    description = "Enable opt-in host-native agent-browser support on the host.";
   };
 
   config = {
@@ -69,59 +52,59 @@ in {
         . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
       fi
     '';
-    home.file.".gitconfig".source = ../../home-manager/files/gitconfig;
-    home.file.".gitconfig.altego".source = ../../home-manager/files/gitconfig.altego;
-    home.file.".gitconfig.gh-auth".source = ../../home-manager/files/gitconfig.gh-auth;
-    home.file.".ssh/config".source = ../../home-manager/files/ssh-config;
+    home.file.".gitconfig".source = ../../../home-manager/files/gitconfig;
+    home.file.".gitconfig.altego".source = ../../../home-manager/files/gitconfig.altego;
+    home.file.".gitconfig.gh-auth".source = ../../../home-manager/files/gitconfig.gh-auth;
+    home.file.".ssh/config".source = ../../../home-manager/files/ssh-config;
     home.file.".claude/settings.json" = {
-      source = ../../agents/claude/templates/settings.json;
+      source = ../../../agents/claude/templates/settings.json;
       force = true;
     };
     home.file.".codex/config.toml" = {
-      source = ../../agents/codex/templates/config.toml;
+      source = ../../../agents/codex/templates/config.toml;
       force = true;
     };
     home.file.".config/opencode/opencode.json" = {
-      source = ../../agents/opencode/templates/opencode.json;
+      source = ../../../agents/opencode/templates/opencode.json;
       force = true;
     };
     home.file.".config/amp/settings.json" = {
-      source = ../../agents/amp/templates/settings.json;
+      source = ../../../agents/amp/templates/settings.json;
       force = true;
     };
     home.file.".openclaw/openclaw.json" = {
-      source = ../../agents/openclaw/templates/openclaw.json;
+      source = ../../../agents/openclaw/templates/openclaw.json;
       force = true;
     };
     home.file.".pi/agent/settings.json" = {
-      source = ../../agents/pi-coding-agent/templates/settings.json;
+      source = ../../../agents/pi-coding-agent/templates/settings.json;
       force = true;
     };
     home.file.".pi/agent/keybindings.json" = {
-      source = ../../agents/pi-coding-agent/templates/keybindings.json;
+      source = ../../../agents/pi-coding-agent/templates/keybindings.json;
       force = true;
     };
-    home.file.".agents/skills" = {
+    home.file.".agents/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = agent.managedSkillTree;
       force = true;
     };
-    home.file.".claude/skills" = {
+    home.file.".claude/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = agent.managedSkillTree;
       force = true;
     };
-    home.file.".config/opencode/skills" = {
+    home.file.".config/opencode/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = agent.managedSkillTree;
       force = true;
     };
-    home.file.".config/amp/skills" = {
+    home.file.".config/amp/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = agent.managedSkillTree;
       force = true;
     };
-    home.file.".openclaw/skills" = {
+    home.file.".openclaw/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = agent.managedSkillTree;
       force = true;
     };
-    home.file.".pi/agent/skills" = {
+    home.file.".pi/agent/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = agent.managedSkillTree;
       force = true;
     };
