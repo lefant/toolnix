@@ -53,6 +53,10 @@
             ln -s "${agent.managedSkillTree}" "$agent_dir/skills"
           fi
 
+          if [ ! -e "$agent_dir/auth.json" ] && [ -f "$HOME/.pi/agent/auth.json" ]; then
+            ln -s "$HOME/.pi/agent/auth.json" "$agent_dir/auth.json"
+          fi
+
           export PI_CODING_AGENT_DIR="$agent_dir"
           export PI_SKIP_VERSION_CHECK=1
           export TOOLNIX_SOURCE_DIR="${../.}"
