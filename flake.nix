@@ -27,12 +27,13 @@
       flake =
         let
           system = "x86_64-linux";
+          homeManagerDefaultModule = self.lib.toolnix.profiles.homeManager.defaultModule;
           mkHome = hostName:
             home-manager.lib.homeManagerConfiguration {
               pkgs = import nixpkgs { inherit system; };
               extraSpecialArgs = { inherit inputs; };
               modules = [
-                ./modules/home-manager/toolnix-host.nix
+                homeManagerDefaultModule
                 {
                   home.username = "exedev";
                   home.homeDirectory = "/home/exedev";
@@ -47,7 +48,7 @@
             lefant-toolnix = mkHome "lefant-toolnix";
           };
 
-          homeManagerModules.default = import ./modules/home-manager/toolnix-host.nix;
+          homeManagerModules.default = homeManagerDefaultModule;
 
           devenvSources = {
             inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
