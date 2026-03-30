@@ -91,7 +91,31 @@ Observed:
 - baseline tools remain present
 - locale behavior remains stable
 
+## Remote verification
+
+Rolled out and verified on:
+
+- `lefant-toolnix`
+- `lefant-toolbox-nix`
+
+Commands used:
+
+```bash
+nix build .#homeConfigurations.lefant-toolnix.activationPackage
+./result/activate   # on lefant-toolnix only
+nix run github:cachix/devenv/latest -- shell -- true
+nix run github:cachix/devenv/latest -- shell -- bash -lc 'command -v mg && command -v bat && command -v tmux && command -v just && locale | head -5'
+```
+
+Observed remotely:
+
+- Home Manager activation still builds on both hosts
+- Home Manager activation still applies cleanly on `lefant-toolnix`
+- `devenv` shell entry remains stable
+- baseline tools remain present
+- locale behavior remains stable
+
 ## Notes
 
 - this completes the intended dendritic-style internal restructuring for the current `toolnix` feature set without changing the published consumer interface
-- any next step after this should be additive rather than structural, for example wrapper exports or future feature additions
+- the next sensible work should be additive rather than another structural reset, for example selected wrapped-tool exports or ordinary feature work on top of the new structure

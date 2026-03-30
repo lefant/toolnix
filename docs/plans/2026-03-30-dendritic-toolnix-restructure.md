@@ -171,11 +171,12 @@ Implementation now includes:
 - retention of the public compatibility wrappers under `modules/home-manager/toolnix-host.nix` and `modules/devenv/default.nix`
 - removal of the transitional proof-only profile files
 
-Still pending for this plan:
+Rollout verification completed on:
 
-- rollout verification on `lefant-toolnix`
-- rollout verification on `lefant-toolbox-nix`
-- final documentation of readiness for post-restructure work
+- `lefant-toolnix`
+- `lefant-toolbox-nix`
+
+The repo is now ready for post-restructure work.
 
 ## Definition of done
 
@@ -186,3 +187,7 @@ This plan is done when:
 - public paths and outputs remain stable
 - verification passes locally, on `lefant-toolnix`, and on `lefant-toolbox-nix`
 - the repo is ready for future optional work such as wrapped-tool exports without needing another structural reset
+
+## Outcome
+
+Done.
