@@ -10,7 +10,11 @@ For the migration sequence and intermediate steps, see:
 
 `flake.nix` is now constructed with internal `flake-parts` composition.
 
-The current flake-parts migration now routes both the Home Manager host profile path and the `devenv` module export path through flake-parts-owned internal profile modules, while keeping the published output names stable.
+The current architecture uses a dendritic-style internal layout:
+
+- flake-parts feature modules publish the current A/R/O/H slices into a merged internal registry
+- flake-parts profile modules assemble Home Manager and `devenv` from that registry
+- published output names and public module paths remain stable through compatibility wrappers
 
 `flake.nix` exposes three primary interfaces:
 
@@ -45,14 +49,20 @@ These layers are assembled in two main entry modules:
 - `modules/devenv/default.nix`
   - project and self-hosted `devenv` shell environment
 
-The current Home Manager export/build path is internally composed from:
+The current Home Manager and `devenv` export/build path is internally composed from:
 
-- `flake-parts/required-baseline.nix`
-  - publishes the flake-parts-owned Home Manager and `devenv` profile modules for the current migration
-- `internal/home-manager/toolnix-host-base.nix`
-  - holds the non-required-baseline host module body
-- `internal/devenv/default-base.nix`
-  - holds the non-wrapper `devenv` module body
+- `flake-parts/toolnix-options.nix`
+  - declares the merged internal registries for `toolnix.internal`, `toolnix.features`, and `toolnix.profiles`
+- `flake-parts/features/*.nix`
+  - publish the current A/R/O/H slices into the feature registry
+- `flake-parts/profiles/*.nix`
+  - assemble the Home Manager and `devenv` default profiles from the feature registry
+- `flake-parts/public-outputs.nix`
+  - wires the stable public outputs from the merged profile registry
+- `internal/profiles/home-manager/core.nix`
+  - holds the non-wrapper Home Manager profile glue
+- `internal/profiles/devenv/core.nix`
+  - holds the non-wrapper `devenv` profile glue
 - `modules/home-manager/toolnix-host.nix`
   - forwards legacy call sites to the flake-parts-owned exported Home Manager module
 - `modules/devenv/default.nix`

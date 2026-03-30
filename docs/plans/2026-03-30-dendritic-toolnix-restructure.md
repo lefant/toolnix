@@ -160,6 +160,23 @@ Control:
 - keep wrapper modules at existing public paths until the restructuring is complete
 - verify `homeManagerModules.default` and `devenvModules.default` continuously
 
+## Current status
+
+Implementation now includes:
+
+- a merged flake-parts feature registry for all current A/R/O/H slices
+- a merged flake-parts profile registry for Home Manager and `devenv`
+- a single `flake.lib.toolnix` exporter module
+- flake-parts-owned public output wiring via dedicated flake-parts output/profile modules
+- retention of the public compatibility wrappers under `modules/home-manager/toolnix-host.nix` and `modules/devenv/default.nix`
+- removal of the transitional proof-only profile files
+
+Still pending for this plan:
+
+- rollout verification on `lefant-toolnix`
+- rollout verification on `lefant-toolbox-nix`
+- final documentation of readiness for post-restructure work
+
 ## Definition of done
 
 This plan is done when:
