@@ -8,6 +8,10 @@ For the migration sequence and intermediate steps, see:
 
 ## Flake Outputs
 
+`flake.nix` is now constructed with internal `flake-parts` composition.
+
+The current proof routes the Home Manager host profile path through a flake-parts-owned internal profile module, while keeping the published output names stable.
+
 `flake.nix` exposes three primary interfaces:
 
 - `homeConfigurations.lefant-toolnix`
@@ -37,9 +41,18 @@ The repo also exports `devenvSources`, which centralizes the shared flake inputs
 These layers are assembled in two main entry modules:
 
 - `modules/home-manager/toolnix-host.nix`
-  - Home Manager host environment and persistent user configuration
+  - compatibility wrapper for the published Home Manager module path
 - `modules/devenv/default.nix`
   - project and self-hosted `devenv` shell environment
+
+The current Home Manager export/build path is internally composed from:
+
+- `flake-parts/required-baseline.nix`
+  - publishes the flake-parts-owned Home Manager proof profile for the required baseline pilot
+- `internal/home-manager/toolnix-host-base.nix`
+  - holds the non-required-baseline host module body
+- `modules/home-manager/toolnix-host.nix`
+  - forwards legacy call sites to the flake-parts-owned exported module
 
 ## Host vs Project Responsibilities
 

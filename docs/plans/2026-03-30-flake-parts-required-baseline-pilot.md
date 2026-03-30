@@ -179,6 +179,22 @@ Control:
 - require both build validation and interactive shell validation
 - explicitly check `required-baseline` tools
 
+## Current status
+
+Implementation now includes a completed flake-parts-owned proof for the Home Manager consumer path:
+
+- `homeConfigurations.lefant-toolnix` is built from a flake-parts-owned internal profile module
+- `homeManagerModules.default` exports that same composed module
+- `modules/home-manager/toolnix-host.nix` remains as a compatibility wrapper
+
+Still pending for this plan:
+
+- remote rollout and verification on `lefant-toolnix`
+- remote rollout and verification on `lefant-toolbox-nix`
+- remote rollout and verification on `lefant-toolbox-nix2`
+- remote rollout and verification on `lefant-toolbox-nix3`
+- only after that, planning the dendritic-style widening
+
 ## Definition of done
 
 This planning task is done when:
