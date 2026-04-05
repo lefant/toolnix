@@ -30,6 +30,14 @@ The repo SHOULD document a repeatable verification flow for a new VM that proves
 - GIVEN a maintainer follows the documented bootstrap proof on a new exe.dev VM WHEN they run the verification commands THEN the logs show cache copies from `cache.numtide.com` and avoid large local build chains
 - GIVEN the cache prerequisite is missing or untrusted WHEN the maintainer runs the verification commands THEN the procedure surfaces that failure clearly before the host bootstrap is marked successful
 
+### Untrusted multi-user Nix environments SHALL be handled explicitly
+
+When the active Nix daemon does not allow ordinary users to add arbitrary substituters, the recipe SHALL ensure the Numtide cache is trusted through machine-local Nix configuration before heavy builds begin.
+
+**Scenarios:**
+- GIVEN a fresh exe.dev VM with a Determinate multi-user Nix install WHEN a non-root user runs `nix run --accept-flake-config github:lefant/toolnix#toolnix-pi -L` without machine-local trust configured THEN the proof fails fast with an untrusted-substituter signal instead of being treated as success
+- GIVEN that same VM WHEN `cache.numtide.com` and its public key are added to trusted machine-local Nix settings first THEN the same proof path uses the cache successfully
+
 ## Open Questions
 
 - [ ] Should `toolnix` also document an explicit non-flake `nix.conf` fallback snippet for environments that cannot use `--accept-flake-config`?

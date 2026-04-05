@@ -200,6 +200,12 @@ For direct use, prefer:
 nix run --accept-flake-config github:lefant/toolnix#toolnix-pi
 ```
 
+Important multi-user Nix note:
+
+- on fresh exeuntu VMs with a Determinate multi-user Nix install, ordinary users are not trusted to add arbitrary substituters
+- in that environment, flake `nixConfig` alone is not sufficient to trust `cache.numtide.com`
+- add the Numtide cache to machine-local trusted Nix settings first, for example via `/etc/nix/nix.custom.conf`
+
 Important scope rule:
 
 - direct use of `toolnix` can rely on the cache settings published by `toolnix`

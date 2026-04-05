@@ -44,7 +44,37 @@ nix --version
 
 If Nix is missing, install it before continuing.
 
-### 3. Verify direct `toolnix` wrapped-pi cache behavior
+### 3. Ensure machine-local trust for the Numtide cache
+
+On fresh multi-user Nix installs such as exeuntu with Determinate Nix, flake-provided cache settings alone are not sufficient for ordinary users.
+
+Configure machine-local trust first:
+
+```bash
+sudo tee /etc/nix/nix.custom.conf >/dev/null <<'EOF'
+extra-trusted-substituters = https://cache.numtide.com
+extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=
+EOF
+```
+
+Then verify:
+
+```bash
+. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+nix config show | rg 'substituters|trusted-substituters|trusted-public-keys'
+```
+
+Success signal:
+
+- `https://cache.numtide.com` appears in trusted substituters
+- the Numtide public key appears in trusted public keys
+
+Failure signal:
+
+- the cache remains absent from trusted settings
+- later proof commands warn that `cache.numtide.com` is untrusted
+
+### 4. Verify direct `toolnix` wrapped-pi cache behavior
 
 Run:
 
@@ -62,7 +92,7 @@ Failure signal:
 - logs show extensive local building for `pi` or its transitive tool/runtime dependencies
 - Nix reports the Numtide cache as untrusted or unavailable
 
-### 4. Create a standalone bootstrap flake for persistent host setup
+### 5. Create a standalone bootstrap flake for persistent host setup
 
 On the VM, create a minimal flake that imports `toolnix.homeManagerModules.default` and includes the required Numtide cache settings in that recipe.
 
@@ -77,7 +107,7 @@ nixConfig = {
 };
 ```
 
-### 5. Apply the bootstrap flake
+### 6. Apply the bootstrap flake
 
 Run:
 
@@ -85,7 +115,7 @@ Run:
 nix run --accept-flake-config github:nix-community/home-manager -- switch --flake ~/.local/share/toolnix-bootstrap#bootstrap
 ```
 
-### 6. Verify persistent host state
+### 7. Verify persistent host state
 
 Confirm:
 
@@ -97,7 +127,7 @@ ls -l ~/.claude/skills
 ls -l ~/.pi/agent/settings.json
 ```
 
-### 7. Record proof outcome
+### 8. Record proof outcome
 
 Capture:
 

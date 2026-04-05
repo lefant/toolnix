@@ -150,6 +150,12 @@ nix run --accept-flake-config github:lefant/toolnix#toolnix-pi
 
 On first use, `--accept-flake-config` ensures Nix accepts the flake-provided cache settings instead of falling back to local source builds.
 
+Important multi-user Nix note:
+
+- on fresh exeuntu VMs with a Determinate multi-user Nix install, ordinary users are not trusted to add arbitrary substituters
+- in that environment, flake-provided cache settings alone are not sufficient
+- add the Numtide cache to machine-local trusted Nix settings first, for example in `/etc/nix/nix.custom.conf`
+
 Important downstream rule:
 
 - direct use of `toolnix` can use the cache settings published by the `toolnix` flake itself
