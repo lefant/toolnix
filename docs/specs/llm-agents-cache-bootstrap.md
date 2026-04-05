@@ -36,7 +36,7 @@ When the active Nix daemon does not allow ordinary users to add arbitrary substi
 
 **Scenarios:**
 - GIVEN a fresh exe.dev VM with a Determinate multi-user Nix install WHEN a non-root user runs `nix run --accept-flake-config github:lefant/toolnix#toolnix-pi -L` without machine-local trust configured THEN the proof fails fast with an untrusted-substituter signal instead of being treated as success
-- GIVEN that same VM WHEN `cache.numtide.com` and its public key are added to trusted machine-local Nix settings first THEN the same proof path uses the cache successfully
+- GIVEN that same VM WHEN `cache.numtide.com` is added to machine-local Nix substituters, trusted substituters, and trusted public keys first THEN the same proof path uses the cache successfully
 
 ## Open Questions
 

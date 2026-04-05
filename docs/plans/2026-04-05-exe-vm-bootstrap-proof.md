@@ -52,6 +52,7 @@ Configure machine-local trust first:
 
 ```bash
 sudo tee /etc/nix/nix.custom.conf >/dev/null <<'EOF'
+extra-substituters = https://cache.numtide.com
 extra-trusted-substituters = https://cache.numtide.com
 extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=
 EOF
@@ -79,7 +80,7 @@ Failure signal:
 Run:
 
 ```bash
-nix run --accept-flake-config github:lefant/toolnix#toolnix-pi -- --help -L
+nix run -L --accept-flake-config github:lefant/toolnix#toolnix-pi -- --help
 ```
 
 Success signal:
@@ -112,7 +113,7 @@ nixConfig = {
 Run:
 
 ```bash
-nix run --accept-flake-config github:nix-community/home-manager -- switch --flake ~/.local/share/toolnix-bootstrap#bootstrap
+nix run --accept-flake-config github:nix-community/home-manager -- switch -b backup --flake ~/.local/share/toolnix-bootstrap#bootstrap
 ```
 
 ### 7. Verify persistent host state

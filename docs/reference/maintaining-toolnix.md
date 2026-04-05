@@ -206,6 +206,14 @@ Important multi-user Nix note:
 - in that environment, flake `nixConfig` alone is not sufficient to trust `cache.numtide.com`
 - add the Numtide cache to machine-local trusted Nix settings first, for example via `/etc/nix/nix.custom.conf`
 
+For that environment, use machine-local settings such as:
+
+```conf
+extra-substituters = https://cache.numtide.com
+extra-trusted-substituters = https://cache.numtide.com
+extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=
+```
+
 Important scope rule:
 
 - direct use of `toolnix` can rely on the cache settings published by `toolnix`
@@ -224,8 +232,8 @@ Keep the standard `cache.nixos.org` cache enabled as well.
 For diagnostics, compare:
 
 ```bash
-nix config show | rg 'substituters|trusted-public-keys|extra-substituters|extra-trusted-public-keys'
-nix run --accept-flake-config github:lefant/toolnix#toolnix-pi -- --help -L
+nix config show | rg 'substituters|trusted-substituters|trusted-public-keys|extra-substituters|extra-trusted-substituters|extra-trusted-public-keys'
+nix run -L --accept-flake-config github:lefant/toolnix#toolnix-pi -- --help
 ```
 
 A healthy cache path should show Nix copying from caches rather than building large dependency chains locally.

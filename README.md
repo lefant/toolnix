@@ -156,6 +156,14 @@ Important multi-user Nix note:
 - in that environment, flake-provided cache settings alone are not sufficient
 - add the Numtide cache to machine-local trusted Nix settings first, for example in `/etc/nix/nix.custom.conf`
 
+For that environment, use machine-local settings such as:
+
+```conf
+extra-substituters = https://cache.numtide.com
+extra-trusted-substituters = https://cache.numtide.com
+extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=
+```
+
 Important downstream rule:
 
 - direct use of `toolnix` can use the cache settings published by the `toolnix` flake itself
