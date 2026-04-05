@@ -26,14 +26,19 @@ in {
 
     homeManagerModules.default =
       args:
-      homeManagerDefaultModule (args // {
-        inputs =
-          (args.inputs or {})
-          // {
-            toolnix = self;
-            inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
-          };
-      });
+      {
+        imports = [
+          homeManagerDefaultModule
+          ({ ... }: {
+            _module.args.inputs =
+              (args.inputs or {})
+              // {
+                toolnix = self;
+                inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
+              };
+          })
+        ];
+      };
 
     devenvSources = {
       inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
