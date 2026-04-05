@@ -1,6 +1,13 @@
 {
   description = "Toolnix: shared Nix modules for dev environments and hosts";
 
+  nixConfig = {
+    extra-substituters = [ "https://cache.numtide.com" ];
+    extra-trusted-public-keys = [
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+    ];
+  };
+
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     agent-skills = {

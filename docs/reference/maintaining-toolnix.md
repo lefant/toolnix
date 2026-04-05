@@ -188,6 +188,47 @@ When `agent-browser` is enabled, host-local state lives under:
 - `~/.local/share/toolnix/agent-browser/npm-prefix`
 - `~/.cache/toolnix-agent-browser/npm`
 
+## Binary cache note
+
+`toolnix` uses `github:numtide/llm-agents.nix` as a flake input for the tracked agent CLIs.
+
+The repo publishes the Numtide cache requirement in `flake.nix` via flake `nixConfig` so direct commands such as wrapped-tool proofs can use it.
+
+For direct use, prefer:
+
+```bash
+nix run --accept-flake-config github:lefant/toolnix#toolnix-pi
+```
+
+Important scope rule:
+
+- direct use of `toolnix` can rely on the cache settings published by `toolnix`
+- a downstream flake that imports `toolnix` should not assume those cache settings propagate automatically from the input
+- any flake recipe that depends on `llm-agents.nix`, directly or transitively, must ensure the required cache settings in its own recipe or machine-local Nix config before expensive builds begin
+
+Required cache settings:
+
+```conf
+extra-substituters = https://cache.numtide.com
+extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=
+```
+
+Keep the standard `cache.nixos.org` cache enabled as well.
+
+For diagnostics, compare:
+
+```bash
+nix config show | rg 'substituters|trusted-public-keys|extra-substituters|extra-trusted-public-keys'
+nix run --accept-flake-config github:lefant/toolnix#toolnix-pi -- --help -L
+```
+
+A healthy cache path should show Nix copying from caches rather than building large dependency chains locally.
+
+Related artifacts:
+
+- [`../specs/llm-agents-cache-bootstrap.md`](../specs/llm-agents-cache-bootstrap.md)
+- [`../plans/2026-04-05-exe-vm-bootstrap-proof.md`](../plans/2026-04-05-exe-vm-bootstrap-proof.md)
+
 ## Notes
 
 - `.claude.json` is intentionally still a special-case activation merge.

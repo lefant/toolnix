@@ -136,6 +136,40 @@ Auth for the wrapped pi path remains machine-local:
 - if you already have ordinary pi auth in `~/.pi/agent/auth.json`, the wrapped path reuses it
 - otherwise first-run interactive `/login` is an acceptable path
 
+### Binary cache note for wrapped `pi`
+
+`toolnix-pi` uses packages from the `llm-agents` flake input.
+
+`toolnix` now publishes the required Numtide cache through its flake `nixConfig`.
+
+For direct use, prefer:
+
+```bash
+nix run --accept-flake-config github:lefant/toolnix#toolnix-pi
+```
+
+On first use, `--accept-flake-config` ensures Nix accepts the flake-provided cache settings instead of falling back to local source builds.
+
+Important downstream rule:
+
+- direct use of `toolnix` can use the cache settings published by the `toolnix` flake itself
+- a different flake that imports `toolnix` should not assume that input-level cache settings propagate automatically
+- downstream flake recipes that depend on `llm-agents.nix`, whether directly or through `toolnix`, must ensure the same cache settings in their own recipe or machine-local Nix config before heavy builds
+
+Required cache settings:
+
+```conf
+extra-substituters = https://cache.numtide.com
+extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=
+```
+
+Keep the standard `cache.nixos.org` cache enabled as well.
+
+See also:
+
+- [`docs/specs/llm-agents-cache-bootstrap.md`](docs/specs/llm-agents-cache-bootstrap.md)
+- [`docs/plans/2026-04-05-exe-vm-bootstrap-proof.md`](docs/plans/2026-04-05-exe-vm-bootstrap-proof.md)
+
 SSH into a Home Manager-managed VM and land in its normal host shell:
 
 ```bash
