@@ -31,6 +31,7 @@ in {
     home.file.".zsh/zshrc.sh".text = opinionated.renderZshRc {
       extraBody = lib.optionalString cfg.enableHostControl hostControl.zshBody;
     };
+    home.file.".zsh/completion".source = ../../../home-manager/files/zsh-completion;
     home.file.".zsh/zshlocal.sh".text = ''
       # Keep this minimal by default. Source runtime credentials until they
       # move to a better injection path.

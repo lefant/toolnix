@@ -74,6 +74,12 @@ let
     autoload -Uz colors && colors
     autoload -Uz add-zsh-hook
     autoload -Uz vcs_info
+    autoload -Uz compinit
+
+    zmodload -i zsh/complist 2>/dev/null || true
+    [[ -r "$HOME/.zsh/completion" ]] && source "$HOME/.zsh/completion"
+    compinit
+    setopt completeinword
 
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:git:*' formats ' (%b)'
