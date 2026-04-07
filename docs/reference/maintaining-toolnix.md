@@ -6,6 +6,10 @@ See also:
 
 - [`architecture.md`](architecture.md)
 - [`credentials.md`](credentials.md)
+- [`../specs/fresh-environment-bootstrap.md`](../specs/fresh-environment-bootstrap.md)
+- [`../specs/llm-agents-cache-bootstrap.md`](../specs/llm-agents-cache-bootstrap.md)
+- [`../plans/2026-04-05-bootstrap-paths-and-credentials.md`](../plans/2026-04-05-bootstrap-paths-and-credentials.md)
+- [`../plans/2026-04-05-exe-vm-bootstrap-proof.md`](../plans/2026-04-05-exe-vm-bootstrap-proof.md)
 - [`../plans/2026-03-28-remove-imperative-setup-hook.md`](../plans/2026-03-28-remove-imperative-setup-hook.md)
 
 ## What owns what

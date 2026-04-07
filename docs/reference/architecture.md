@@ -12,6 +12,52 @@ Key architecture decisions:
 - [`docs/decisions/2026-03-30_adopt-dendritic-feature-profile-layout.md`](../decisions/2026-03-30_adopt-dendritic-feature-profile-layout.md)
 - [`docs/decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md`](../decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md)
 
+## Repos and flake/component map
+
+```mermaid
+graph LR
+    TOOLNIX["toolnix repo<br/>public flake + docs + tracked config"]
+
+    TOOLNIX --> AGENT_SKILLS["agent-skills repo<br/>shared skills tree"]
+    TOOLNIX --> CLAUDE_PLUGINS["claude-code-plugins repo<br/>tracked plugin source"]
+    TOOLNIX --> LLM_AGENTS["llm-agents.nix flake<br/>agent package set + Numtide cache"]
+    TOOLNIX --> NIXPKGS["cachix/devenv-nixpkgs<br/>primary nixpkgs input"]
+    TOOLNIX --> HOME_MANAGER["home-manager flake<br/>host-state activation"]
+
+    TOOLNIX --> FLAKE_PARTS["flake-parts/\ninternal composition"]
+    FLAKE_PARTS --> FEATURES["features/*.nix<br/>required / agent / opinionated / browser / host-control"]
+    FLAKE_PARTS --> PROFILES["profiles/*.nix<br/>home-manager + devenv assembly"]
+    FLAKE_PARTS --> OUTPUTS["public-outputs.nix<br/>stable exported interfaces"]
+
+    OUTPUTS --> HM_EXPORT["homeManagerModules.default"]
+    OUTPUTS --> DEVENV_EXPORT["devenvModules.default"]
+    OUTPUTS --> WRAPPED["toolnix-pi / toolnix-tmux"]
+    OUTPUTS --> HOST_CFG["homeConfigurations.lefant-toolnix"]
+
+    HM_EXPORT --> HM_CORE["internal/profiles/home-manager/core.nix"]
+    DEVENV_EXPORT --> DEVENV_CORE["internal/profiles/devenv/core.nix"]
+
+    HM_CORE --> HOME_STATE["persistent $HOME state<br/>agent config + skills + shell/git/ssh"]
+    DEVENV_CORE --> SHELL_STATE["shell-local session state<br/>packages + aliases + env"]
+    WRAPPED --> PI_WRAPPED["wrapped pi state<br/>~/.local/state/toolnix/pi/agent"]
+
+    style TOOLNIX fill:#bbdefb
+    style AGENT_SKILLS fill:#e3f2fd
+    style CLAUDE_PLUGINS fill:#e3f2fd
+    style LLM_AGENTS fill:#ffe0b2
+    style NIXPKGS fill:#f3e5f5
+    style HOME_MANAGER fill:#e8f5e9
+    style FLAKE_PARTS fill:#fff3e0
+    style FEATURES fill:#fff3e0
+    style PROFILES fill:#fff3e0
+    style OUTPUTS fill:#fff3e0
+    style HM_CORE fill:#e8f5e9
+    style DEVENV_CORE fill:#f3e5f5
+    style HOME_STATE fill:#e8f5e9
+    style SHELL_STATE fill:#f3e5f5
+    style PI_WRAPPED fill:#ffe0b2
+```
+
 ## Flake Outputs
 
 `flake.nix` is now constructed with internal `flake-parts` composition.

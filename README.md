@@ -5,6 +5,9 @@ Public Nix-first development environment and host-profile repo.
 ## Start Here
 
 - Architecture reference: [`docs/reference/architecture.md`](docs/reference/architecture.md)
+- Credentials reference: [`docs/reference/credentials.md`](docs/reference/credentials.md)
+- Fresh-environment bootstrap spec: [`docs/specs/fresh-environment-bootstrap.md`](docs/specs/fresh-environment-bootstrap.md)
+- Fresh-environment bootstrap plan: [`docs/plans/2026-04-05-bootstrap-paths-and-credentials.md`](docs/plans/2026-04-05-bootstrap-paths-and-credentials.md)
 - Setup-hook migration plan: [`docs/plans/2026-03-28-remove-imperative-setup-hook.md`](docs/plans/2026-03-28-remove-imperative-setup-hook.md)
 
 ## Scope
