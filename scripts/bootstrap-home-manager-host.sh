@@ -149,6 +149,7 @@ configure_cache() {
 
   local cache_block
   cache_block=$(cat <<'EOF'
+experimental-features = nix-command flakes
 extra-substituters = https://cache.numtide.com
 extra-trusted-substituters = https://cache.numtide.com
 extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=
@@ -159,8 +160,58 @@ EOF
     log "Configuring machine-local Nix cache settings"
     sudo mkdir -p /etc/nix
     sudo tee /etc/nix/nix.custom.conf >/dev/null <<<"$cache_block"
+    sudo touch /etc/nix/nix.conf
+
+    if ! sudo grep -Eq '^[[:space:]]*!?include[[:space:]]+/etc/nix/nix\.custom\.conf([[:space:]]|$)' /etc/nix/nix.conf; then
+      printf '\n!include /etc/nix/nix.custom.conf\n' | sudo tee -a /etc/nix/nix.conf >/dev/null
+    fi
+
+    if command -v systemctl >/dev/null 2>&1 && sudo systemctl list-unit-files nix-daemon.service >/dev/null 2>&1; then
+      log "Restarting nix-daemon to apply machine-local config"
+      sudo systemctl restart nix-daemon.socket nix-daemon.service || sudo systemctl restart nix-daemon.service || true
+    fi
   else
     warn "Could not write /etc/nix/nix.custom.conf automatically; continuing with existing machine config"
+  fi
+}
+
+nix_flake_cmd() {
+  nix --extra-experimental-features 'nix-command flakes' --accept-flake-config "$@"
+}
+
+assert_nix_cache_ready() {
+  local config
+  config="$(nix_flake_cmd config show 2>/dev/null || true)"
+
+  if ! printf '%s\n' "$config" | grep -Eq '^experimental-features = .*nix-command.*flakes|^experimental-features = .*flakes.*nix-command'; then
+    echo "ERROR: nix experimental features are not active for flakes" >&2
+    printf '%s\n' "$config" >&2
+    exit 1
+  fi
+
+  if ! printf '%s\n' "$config" | grep -Eq '^substituters = .*https://cache\.numtide\.com'; then
+    echo "ERROR: cache.numtide.com is not active in nix substituters" >&2
+    printf '%s\n' "$config" >&2
+    exit 1
+  fi
+
+  if ! printf '%s\n' "$config" | grep -Eq '^trusted-public-keys = .*niks3\.numtide\.com-1:'; then
+    echo "ERROR: Numtide trusted public key is not active in nix config" >&2
+    printf '%s\n' "$config" >&2
+    exit 1
+  fi
+}
+
+ensure_flake_env() {
+  local feature_line='experimental-features = nix-command flakes'
+
+  if [ -n "${NIX_CONFIG:-}" ]; then
+    case "$NIX_CONFIG" in
+      *"$feature_line"*) ;;
+      *) export NIX_CONFIG="$NIX_CONFIG"$'\n'"$feature_line" ;;
+    esac
+  else
+    export NIX_CONFIG="$feature_line"
   fi
 }
 
@@ -212,7 +263,7 @@ EOF
 
 run_bootstrap() {
   log "Applying Home Manager bootstrap"
-  nix run --accept-flake-config github:nix-community/home-manager -- \
+  nix_flake_cmd run github:nix-community/home-manager -- \
     switch -b "$BACKUP_EXTENSION" --flake "$BOOTSTRAP_DIR#bootstrap"
 }
 
@@ -229,6 +280,8 @@ ensure_nix
 load_nix
 configure_cache
 load_nix
+ensure_flake_env
+assert_nix_cache_ready
 render_bootstrap_flake
 run_bootstrap
 print_readiness_summary
