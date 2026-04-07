@@ -47,6 +47,14 @@ These files are local-only and not repo-managed.
 
 ## Common maintainer commands
 
+### Bootstrap a fresh host without a target-side toolnix clone
+
+```bash
+scripts/bootstrap-home-manager-host.sh --host-name <host-name>
+```
+
+This is the tracked public bootstrap artifact for fresh-machine host setup.
+
 ### Enter the self-hosted project shell
 
 ```bash
