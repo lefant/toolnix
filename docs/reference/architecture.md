@@ -11,6 +11,7 @@ Key architecture decisions:
 - [`docs/decisions/2026-03-30_adopt-flake-parts-for-toolnix.md`](../decisions/2026-03-30_adopt-flake-parts-for-toolnix.md)
 - [`docs/decisions/2026-03-30_adopt-dendritic-feature-profile-layout.md`](../decisions/2026-03-30_adopt-dendritic-feature-profile-layout.md)
 - [`docs/decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md`](../decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md)
+- [`docs/decisions/2026-04-05_use-public-resource-flake-inputs.md`](../decisions/2026-04-05_use-public-resource-flake-inputs.md)
 
 ## Repos and flake/component map
 
