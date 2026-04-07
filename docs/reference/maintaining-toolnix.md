@@ -50,10 +50,16 @@ These files are local-only and not repo-managed.
 ### Bootstrap a fresh host without a target-side toolnix clone
 
 ```bash
+scripts/bootstrap-home-manager-host.sh
+```
+
+Optional host-label override:
+
+```bash
 scripts/bootstrap-home-manager-host.sh --host-name <host-name>
 ```
 
-This is the tracked public bootstrap artifact for fresh-machine host setup.
+This is the tracked public bootstrap artifact for fresh-machine host setup. `--host-name` is optional and otherwise defaults to `hostname -s`.
 
 ### Enter the self-hosted project shell
 

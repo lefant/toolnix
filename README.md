@@ -121,8 +121,16 @@ Host-local state paths used by the opt-in integration:
 Bootstrap a fresh host with the tracked Home Manager bootstrap script:
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/lefant/toolnix/main/scripts/bootstrap-home-manager-host.sh | bash -s --
+```
+
+Optional host-label override:
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/lefant/toolnix/main/scripts/bootstrap-home-manager-host.sh | bash -s -- --host-name my-host
 ```
+
+By default, `--host-name` is optional and resolves to `hostname -s`. It controls the short `toolnix.hostName` label used by the host config, primarily for host-facing shell/tmux display context.
 
 This installs Nix if needed, configures the required cache settings for fresh exeuntu-style hosts, renders a minimal standalone bootstrap flake, and activates `toolnix.homeManagerModules.default` without requiring a target-side `toolnix` git clone.
 
