@@ -30,6 +30,22 @@ The system SHOULD document the distinct credential injection modes used by boots
 - GIVEN a maintainer reads the credentials reference WHEN they are deciding how to bootstrap a new machine THEN they can distinguish between control-host-assisted injection and standalone manual injection
 - GIVEN a maintainer is testing bootstrap behavior WHEN they follow the docs THEN they know which steps are expected to remain manual and machine-local
 
+### Fresh-machine bootstrap SHALL use remote flake consumption by default
+
+Fresh-machine bootstrap SHALL use remote `toolnix` flake consumption as the default path rather than requiring a mutable local checkout on the target system.
+
+**Scenarios:**
+- GIVEN a fresh target machine WHEN the documented bootstrap path is followed THEN it can consume `github:lefant/toolnix` directly without first cloning `~/git/lefant/toolnix`
+- GIVEN an operator wants a local checkout for development WHEN they create one on the target system THEN that checkout is treated as a development override rather than as a bootstrap prerequisite
+
+### Stable bootstrap interfaces SHOULD be documented explicitly
+
+The repo SHOULD document which `toolnix` surfaces are the intended stable bootstrap interfaces.
+
+**Scenarios:**
+- GIVEN a maintainer is designing a fresh-machine bootstrap WHEN they consult the docs THEN they can identify stable exported interfaces such as wrapped-tool outputs and exported modules
+- GIVEN an internal repo file path is not documented as a published bootstrap interface WHEN a maintainer reviews the architecture THEN they do not treat that raw internal path as the default bootstrap contract
+
 ### Fresh-machine bootstrap SHALL have an executable proof procedure
 
 A fresh-machine bootstrap path SHALL be described by a repeatable proof procedure with explicit acceptance checks.

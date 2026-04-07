@@ -12,6 +12,7 @@ Key architecture decisions:
 - [`docs/decisions/2026-03-30_adopt-dendritic-feature-profile-layout.md`](../decisions/2026-03-30_adopt-dendritic-feature-profile-layout.md)
 - [`docs/decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md`](../decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md)
 - [`docs/decisions/2026-04-05_use-public-resource-flake-inputs.md`](../decisions/2026-04-05_use-public-resource-flake-inputs.md)
+- [`docs/decisions/2026-04-05_use-remote-flake-bootstrap-for-toolnix.md`](../decisions/2026-04-05_use-remote-flake-bootstrap-for-toolnix.md)
 
 ## Repos and flake/component map
 
@@ -69,6 +70,8 @@ The current architecture uses a dendritic-style internal layout:
 - flake-parts profile modules assemble Home Manager and `devenv` from that registry
 - published output names and public module paths remain stable through compatibility wrappers
 
+For fresh-machine bootstrap, the default published interface is remote flake consumption of `github:lefant/toolnix` rather than a pre-cloned working copy on the target machine.
+
 `flake.nix` exposes three primary interfaces:
 
 - `homeConfigurations.lefant-toolnix`
@@ -79,6 +82,13 @@ The current architecture uses a dendritic-style internal layout:
   - reusable `devenv` module export for project shells
 
 The repo also exports `devenvSources`, which centralizes the shared flake inputs used by the toolnix `devenv` layer.
+
+Current stable bootstrap-oriented interfaces are:
+
+- direct remote flake use such as `nix run --accept-flake-config github:lefant/toolnix#toolnix-pi`
+- `homeManagerModules.default`
+- `devenvModules.default`
+- the wrapped-tool package/app outputs exported by the flake
 
 As additive wrapped-tool proofs, the flake also exports portable package/app entries for:
 
