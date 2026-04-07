@@ -36,6 +36,10 @@ graph LR
     OUTPUTS --> WRAPPED["toolnix-pi / toolnix-tmux"]
     OUTPUTS --> HOST_CFG["homeConfigurations.lefant-toolnix"]
 
+    BOOTSTRAP["fresh-machine bootstrap<br/>remote flake consumption"] --> WRAPPED
+    BOOTSTRAP --> HM_EXPORT
+    DEV_CHECKOUT["local ~/git/lefant/toolnix checkout<br/>development override only"] --> TOOLNIX
+
     HM_EXPORT --> HM_CORE["internal/profiles/home-manager/core.nix"]
     DEVENV_EXPORT --> DEVENV_CORE["internal/profiles/devenv/core.nix"]
 
@@ -53,6 +57,8 @@ graph LR
     style FEATURES fill:#fff3e0
     style PROFILES fill:#fff3e0
     style OUTPUTS fill:#fff3e0
+    style BOOTSTRAP fill:#c8e6c9
+    style DEV_CHECKOUT fill:#eeeeee
     style HM_CORE fill:#e8f5e9
     style DEVENV_CORE fill:#f3e5f5
     style HOME_STATE fill:#e8f5e9
