@@ -48,7 +48,7 @@ Host rollout and verification:
     - `~/.zsh/completion` present
     - `special-dirs true` present
 - `lefant-memory.exe.xyz`
-  - updated `~/sources/toolnix`
+  - updated the normal checkout at `~/git/lefant/toolnix`
   - applied Home Manager switch via temporary bootstrap flake pointing at the
     updated local toolnix checkout
   - verified:
