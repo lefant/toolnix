@@ -17,53 +17,108 @@ Key architecture decisions:
 ## Repos and flake/component map
 
 ```mermaid
-graph LR
-    TOOLNIX["toolnix repo<br/>public flake + docs + tracked config"]
+flowchart LR
+    subgraph GITHUB["GitHub / flake-source repos"]
+      TOOLNIX["github:lefant/toolnix<br/>public flake + docs + tracked bootstrap script"]
+      AGENT_SKILLS["github:lefant/agent-skills<br/>shared skill content"]
+      CLAUDE_PLUGINS["github:lefant/claude-code-plugins<br/>tracked Claude plugin source"]
+      LLM_AGENTS["github:numtide/llm-agents.nix<br/>agent package set + Numtide cache"]
+      HOME_MANAGER["github:nix-community/home-manager<br/>Home Manager switch entrypoint"]
+      NIXPKGS["github:cachix/devenv-nixpkgs<br/>primary nixpkgs input"]
+      FLAKE_PARTS_UP["github:hercules-ci/flake-parts<br/>flake composition library"]
+    end
 
-    TOOLNIX --> AGENT_SKILLS["agent-skills repo<br/>shared skills tree"]
-    TOOLNIX --> CLAUDE_PLUGINS["claude-code-plugins repo<br/>tracked plugin source"]
-    TOOLNIX --> LLM_AGENTS["llm-agents.nix flake<br/>agent package set + Numtide cache"]
-    TOOLNIX --> NIXPKGS["cachix/devenv-nixpkgs<br/>primary nixpkgs input"]
-    TOOLNIX --> HOME_MANAGER["home-manager flake<br/>host-state activation"]
+    subgraph TOOLNIX_INTERNAL["toolnix repo internals"]
+      FLAKE["flake.nix"]
+      PUBLIC_OUTPUTS["flake-parts/public-outputs.nix<br/>stable exported interfaces"]
+      FEATURES["flake-parts/features/*.nix<br/>A / R / O / H feature registry"]
+      HM_PROFILE["internal/profiles/home-manager/core.nix"]
+      DEVENV_PROFILE["internal/profiles/devenv/core.nix"]
+      BOOTSTRAP_SCRIPT["scripts/bootstrap-home-manager-host.sh<br/>tracked remote bootstrap entrypoint"]
+    end
 
-    TOOLNIX --> FLAKE_PARTS["flake-parts/\ninternal composition"]
-    FLAKE_PARTS --> FEATURES["features/*.nix<br/>required / agent / opinionated / browser / host-control"]
-    FLAKE_PARTS --> PROFILES["profiles/*.nix<br/>home-manager + devenv assembly"]
-    FLAKE_PARTS --> OUTPUTS["public-outputs.nix<br/>stable exported interfaces"]
+    subgraph PUBLISHED["Published toolnix interfaces"]
+      HM_EXPORT["homeManagerModules.default"]
+      DEVENV_EXPORT["devenvModules.default"]
+      WRAPPED["apps/packages:<br/>toolnix-pi, toolnix-tmux"]
+      SOURCES_EXPORT["devenvSources<br/>shared source registry"]
+      HOST_CFG["homeConfigurations.lefant-toolnix"]
+    end
 
-    OUTPUTS --> HM_EXPORT["homeManagerModules.default"]
-    OUTPUTS --> DEVENV_EXPORT["devenvModules.default"]
-    OUTPUTS --> WRAPPED["toolnix-pi / toolnix-tmux"]
-    OUTPUTS --> HOST_CFG["homeConfigurations.lefant-toolnix"]
+    subgraph CONSUMERS["Remote / local entrypoints"]
+      FRESH_HOST["Fresh host bootstrap<br/>bash scripts/bootstrap-home-manager-host.sh<br/>--toolnix-ref github:lefant/toolnix"]
+      REMOTE_RUN["Direct remote flake use<br/>nix run github:lefant/toolnix#toolnix-pi<br/>nix run github:lefant/toolnix#toolnix-tmux"]
+      PROJECT_CONSUMER["Project consumer<br/>imports devenvModules.default"]
+      HOST_CONSUMER["Host consumer / bootstrap flake<br/>imports homeManagerModules.default"]
+      DEV_OVERRIDE["Local ~/git/lefant/toolnix checkout<br/>path: development override only"]
+    end
 
-    BOOTSTRAP["fresh-machine bootstrap<br/>remote flake consumption"] --> WRAPPED
-    BOOTSTRAP --> HM_EXPORT
-    DEV_CHECKOUT["local ~/git/lefant/toolnix checkout<br/>development override only"] --> TOOLNIX
+    TOOLNIX --> FLAKE
+    TOOLNIX --> BOOTSTRAP_SCRIPT
+    TOOLNIX --> AGENT_SKILLS
+    TOOLNIX --> CLAUDE_PLUGINS
+    TOOLNIX --> LLM_AGENTS
+    TOOLNIX --> HOME_MANAGER
+    TOOLNIX --> NIXPKGS
+    TOOLNIX --> FLAKE_PARTS_UP
 
-    HM_EXPORT --> HM_CORE["internal/profiles/home-manager/core.nix"]
-    DEVENV_EXPORT --> DEVENV_CORE["internal/profiles/devenv/core.nix"]
+    FLAKE --> FEATURES
+    FLAKE --> PUBLIC_OUTPUTS
+    FEATURES --> HM_PROFILE
+    FEATURES --> DEVENV_PROFILE
+    PUBLIC_OUTPUTS --> HM_EXPORT
+    PUBLIC_OUTPUTS --> DEVENV_EXPORT
+    PUBLIC_OUTPUTS --> WRAPPED
+    PUBLIC_OUTPUTS --> SOURCES_EXPORT
+    PUBLIC_OUTPUTS --> HOST_CFG
 
-    HM_CORE --> HOME_STATE["persistent $HOME state<br/>agent config + skills + shell/git/ssh"]
-    DEVENV_CORE --> SHELL_STATE["shell-local session state<br/>packages + aliases + env"]
-    WRAPPED --> PI_WRAPPED["wrapped pi state<br/>~/.local/state/toolnix/pi/agent"]
+    AGENT_SKILLS --> HM_PROFILE
+    AGENT_SKILLS --> DEVENV_PROFILE
+    CLAUDE_PLUGINS --> HM_PROFILE
+    LLM_AGENTS --> HM_PROFILE
+    LLM_AGENTS --> DEVENV_PROFILE
+    NIXPKGS --> HM_PROFILE
+    NIXPKGS --> DEVENV_PROFILE
+    HOME_MANAGER --> HM_EXPORT
+    FLAKE_PARTS_UP --> PUBLIC_OUTPUTS
+
+    FRESH_HOST --> BOOTSTRAP_SCRIPT
+    BOOTSTRAP_SCRIPT --> HM_EXPORT
+    BOOTSTRAP_SCRIPT --> HOME_MANAGER
+    BOOTSTRAP_SCRIPT --> NIXPKGS
+    REMOTE_RUN --> WRAPPED
+    PROJECT_CONSUMER --> DEVENV_EXPORT
+    HOST_CONSUMER --> HM_EXPORT
+    PROJECT_CONSUMER --> SOURCES_EXPORT
+    DEV_OVERRIDE --> TOOLNIX
+
+    HM_EXPORT --> HOME_STATE["Persistent $HOME state<br/>shell/tmux/git/ssh + agent config + skills"]
+    DEVENV_EXPORT --> SHELL_STATE["Shell-local session state<br/>packages + aliases + env + project features"]
+    WRAPPED --> WRAPPED_STATE["Wrapped runtime state<br/>toolnix-pi / toolnix-tmux proofs"]
 
     style TOOLNIX fill:#bbdefb
     style AGENT_SKILLS fill:#e3f2fd
     style CLAUDE_PLUGINS fill:#e3f2fd
     style LLM_AGENTS fill:#ffe0b2
-    style NIXPKGS fill:#f3e5f5
     style HOME_MANAGER fill:#e8f5e9
-    style FLAKE_PARTS fill:#fff3e0
+    style NIXPKGS fill:#f3e5f5
+    style FLAKE_PARTS_UP fill:#fff3e0
+    style FLAKE fill:#fff3e0
+    style PUBLIC_OUTPUTS fill:#fff3e0
     style FEATURES fill:#fff3e0
-    style PROFILES fill:#fff3e0
-    style OUTPUTS fill:#fff3e0
-    style BOOTSTRAP fill:#c8e6c9
-    style DEV_CHECKOUT fill:#eeeeee
-    style HM_CORE fill:#e8f5e9
-    style DEVENV_CORE fill:#f3e5f5
+    style BOOTSTRAP_SCRIPT fill:#c8e6c9
+    style HM_EXPORT fill:#e8f5e9
+    style DEVENV_EXPORT fill:#f3e5f5
+    style WRAPPED fill:#ffe0b2
+    style SOURCES_EXPORT fill:#fff3e0
+    style FRESH_HOST fill:#c8e6c9
+    style REMOTE_RUN fill:#c8e6c9
+    style PROJECT_CONSUMER fill:#f3e5f5
+    style HOST_CONSUMER fill:#e8f5e9
+    style DEV_OVERRIDE fill:#eeeeee
     style HOME_STATE fill:#e8f5e9
     style SHELL_STATE fill:#f3e5f5
-    style PI_WRAPPED fill:#ffe0b2
+    style WRAPPED_STATE fill:#ffe0b2
 ```
 
 ## Flake Outputs
@@ -91,9 +146,11 @@ The repo also exports `devenvSources`, which centralizes the shared flake inputs
 
 Current stable bootstrap-oriented interfaces are:
 
+- the tracked remote bootstrap script `scripts/bootstrap-home-manager-host.sh`
 - direct remote flake use such as `nix run --accept-flake-config github:lefant/toolnix#toolnix-pi`
 - `homeManagerModules.default`
 - `devenvModules.default`
+- `devenvSources`
 - the wrapped-tool package/app outputs exported by the flake
 
 As additive wrapped-tool proofs, the flake also exports portable package/app entries for:
