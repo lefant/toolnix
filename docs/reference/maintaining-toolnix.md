@@ -145,6 +145,7 @@ Examples:
 - adding packages to the shell
 - adjusting aliases or helper functions
 - changing opinionated shell toggles
+- restoring or adjusting opinionated zsh completion behavior
 - adding optional `devenv` features
 
 Primary files:
@@ -159,6 +160,7 @@ Verify with:
 
 ```bash
 devenv shell -- true
+scripts/check-opinionated-zsh.sh
 ```
 
 ### Architecture or boundary changes

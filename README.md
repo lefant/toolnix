@@ -209,6 +209,12 @@ SSH into a Home Manager-managed VM and land in its normal host shell:
 ssh -tt lefant-toolnix.exe.xyz 'zsh -il'
 ```
 
+Verify the tracked opinionated zsh completion baseline on a host:
+
+```bash
+scripts/check-opinionated-zsh.sh
+```
+
 SSH into a Home Manager-managed VM and open a repo-local tmux session:
 
 ```bash

@@ -28,6 +28,10 @@ as expected.
   - `menu select=10`
   - `matcher-list ...`
   - `squeeze-slashes true`
+- added a toolnix-owned verification script:
+  - `scripts/check-opinionated-zsh.sh`
+- documented the completion verification step in the main README and maintainer
+  reference instead of leaving it as a control-plane-only readiness concern
 
 ## Verification
 
