@@ -37,18 +37,32 @@ let
       tmux -L "$socket" set-option -g status-right "#h #(env TZ=Europe/Stockholm date +%%Y-%%m-%%d\\ %%H:%%M)" 2>/dev/null || true
     }
 
+    _tmux-attach-coloured-session() {
+      local socket="$1"
+      local session="$2"
+      shift 2
+
+      # Create the session before applying colour. On a brand-new socket, tmux
+      # may drop option writes if no session exists yet, which leaves the first
+      # attached client on the default grey status bar until a reattach.
+      if ! tmux -L "$socket" has-session -t "$session" 2>/dev/null; then
+        tmux -L "$socket" new-session -d -s "$session" "$@"
+      fi
+
+      _tmux-apply-colour "$socket"
+      tmux -L "$socket" attach-session -t "$session"
+    }
+
     tmux-default() {
       _tmux-set-colour default
-      _tmux-apply-colour default
-      tmux -L default new-session -A -s default "$@"
+      _tmux-attach-coloured-session default default "$@"
     }
 
     tmux-here() {
       local s="''${PWD##*/}"
       s="''${s//[^A-Za-z0-9_.-]/_}"
       _tmux-set-colour "''${s}@''${HOST%%.*}"
-      _tmux-apply-colour "$s"
-      tmux -L "$s" new-session -A -s "$s" "$@"
+      _tmux-attach-coloured-session "$s" "$s" "$@"
     }
   '';
   zshPrelude = ''

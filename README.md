@@ -215,6 +215,12 @@ Verify the tracked opinionated zsh completion baseline on a host:
 scripts/check-opinionated-zsh.sh
 ```
 
+Verify the tracked opinionated tmux first-attach colour baseline on a host:
+
+```bash
+scripts/check-opinionated-tmux.sh
+```
+
 SSH into a Home Manager-managed VM and open a repo-local tmux session:
 
 ```bash

@@ -161,6 +161,7 @@ Verify with:
 ```bash
 devenv shell -- true
 scripts/check-opinionated-zsh.sh
+scripts/check-opinionated-tmux.sh
 ```
 
 ### Architecture or boundary changes
