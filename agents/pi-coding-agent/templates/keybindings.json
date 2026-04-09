@@ -3,6 +3,10 @@
     "up",
     "ctrl+p"
   ],
+  "tui.editor.cursorDown": [
+    "down",
+    "ctrl+n"
+  ],
   "tui.input.newLine": [
     "ctrl+j",
     "ctrl+m",
@@ -15,6 +19,7 @@
     "alt+m"
   ],
   "app.model.cycleForward": [],
+  "app.session.toggleNamedFilter": [],
   "app.message.followUp": [
     "alt+q"
   ],
