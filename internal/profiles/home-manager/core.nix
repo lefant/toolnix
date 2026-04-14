@@ -61,8 +61,16 @@ in {
       source = ../../../agents/claude/templates/settings.json;
       force = true;
     };
+    home.file.".claude/CLAUDE.md" = {
+      source = ../../../agents/shared/templates/caveman-lite-context.md;
+      force = true;
+    };
     home.file.".codex/config.toml" = {
       source = ../../../agents/codex/templates/config.toml;
+      force = true;
+    };
+    home.file.".codex/AGENTS.md" = {
+      source = ../../../agents/shared/templates/caveman-lite-context.md;
       force = true;
     };
     home.file.".config/opencode/opencode.json" = {
@@ -83,6 +91,10 @@ in {
     };
     home.file.".pi/agent/keybindings.json" = {
       source = ../../../agents/pi-coding-agent/templates/keybindings.json;
+      force = true;
+    };
+    home.file.".pi/agent/AGENTS.md" = {
+      source = ../../../agents/shared/templates/caveman-lite-context.md;
       force = true;
     };
     home.file.".agents/skills" = lib.mkIf cfg.enableAgentBaseline {

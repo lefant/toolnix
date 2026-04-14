@@ -13,6 +13,7 @@
       tmuxConf = pkgs.writeText "toolnix-wrapped-tmux.conf" (opinionated.renderTmuxConf { });
       piSettings = ../agents/pi-coding-agent/templates/settings.json;
       piKeybindings = ../agents/pi-coding-agent/templates/keybindings.json;
+      piAgents = ../agents/shared/templates/caveman-lite-context.md;
       toolnixTmux = pkgs.writeShellApplication {
         name = "toolnix-tmux";
         runtimeInputs = [ pkgs.tmux pkgs.coreutils pkgs.zsh ];
@@ -47,6 +48,10 @@
 
           if [ ! -e "$agent_dir/keybindings.json" ]; then
             ln -s "${piKeybindings}" "$agent_dir/keybindings.json"
+          fi
+
+          if [ ! -e "$agent_dir/AGENTS.md" ]; then
+            ln -s "${piAgents}" "$agent_dir/AGENTS.md"
           fi
 
           if [ ! -e "$agent_dir/skills" ]; then
