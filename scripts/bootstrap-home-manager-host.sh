@@ -183,8 +183,8 @@ assert_nix_cache_ready() {
   local config
   config="$(nix_flake_cmd config show 2>/dev/null || true)"
 
-  if ! printf '%s\n' "$config" | grep -Eq '^experimental-features = .*nix-command.*flakes|^experimental-features = .*flakes.*nix-command'; then
-    echo "ERROR: nix experimental features are not active for flakes" >&2
+  if ! nix_flake_cmd flake metadata "$TOOLNIX_REF" >/dev/null 2>&1; then
+    echo "ERROR: flakes are not usable with the current nix invocation" >&2
     printf '%s\n' "$config" >&2
     exit 1
   fi
