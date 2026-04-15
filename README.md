@@ -44,7 +44,9 @@ Do not treat these as the default focus here:
 - downstream project-consumer implementation details
 - assumptions that require SSH access to consumer hosts
 
-`modules/shared/host-control.nix` is intentionally opt-in and outside the default toolnix path.
+`modules/shared/host-control.nix` remains opt-in for inventory/control-host wrappers such as `target-entry` and `targets`.
+
+`tmux-meta` is available by default as a harmless secondary tmux session wrapper.
 
 ## Project Consumer Shape
 

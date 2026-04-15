@@ -282,11 +282,15 @@ It provides a host-native wrapper and stores runtime state in user-local paths.
 
 ### Host control helpers
 
-Host-control behavior is isolated behind:
+Inventory/control-host behavior is isolated behind:
 
 - `toolnix.enableHostControl = true;`
 
-This keeps control-host inventory workflows outside the default toolnix environment.
+This keeps control-host inventory workflows such as `target-entry` and `targets`
+outside the default toolnix environment.
+
+`tmux-meta` is available by default as a secondary tmux wrapper with its own
+socket and config because it does not depend on inventory-specific state.
 
 ## State Locations
 

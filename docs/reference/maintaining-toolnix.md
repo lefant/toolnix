@@ -268,4 +268,5 @@ Related artifacts:
 
 - `.claude.json` is intentionally still a special-case activation merge.
 - Historical devlogs may describe earlier states of the repo; prefer `architecture.md` for the current model.
-- `host-control` remains opt-in and is not part of the default self-hosted maintenance path.
+- inventory/control-host wrappers remain opt-in behind `toolnix.enableHostControl`.
+- `tmux-meta` is available by default because it does not depend on inventory-specific state.

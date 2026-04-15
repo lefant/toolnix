@@ -1,8 +1,8 @@
 { pkgs }:
 let
   zshPath = "${pkgs.zsh}/bin/zsh";
-in {
-  zshBody = ''
+in rec {
+  controlHostBody = ''
     export HACKBOX_CTRL_INVENTORY_ROOT="''${HACKBOX_CTRL_INVENTORY_ROOT:-$HOME/git/lefant/hackbox-ctrl-inventory}"
 
     target-entry() {
@@ -12,7 +12,9 @@ in {
     targets() {
       "$HACKBOX_CTRL_INVENTORY_ROOT/tooling/hackbox-ctrl-utils/scripts/target-ssh.sh" --list
     }
+  '';
 
+  tmuxMetaBody = ''
     tmux-meta() {
       export TMUX_COLOUR="colour255"
       tmux -L meta -f "$HOME/.tmux.conf.meta" start-server 2>/dev/null || true
@@ -26,6 +28,8 @@ in {
       tmux -L meta -f "$HOME/.tmux.conf.meta" new-session -A -s meta "$@"
     }
   '';
+
+  zshBody = controlHostBody + "\n" + tmuxMetaBody;
 
   tmuxConf = ''
     set-option -g default-shell ${zshPath}

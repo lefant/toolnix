@@ -29,7 +29,10 @@ in {
       source ~/.zsh/zshrc.sh
     '';
     home.file.".zsh/zshrc.sh".text = opinionated.renderZshRc {
-      extraBody = lib.optionalString cfg.enableHostControl hostControl.zshBody;
+      extraBody = lib.concatStringsSep "\n" (
+        [ hostControl.tmuxMetaBody ]
+        ++ lib.optionals cfg.enableHostControl [ hostControl.controlHostBody ]
+      );
     };
     home.file.".zsh/completion".source = ../../../home-manager/files/zsh-completion;
     home.file.".zsh/zshlocal.sh".text = ''
@@ -122,9 +125,7 @@ in {
       force = true;
     };
     home.file.".tmux.conf".text = opinionated.renderTmuxConf { };
-    home.file.".tmux.conf.meta" = lib.mkIf cfg.enableHostControl {
-      text = hostControl.tmuxConf;
-    };
+    home.file.".tmux.conf.meta".text = hostControl.tmuxConf;
 
     home.activation.seedClaudeRuntimeState =
       lib.hm.dag.entryAfter [ "linkGeneration" ] ''
