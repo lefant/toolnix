@@ -25,6 +25,12 @@ Persistent self-hosted runtime state under `$HOME` is managed by `modules/home-m
 - session variables
 - `.claude.json` activation-time merge behavior
 
+Important boundary:
+
+- `~/.openclaw/openclaw.json` is intentionally **not** Home Manager-managed
+- OpenClaw owns that live runtime config on each host
+- toolnix rollouts must not replace a valid OpenClaw config with a repo-tracked store symlink
+
 ### Devenv owns shell-local behavior
 
 `modules/devenv/default.nix` shapes the active shell only:

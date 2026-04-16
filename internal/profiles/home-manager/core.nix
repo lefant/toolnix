@@ -84,10 +84,6 @@ in {
       source = ../../../agents/amp/templates/settings.json;
       force = true;
     };
-    home.file.".openclaw/openclaw.json" = {
-      source = ../../../agents/openclaw/templates/openclaw.json;
-      force = true;
-    };
     home.file.".pi/agent/settings.json" = {
       source = ../../../agents/pi-coding-agent/templates/settings.json;
       force = true;

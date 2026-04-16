@@ -238,9 +238,13 @@ Persistent agent configuration is managed through Home Manager file entries sour
 - `~/.codex/config.toml`
 - `~/.config/opencode/opencode.json`
 - `~/.config/amp/settings.json`
-- `~/.openclaw/openclaw.json`
 - `~/.pi/agent/settings.json`
 - `~/.pi/agent/keybindings.json`
+
+Important boundary:
+
+- `~/.openclaw/openclaw.json` is **not** Home Manager-managed
+- the live OpenClaw runtime config is host/application-owned mutable state and must not be replaced by a repo-tracked store symlink during normal toolnix rollouts
 
 Shared skills are also managed declaratively:
 
