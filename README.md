@@ -116,6 +116,10 @@ Host-local state paths used by the opt-in integration:
 - npm cache: `~/.cache/toolnix-agent-browser/npm`
 - browser runtime state: `~/.agent-browser`
 
+Other host-local runtime convenience state may also exist outside the durable project layout, for example a librarian-style reference-repo cache under `~/.cache/checkouts/<host>/<org>/<repo>`.
+
+That checkout cache is optional convenience state, not a canonical repo location, and is a valid cleanup target when disk space runs low.
+
 ## Common Commands
 
 ### Wrapped portable tools
