@@ -104,6 +104,10 @@ in {
       source = ../../../agents/pi-coding-agent/extensions/qna.ts;
       force = true;
     };
+    home.file.".pi/agent/extensions/loop.ts" = {
+      source = ../../../agents/pi-coding-agent/extensions/loop.ts;
+      force = true;
+    };
     home.file.".agents/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = agent.managedSkillTree;
       force = true;
