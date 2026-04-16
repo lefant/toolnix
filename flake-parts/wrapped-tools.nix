@@ -13,6 +13,7 @@
       tmuxConf = pkgs.writeText "toolnix-wrapped-tmux.conf" (opinionated.renderTmuxConf { });
       piSettings = ../agents/pi-coding-agent/templates/settings.json;
       piKeybindings = ../agents/pi-coding-agent/templates/keybindings.json;
+      piQnaExtension = ../agents/pi-coding-agent/extensions/qna.ts;
       piAgents = ../agents/shared/templates/caveman-lite-context.md;
       toolnixTmux = pkgs.writeShellApplication {
         name = "toolnix-tmux";
@@ -40,7 +41,7 @@
           state_root="''${TOOLNIX_WRAPPED_STATE_DIR:-''${XDG_STATE_HOME:-$HOME/.local/state}/toolnix}"
           agent_dir="''${PI_CODING_AGENT_DIR:-$state_root/pi/agent}"
 
-          mkdir -p "$agent_dir"
+          mkdir -p "$agent_dir" "$agent_dir/extensions"
 
           if [ ! -e "$agent_dir/settings.json" ]; then
             ln -s "${piSettings}" "$agent_dir/settings.json"
@@ -52,6 +53,10 @@
 
           if [ ! -e "$agent_dir/AGENTS.md" ]; then
             ln -s "${piAgents}" "$agent_dir/AGENTS.md"
+          fi
+
+          if [ ! -e "$agent_dir/extensions/qna.ts" ]; then
+            ln -s "${piQnaExtension}" "$agent_dir/extensions/qna.ts"
           fi
 
           if [ ! -e "$agent_dir/skills" ]; then

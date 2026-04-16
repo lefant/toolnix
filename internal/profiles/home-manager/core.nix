@@ -100,6 +100,10 @@ in {
       source = ../../../agents/shared/templates/caveman-lite-context.md;
       force = true;
     };
+    home.file.".pi/agent/extensions/qna.ts" = {
+      source = ../../../agents/pi-coding-agent/extensions/qna.ts;
+      force = true;
+    };
     home.file.".agents/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = agent.managedSkillTree;
       force = true;
