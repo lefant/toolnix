@@ -432,6 +432,19 @@ More specialized / cautionary candidates:
 - `mermaid`
   - low risk, but depends on Node tooling at runtime
 
+## Future consideration / TODO
+
+Also worth reviewing in a later pass:
+
+- `https://github.com/apmantza/pi-lens`
+
+Reason:
+
+- possible additional Pi-native extension / workflow ideas
+- likely relevant if `toolnix` continues curating default Pi ergonomics and observability helpers
+
+This note does not evaluate `pi-lens`; it is only tracked here as a future research todo.
+
 ## Conclusion
 
 The user's pointer was correct: `mitsuhiko/agent-stuff` does contain a real `extensions/answer.ts`.
