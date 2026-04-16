@@ -339,13 +339,23 @@ If the `~/git/external` convention matters, `librarian` should be wrapped or doc
 
 ### Short version
 
-They are related, but they solve very different problems.
+- `pi-share`
+  - loads and inspects one already-shared exported session
+  - gist/url based
+  - read-only analysis tool
+- `pi-share-hf`
+  - collects local sessions
+  - redacts secrets
+  - runs deny filters + TruffleHog + LLM review
+  - uploads approved sessions to Hugging Face
+- so:
+  - not replacements
+  - different layers
+  - complementary
 
-- `agent-stuff/pi-share` is a **session loader / inspector** for already-shared exported sessions
-- `pi-share-hf` is a **publishing pipeline** for collecting local sessions, redacting them, reviewing them, and uploading them to a Hugging Face dataset
+Current decision for this research pass:
 
-So `pi-share-hf` is not a better version of `pi-share`.
-It is a different layer.
+- we will not use `pi-share-hf`
 
 ## `agent-stuff/pi-share`
 
