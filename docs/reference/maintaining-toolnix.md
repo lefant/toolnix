@@ -6,6 +6,7 @@ See also:
 
 - [`architecture.md`](architecture.md)
 - [`credentials.md`](credentials.md)
+- [`pi-model-backends.md`](pi-model-backends.md)
 - [`../specs/fresh-environment-bootstrap.md`](../specs/fresh-environment-bootstrap.md)
 - [`../specs/llm-agents-cache-bootstrap.md`](../specs/llm-agents-cache-bootstrap.md)
 - [`../plans/2026-04-05-bootstrap-paths-and-credentials.md`](../plans/2026-04-05-bootstrap-paths-and-credentials.md)
@@ -206,6 +207,8 @@ Persistent host state lives under `$HOME`, including:
 - `~/.openclaw/`
 - `~/.pi/agent/`
 - `~/.agents/skills`
+
+For current host-local `pi` model/backend usage, including Together-backed custom models and validated Fireworks opt-in models, see [`pi-model-backends.md`](pi-model-backends.md).
 
 ### Optional browser state
 

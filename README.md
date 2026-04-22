@@ -6,6 +6,7 @@ Public Nix-first development environment and host-profile repo.
 
 - Architecture reference: [`docs/reference/architecture.md`](docs/reference/architecture.md)
 - Credentials reference: [`docs/reference/credentials.md`](docs/reference/credentials.md)
+- Pi model backends reference: [`docs/reference/pi-model-backends.md`](docs/reference/pi-model-backends.md)
 - Fresh-environment bootstrap spec: [`docs/specs/fresh-environment-bootstrap.md`](docs/specs/fresh-environment-bootstrap.md)
 - Fresh-environment bootstrap plan: [`docs/plans/2026-04-05-bootstrap-paths-and-credentials.md`](docs/plans/2026-04-05-bootstrap-paths-and-credentials.md)
 - Setup-hook migration plan: [`docs/plans/2026-03-28-remove-imperative-setup-hook.md`](docs/plans/2026-03-28-remove-imperative-setup-hook.md)
@@ -160,6 +161,8 @@ Auth for the wrapped pi path remains machine-local:
 
 - if you already have ordinary pi auth in `~/.pi/agent/auth.json`, the wrapped path reuses it
 - otherwise first-run interactive `/login` is an acceptable path
+- local custom pi model backends such as Together Qwen3-Coder-Next, Together Kimi K2.5, and validated Fireworks Kimi/Qwen serverless models are documented in [`docs/reference/pi-model-backends.md`](docs/reference/pi-model-backends.md)
+- those Together/Fireworks model paths remain opt-in and are selected per session with `pi --provider <name> --model <id>` or interactively via `/model`
 
 ### Binary cache note for wrapped `pi`
 

@@ -12,6 +12,7 @@ See also:
 
 - [`architecture.md`](architecture.md)
 - [`maintaining-toolnix.md`](maintaining-toolnix.md)
+- [`pi-model-backends.md`](pi-model-backends.md)
 - [`../decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md`](../decisions/2026-03-30_export-wrapped-tmux-and-pi-proofs.md)
 
 ## Design intent
@@ -44,6 +45,8 @@ Typical examples include provider credentials such as:
 
 - `ANTHROPIC_API_KEY`
 - `OPENAI_API_KEY`
+- `TOGETHER_AI_API_KEY`
+- `FIREWORKS_API_KEY`
 - other local tokens needed by CLI tools or coding agents
 
 ## 2. GitHub HTTPS credentials via `gh`
@@ -83,6 +86,7 @@ Examples in the tracked config:
 
 - Claude settings force `claudeai` login mode
 - OpenCode config references `ANTHROPIC_API_KEY` via env interpolation for Anthropic
+- host-local `pi` custom/built-in model backends can resolve provider keys such as `TOGETHER_AI_API_KEY` and `FIREWORKS_API_KEY` from `~/.env.toolnix`
 - GitHub HTTPS auth is delegated to `gh`
 
 `toolnix` manages the config files that point to these mechanisms, but the actual authenticated state stays local to the machine and user account.
