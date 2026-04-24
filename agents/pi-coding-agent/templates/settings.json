@@ -1,5 +1,10 @@
 {
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.4",
-  "defaultThinkingLevel": "high"
+  "defaultThinkingLevel": "high",
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 100000,
+    "keepRecentTokens": 20000
+  }
 }
