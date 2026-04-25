@@ -3,8 +3,8 @@
   "plugin": [
     "opencode-openai-codex-auth"
   ],
-  "model": "openai/gpt-5.4",
-  "small_model": "openai/gpt-5.4-mini",
+  "model": "openai/gpt-5.5",
+  "small_model": "openai/gpt-5.5-mini",
   "autoupdate": "notify",
   "default_agent": "build",
   "permission": {

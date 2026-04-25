@@ -4,7 +4,7 @@
 # If you already have a config.toml, toolnix will not overwrite it.
 
 personality = "pragmatic"
-model = "gpt-5.4"
+model = "gpt-5.5"
 model_reasoning_effort = "high"
 
 [projects."/home/exedev/git/lefant/toolnix"]
