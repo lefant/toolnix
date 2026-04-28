@@ -179,11 +179,54 @@ nix_flake_cmd() {
   nix --extra-experimental-features 'nix-command flakes' --accept-flake-config "$@"
 }
 
+nix_tarball_cache_v2_dir() {
+  printf '%s\n' "${XDG_CACHE_HOME:-$HOME/.cache}/nix/tarball-cache-v2"
+}
+
+heal_broken_nix_git_cache() {
+  local cache_dir="$1"
+
+  if [ ! -e "$cache_dir" ]; then
+    return 0
+  fi
+
+  local timestamp repaired_path
+  timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+  repaired_path="${cache_dir}.broken-${timestamp}"
+
+  warn "Detected broken Nix Git cache at $cache_dir; moving it aside to $repaired_path"
+  mv "$cache_dir" "$repaired_path"
+}
+
+assert_flake_metadata_ready() {
+  local stderr_file cache_dir
+  stderr_file="$(mktemp)"
+  cache_dir="$(nix_tarball_cache_v2_dir)"
+
+  if nix_flake_cmd flake metadata "$TOOLNIX_REF" >/dev/null 2>"$stderr_file"; then
+    rm -f "$stderr_file"
+    return 0
+  fi
+
+  if grep -Fq "$cache_dir" "$stderr_file" && grep -Fq 'could not find repository' "$stderr_file"; then
+    heal_broken_nix_git_cache "$cache_dir"
+
+    if nix_flake_cmd flake metadata "$TOOLNIX_REF" >/dev/null 2>"$stderr_file"; then
+      rm -f "$stderr_file"
+      return 0
+    fi
+  fi
+
+  cat "$stderr_file" >&2
+  rm -f "$stderr_file"
+  return 1
+}
+
 assert_nix_cache_ready() {
   local config
   config="$(nix_flake_cmd config show 2>/dev/null || true)"
 
-  if ! nix_flake_cmd flake metadata "$TOOLNIX_REF" >/dev/null 2>&1; then
+  if ! assert_flake_metadata_ready; then
     echo "ERROR: flakes are not usable with the current nix invocation" >&2
     printf '%s\n' "$config" >&2
     exit 1
