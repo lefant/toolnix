@@ -125,6 +125,10 @@ in {
       source = ../../../agents/pi-coding-agent/extensions/qna.ts;
       force = true;
     };
+    home.file.".pi/agent/extensions/ask-user.ts" = {
+      source = ../../../agents/pi-coding-agent/extensions/ask-user.ts;
+      force = true;
+    };
     home.file.".pi/agent/extensions/loop.ts" = {
       source = ../../../agents/pi-coding-agent/extensions/loop.ts;
       force = true;

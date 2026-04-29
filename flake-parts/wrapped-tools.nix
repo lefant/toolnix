@@ -14,6 +14,7 @@
       piSettings = ../agents/pi-coding-agent/templates/settings.json;
       piKeybindings = ../agents/pi-coding-agent/templates/keybindings.json;
       piQnaExtension = ../agents/pi-coding-agent/extensions/qna.ts;
+      piAskUserExtension = ../agents/pi-coding-agent/extensions/ask-user.ts;
       piLoopExtension = ../agents/pi-coding-agent/extensions/loop.ts;
       piAgents = ../agents/shared/templates/caveman-lite-context.md;
       toolnixTmux = pkgs.writeShellApplication {
@@ -58,6 +59,10 @@
 
           if [ ! -e "$agent_dir/extensions/qna.ts" ]; then
             ln -s "${piQnaExtension}" "$agent_dir/extensions/qna.ts"
+          fi
+
+          if [ ! -e "$agent_dir/extensions/ask-user.ts" ]; then
+            ln -s "${piAskUserExtension}" "$agent_dir/extensions/ask-user.ts"
           fi
 
           if [ ! -e "$agent_dir/extensions/loop.ts" ]; then
