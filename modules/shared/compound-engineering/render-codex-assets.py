@@ -173,9 +173,9 @@ def render_agent(source: Path, target: Path) -> None:
     instructions = body.strip() or f"Instructions converted from the {name} agent."
     target.parent.mkdir(parents=True, exist_ok=True)
     lines = [
-        f"name = {json.dumps(name)}",
-        f"description = {json.dumps(description)}",
-        f"developer_instructions = {json.dumps(instructions)}",
+        f"name = {json.dumps(name, ensure_ascii=False)}",
+        f"description = {json.dumps(description, ensure_ascii=False)}",
+        f"developer_instructions = {json.dumps(instructions, ensure_ascii=False)}",
     ]
     target.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

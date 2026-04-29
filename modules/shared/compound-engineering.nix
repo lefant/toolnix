@@ -28,6 +28,17 @@ let
       (name: builtins.pathExists "${sourceSkillsDir}/${name}/SKILL.md")
       (dirNames sourceSkillsDir);
 
+  skillSupportsPlatform = platform: name:
+    let
+      content = builtins.readFile "${sourceSkillsDir}/${name}/SKILL.md";
+      platformLine = lib.findFirst
+        (line: lib.hasPrefix "ce_platforms:" (lib.trim line))
+        null
+        (lib.splitString "\n" content);
+    in platformLine == null || lib.hasInfix platform platformLine;
+
+  opencodeSkillNames = lib.filter (skillSupportsPlatform "opencode") skillNames;
+
   agentSourceNames =
     lib.filter
       (name: lib.hasSuffix ".agent.md" name || lib.hasSuffix ".md" name)
@@ -55,6 +66,12 @@ let
     nativeBuildInputs = [ pkgs.python3 ];
   } ''
     python3 ${./compound-engineering/render-codex-assets.py} ${lib.escapeShellArg pluginRoot} "$out"
+    python3 - <<'PY'
+import pathlib
+import tomllib
+for path in pathlib.Path('$out/agents/compound-engineering').glob('*.toml'):
+    tomllib.loads(path.read_text(encoding='utf-8'))
+PY
   '';
 
   rawSkillLinks = map (name: {
@@ -70,7 +87,7 @@ let
   opencodeSkillLinks = map (name: {
     inherit name;
     path = "${opencodeAssets}/skills/${name}";
-  }) skillNames;
+  }) opencodeSkillNames;
 
   agentLinks = map (sourceName: {
     name = "${normalizeName sourceName}.md";

@@ -9,8 +9,11 @@ let
   opinionated = features.opinionatedShell.data { inherit pkgs; };
   compoundSkillsEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.skills.enable;
   compoundOpenCodeEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.opencode.enable;
+  compoundOpenCodeSkillsEnabled = compoundSkillsEnabled && cfg.compoundEngineering.opencode.enable;
   compoundClaudeEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.claude.enable;
+  compoundClaudeSkillsEnabled = compoundSkillsEnabled && cfg.compoundEngineering.claude.enable;
   compoundCodexEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.codex.enable;
+  compoundCodexSkillsEnabled = compoundSkillsEnabled && cfg.compoundEngineering.codex.enable;
   compoundPiEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.pi.enable;
   managedSkillTree =
     if compoundSkillsEnabled then
@@ -18,15 +21,15 @@ let
     else
       agent.managedSkillTree;
   opencodeManagedSkillTree =
-    if compoundOpenCodeEnabled then
+    if compoundOpenCodeSkillsEnabled then
       agent.mkManagedSkillTree "toolnix-managed-opencode-skills-with-compound-engineering" (agent.skillLinks ++ compound.opencodeSkillLinks)
     else
-      managedSkillTree;
+      agent.managedSkillTree;
   claudeManagedSkillTree =
-    if compoundClaudeEnabled then
+    if compoundClaudeSkillsEnabled then
       agent.mkManagedSkillTree "toolnix-managed-claude-skills-with-compound-engineering" (agent.skillLinks ++ compound.rawSkillLinks)
     else
-      managedSkillTree;
+      agent.managedSkillTree;
   hostControl = features.hostControl.data { inherit pkgs; };
 in {
   options.toolnix.hostName = lib.mkOption {
@@ -146,7 +149,7 @@ in {
       source = compound.managedOpenCodeAgentTree;
       force = true;
     };
-    home.file.".codex/skills/compound-engineering" = lib.mkIf compoundCodexEnabled {
+    home.file.".codex/skills/compound-engineering" = lib.mkIf compoundCodexSkillsEnabled {
       source = compound.managedCodexSkillTree;
       force = true;
     };
