@@ -25,6 +25,19 @@ Ran a read-only Compound Engineering code review over the multi-target Compound 
   - target agents/extensions still follow `toolnix.compoundEngineering.<target>.enable`
   - target skill trees also require `toolnix.compoundEngineering.skills.enable`
 
+## Document review follow-up
+
+Ran a document review on `docs/plans/2026-04-29-compound-engineering-toolnix-integration.md` after the target fanout and review fixes landed. The review found the plan had become stale: it still described a Pi-only rollout, omitted OpenCode/Claude/Codex options, and did not record the new opt-out and asset-validation checks.
+
+Updated the plan to reflect the current completed scope:
+
+- Pi-first rollout followed by OpenCode, Claude Code, and Codex CLI fanout.
+- Current Home Manager option matrix.
+- Target-specific Home Manager links and renderers.
+- `ce_platforms` filtering and Codex TOML validation.
+- Opt-out matrix and no-installer validation.
+- Remaining daily-use/model-backed follow-ups.
+
 ## Validation
 
 Commands run:
