@@ -130,7 +130,15 @@ PY
 
   system = pkgs.stdenv.hostPlatform.system;
   piPackage = resolvedInputs.llm-agents.packages.${system}.pi;
-  piSubagentExtension = "${piPackage}/lib/node_modules/@mariozechner/pi-coding-agent/examples/extensions/subagent";
+  rawPiSubagentExtension = "${piPackage}/lib/node_modules/@mariozechner/pi-coding-agent/examples/extensions/subagent";
+  piSubagentExtension = pkgs.runCommand "toolnix-patched-pi-subagent-extension" { } ''
+    cp -R ${lib.escapeShellArg rawPiSubagentExtension} "$out"
+    chmod -R u+w "$out"
+    if [ -f "$out/index.ts" ]; then
+      sed -i 's|from "typebox";|from "@sinclair/typebox";|' "$out/index.ts"
+      sed -i "s|from 'typebox';|from '@sinclair/typebox';|" "$out/index.ts"
+    fi
+  '';
 in
 {
   inherit
