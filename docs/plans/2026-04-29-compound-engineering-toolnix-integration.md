@@ -16,51 +16,51 @@ Add a disabled-by-default Toolnix integration for EveryInc Compound Engineering 
 ## Implementation Steps
 
 1. Documentation baseline
-   - Write research, spec, and this plan.
-   - Commit docs before code changes.
+   - [x] Write research, spec, and this plan.
+   - [x] Commit docs before code changes.
 
 2. Flake input
-   - Add `compound-engineering-plugin` as a non-flake input in `flake.nix`.
-   - Include it in public `devenvSources` and module input forwarding.
-   - Update `flake.lock`.
+   - [x] Add `compound-engineering-plugin` as a non-flake input in `flake.nix`.
+   - [x] Include it in public `devenvSources` and module input forwarding.
+   - [x] Update `flake.lock`.
 
 3. Shared Compound module
-   - Add `modules/shared/compound-engineering.nix`.
-   - Resolve the Compound input from module args or `toolnix.devenvSources` fallback.
-   - Discover skill directories from `${compoundSrc}/skills`.
-   - Discover agent files from `${compoundSrc}/agents`.
-   - Expose `skillLinks`, `managedSkillTree`, `managedAgentTree`, and Pi subagent extension source.
+   - [x] Add `modules/shared/compound-engineering.nix`.
+   - [x] Resolve the Compound input from module args or `toolnix.devenvSources` fallback.
+   - [x] Discover skill directories from `${compoundSrc}/plugins/compound-engineering/skills`.
+   - [x] Discover agent files from `${compoundSrc}/plugins/compound-engineering/agents`.
+   - [x] Expose `skillLinks`, `managedSkillTree`, `managedAgentTree`, and Pi subagent extension source.
 
 4. Feature registry and options
-   - Add `flake-parts/features/compound-engineering.nix`.
-   - Add Home Manager options:
+   - [x] Add `flake-parts/features/compound-engineering.nix`.
+   - [x] Add Home Manager options:
      - `toolnix.compoundEngineering.enable`
      - `toolnix.compoundEngineering.skills.enable`
      - `toolnix.compoundEngineering.pi.enable`
      - `toolnix.compoundEngineering.pi.subagentExtension.enable`
-   - Default all Compound options off except nested defaults that apply once the top-level feature is enabled.
+   - [x] Default all Compound options off except nested defaults that apply once the top-level feature is enabled.
 
 5. Home Manager fanout
-   - Import the new option module in the Home Manager profile.
-   - Link Compound skills into Pi's skill directory when enabled.
-   - Link Compound agents into `~/.pi/agent/agents` when Pi support is enabled.
-   - Link the Pi subagent extension into `~/.pi/agent/extensions/subagent` when enabled.
-   - Avoid changing existing `agent-skills` behavior.
+   - [x] Import the new option module in the Home Manager profile.
+   - [x] Link Compound skills into the managed skill tree when enabled.
+   - [x] Link Compound agents into `~/.pi/agent/agents` when Pi support is enabled.
+   - [x] Link the Pi subagent extension into `~/.pi/agent/extensions/subagent` when enabled.
+   - [x] Avoid changing existing `agent-skills` behavior.
 
 6. Validation
-   - Evaluate/build the self-hosted Home Manager config.
-   - Enable Compound Engineering on `lefant-toolnix` for live validation.
-   - Activate Home Manager locally.
-   - Confirm symlinks:
+   - [x] Evaluate/build the self-hosted Home Manager config.
+   - [x] Enable Compound Engineering on `lefant-toolnix` for live validation.
+   - [x] Activate Home Manager locally.
+   - [x] Confirm symlinks:
      - `~/.pi/agent/skills/ce-code-review/SKILL.md`
-     - `~/.pi/agent/agents/ce-security-reviewer.agent.md`
+     - `~/.pi/agent/agents/ce-security-reviewer.md`
      - `~/.pi/agent/extensions/subagent/index.ts`
-   - Start Pi in tmux and verify startup/resource loading.
-   - Ask Pi to list or recognize available Compound skills/subagent tool if practical.
+   - [x] Start Pi in tmux and verify startup/resource loading.
+   - [ ] Exercise a real `subagent` tool call through a model-backed Pi session.
 
 7. Devlog and commit
-   - Record implementation results in `docs/devlog/`.
-   - Commit implementation and devlog in small reviewable increments.
+   - [x] Record implementation results in `docs/devlog/`.
+   - [x] Commit implementation and devlog in small reviewable increments.
 
 ## Non-goals
 
