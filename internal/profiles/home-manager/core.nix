@@ -10,6 +10,7 @@ let
   compoundSkillsEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.skills.enable;
   compoundOpenCodeEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.opencode.enable;
   compoundClaudeEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.claude.enable;
+  compoundCodexEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.codex.enable;
   compoundPiEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.pi.enable;
   managedSkillTree =
     if compoundSkillsEnabled then
@@ -93,7 +94,8 @@ in {
       force = true;
     };
     home.file.".codex/AGENTS.md" = {
-      source = ../../../agents/shared/templates/caveman-lite-context.md;
+      text = builtins.readFile ../../../agents/shared/templates/caveman-lite-context.md
+        + lib.optionalString compoundCodexEnabled "\n\n${compound.codexAgentsBlock}";
       force = true;
     };
     home.file.".config/opencode/opencode.json" = {
@@ -125,7 +127,7 @@ in {
       force = true;
     };
     home.file.".agents/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = managedSkillTree;
+      source = agent.managedSkillTree;
       force = true;
     };
     home.file.".claude/skills" = lib.mkIf cfg.enableAgentBaseline {
@@ -142,6 +144,14 @@ in {
     };
     home.file.".config/opencode/agents" = lib.mkIf compoundOpenCodeEnabled {
       source = compound.managedOpenCodeAgentTree;
+      force = true;
+    };
+    home.file.".codex/skills/compound-engineering" = lib.mkIf compoundCodexEnabled {
+      source = compound.managedCodexSkillTree;
+      force = true;
+    };
+    home.file.".codex/agents/compound-engineering" = lib.mkIf compoundCodexEnabled {
+      source = compound.managedCodexAgentTree;
       force = true;
     };
     home.file.".config/amp/skills" = lib.mkIf cfg.enableAgentBaseline {

@@ -51,6 +51,12 @@ let
     python3 ${./compound-engineering/render-opencode-assets.py} ${lib.escapeShellArg pluginRoot} "$out"
   '';
 
+  codexAssets = pkgs.runCommand "compound-engineering-codex-assets" {
+    nativeBuildInputs = [ pkgs.python3 ];
+  } ''
+    python3 ${./compound-engineering/render-codex-assets.py} ${lib.escapeShellArg pluginRoot} "$out"
+  '';
+
   rawSkillLinks = map (name: {
     inherit name;
     path = "${sourceSkillsDir}/${name}";
@@ -96,6 +102,10 @@ let
   managedClaudeAgentTree = pkgs.linkFarm "toolnix-compound-engineering-claude-agents"
     (map (item: { name = item.name; path = item.path; }) rawAgentLinks);
 
+  managedCodexSkillTree = "${codexAssets}/skills/compound-engineering";
+  managedCodexAgentTree = "${codexAssets}/agents/compound-engineering";
+  codexAgentsBlock = builtins.readFile ./compound-engineering/codex-agents-block.md;
+
   system = pkgs.stdenv.hostPlatform.system;
   piPackage = resolvedInputs.llm-agents.packages.${system}.pi;
   piSubagentExtension = "${piPackage}/lib/node_modules/@mariozechner/pi-coding-agent/examples/extensions/subagent";
@@ -103,10 +113,14 @@ in
 {
   inherit
     agentLinks
+    codexAgentsBlock
+    codexAssets
     compoundSource
     managedAgentTree
     managedSkillTree
     managedClaudeAgentTree
+    managedCodexAgentTree
+    managedCodexSkillTree
     managedOpenCodeAgentTree
     managedOpenCodeSkillTree
     opencodeAgentLinks

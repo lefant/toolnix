@@ -31,6 +31,12 @@ in {
           description = "Install Claude Code-specific Compound Engineering skills and agent assets when Compound Engineering is enabled.";
         };
 
+        codex.enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Install Codex CLI-specific Compound Engineering skills, agents, and compatibility guidance when Compound Engineering is enabled.";
+        };
+
         pi.enable = lib.mkOption {
           type = lib.types.bool;
           default = true;
