@@ -76,6 +76,11 @@ let
     path = "${opencodeAssets}/agents/${normalizeName sourceName}.md";
   }) agentSourceNames;
 
+  rawAgentLinks = map (sourceName: {
+    name = "${normalizeName sourceName}.md";
+    path = "${sourceAgentsDir}/${sourceName}";
+  }) agentSourceNames;
+
   managedSkillTree = pkgs.linkFarm "toolnix-compound-engineering-skills"
     (map (item: { name = item.name; path = item.path; }) piSkillLinks);
 
@@ -88,6 +93,9 @@ let
   managedOpenCodeAgentTree = pkgs.linkFarm "toolnix-compound-engineering-opencode-agents"
     (map (item: { name = item.name; path = item.path; }) opencodeAgentLinks);
 
+  managedClaudeAgentTree = pkgs.linkFarm "toolnix-compound-engineering-claude-agents"
+    (map (item: { name = item.name; path = item.path; }) rawAgentLinks);
+
   system = pkgs.stdenv.hostPlatform.system;
   piPackage = resolvedInputs.llm-agents.packages.${system}.pi;
   piSubagentExtension = "${piPackage}/lib/node_modules/@mariozechner/pi-coding-agent/examples/extensions/subagent";
@@ -98,6 +106,7 @@ in
     compoundSource
     managedAgentTree
     managedSkillTree
+    managedClaudeAgentTree
     managedOpenCodeAgentTree
     managedOpenCodeSkillTree
     opencodeAgentLinks
@@ -107,6 +116,7 @@ in
     piSkillLinks
     piSubagentExtension
     pluginRoot
+    rawAgentLinks
     rawSkillLinks;
 
   skillLinks = piSkillLinks;

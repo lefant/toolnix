@@ -25,6 +25,12 @@ in {
           description = "Install OpenCode-specific Compound Engineering skills and agent assets when Compound Engineering is enabled.";
         };
 
+        claude.enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Install Claude Code-specific Compound Engineering skills and agent assets when Compound Engineering is enabled.";
+        };
+
         pi.enable = lib.mkOption {
           type = lib.types.bool;
           default = true;

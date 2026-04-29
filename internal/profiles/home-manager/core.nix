@@ -9,6 +9,7 @@ let
   opinionated = features.opinionatedShell.data { inherit pkgs; };
   compoundSkillsEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.skills.enable;
   compoundOpenCodeEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.opencode.enable;
+  compoundClaudeEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.claude.enable;
   compoundPiEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.pi.enable;
   managedSkillTree =
     if compoundSkillsEnabled then
@@ -18,6 +19,11 @@ let
   opencodeManagedSkillTree =
     if compoundOpenCodeEnabled then
       agent.mkManagedSkillTree "toolnix-managed-opencode-skills-with-compound-engineering" (agent.skillLinks ++ compound.opencodeSkillLinks)
+    else
+      managedSkillTree;
+  claudeManagedSkillTree =
+    if compoundClaudeEnabled then
+      agent.mkManagedSkillTree "toolnix-managed-claude-skills-with-compound-engineering" (agent.skillLinks ++ compound.rawSkillLinks)
     else
       managedSkillTree;
   hostControl = features.hostControl.data { inherit pkgs; };
@@ -123,7 +129,11 @@ in {
       force = true;
     };
     home.file.".claude/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = managedSkillTree;
+      source = claudeManagedSkillTree;
+      force = true;
+    };
+    home.file.".claude/agents" = lib.mkIf compoundClaudeEnabled {
+      source = compound.managedClaudeAgentTree;
       force = true;
     };
     home.file.".config/opencode/skills" = lib.mkIf cfg.enableAgentBaseline {
