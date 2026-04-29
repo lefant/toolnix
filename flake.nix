@@ -18,6 +18,10 @@
       url = "github:lefant/claude-code-plugins";
       flake = false;
     };
+    compound-engineering-plugin = {
+      url = "github:EveryInc/compound-engineering-plugin";
+      flake = false;
+    };
     llm-agents.url = "github:numtide/llm-agents.nix";
     nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
     home-manager = {

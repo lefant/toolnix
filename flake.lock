@@ -92,6 +92,22 @@
         "type": "github"
       }
     },
+    "compound-engineering-plugin": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777438433,
+        "narHash": "sha256-PiKoZ3YVqvsCCzArL3NjAbBJSy4RQjKk22sDLX8avqA=",
+        "owner": "EveryInc",
+        "repo": "compound-engineering-plugin",
+        "rev": "e5b397c9d1883354f03e338dd00f98be3da39f9f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "EveryInc",
+        "repo": "compound-engineering-plugin",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib"
@@ -260,6 +276,7 @@
       "inputs": {
         "agent-skills": "agent-skills",
         "claude-code-plugins": "claude-code-plugins",
+        "compound-engineering-plugin": "compound-engineering-plugin",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "llm-agents": "llm-agents",

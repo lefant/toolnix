@@ -9,6 +9,7 @@ in {
       })
       features.requiredBaseline.homeManagerModule
       features.agentBaseline.homeManagerOptionModule
+      features.compoundEngineering.homeManagerOptionModule
       features.agentBrowser.homeManagerOptionModule
       features.hostControl.homeManagerOptionModule
       ../../internal/profiles/home-manager/core.nix

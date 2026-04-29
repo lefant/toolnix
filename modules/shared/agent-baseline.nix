@@ -41,8 +41,10 @@ let
         {}
         rawSkillLinks);
 
-  managedSkillTree = pkgs.linkFarm "toolnix-managed-skills"
-    (map (item: { name = item.name; path = item.path; }) dedupedSkillLinks);
+  mkManagedSkillTree = name: skillLinks: pkgs.linkFarm name
+    (map (item: { name = item.name; path = item.path; }) skillLinks);
+
+  managedSkillTree = mkManagedSkillTree "toolnix-managed-skills" dedupedSkillLinks;
 
   toolnixClaudeStatusline = pkgs.writeShellScriptBin "toolnix-claude-statusline" ''
     toolnix_root="''${TOOLNIX_SOURCE_DIR:-${toolnixRoot}}"
@@ -50,7 +52,8 @@ let
   '';
 in
 {
-  inherit managedSkillTree;
+  inherit managedSkillTree mkManagedSkillTree;
+  skillLinks = dedupedSkillLinks;
 
   packages =
     [ toolnixClaudeStatusline ]

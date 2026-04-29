@@ -15,6 +15,7 @@ let
           home.stateVersion = "25.05";
 
           toolnix.hostName = hostName;
+          toolnix.compoundEngineering.enable = true;
         }
       ];
     };
@@ -34,14 +35,14 @@ in {
               (args.inputs or {})
               // {
                 toolnix = self;
-                inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
+                inherit (inputs) agent-skills claude-code-plugins compound-engineering-plugin llm-agents nixpkgs home-manager;
               };
           })
         ];
       };
 
     devenvSources = {
-      inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
+      inherit (inputs) agent-skills claude-code-plugins compound-engineering-plugin llm-agents nixpkgs home-manager;
     };
 
     devenvModules.default =
@@ -51,7 +52,7 @@ in {
           (args.inputs or {})
           // {
             toolnix = self;
-            inherit (inputs) agent-skills claude-code-plugins llm-agents nixpkgs home-manager;
+            inherit (inputs) agent-skills claude-code-plugins compound-engineering-plugin llm-agents nixpkgs home-manager;
           };
       });
   };

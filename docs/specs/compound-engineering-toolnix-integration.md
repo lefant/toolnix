@@ -35,7 +35,7 @@ The system SHALL expose Compound Engineering skill directories through the same 
 The system SHALL install Compound Engineering agent definitions and Pi subagent runtime support when Pi support is enabled.
 
 **Scenarios:**
-- GIVEN Compound Engineering Pi support is enabled WHEN Home Manager activates THEN `~/.pi/agent/agents` contains Compound `.agent.md` files.
+- GIVEN Compound Engineering Pi support is enabled WHEN Home Manager activates THEN `~/.pi/agent/agents` contains Pi-compatible Compound agent Markdown files.
 - GIVEN Compound Engineering Pi support is enabled WHEN Pi starts THEN the subagent extension is present under `~/.pi/agent/extensions/subagent`.
 - GIVEN Pi loads the subagent extension WHEN a task requires a specialized reviewer THEN Pi can call the `subagent` tool with a Compound agent name.
 

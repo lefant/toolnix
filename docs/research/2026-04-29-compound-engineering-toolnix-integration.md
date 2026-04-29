@@ -8,9 +8,9 @@ EveryInc publishes Compound Engineering as a multi-agent coding bundle, not as a
 
 The relevant upstream source is `github:EveryInc/compound-engineering-plugin`.
 
-The local paused WIP in `agent-skills` showed the same practical shape:
+The current upstream plugin lives under `plugins/compound-engineering/` and has this practical shape:
 
-- `skills/` or flattened `ce-*` skill directories with `SKILL.md`
+- `skills/ce-*` skill directories with `SKILL.md`
 - `agents/*.agent.md` subagent/persona definitions
 - plugin metadata for specific coding agents
 - installer/converter behavior for targets such as Pi
@@ -107,7 +107,7 @@ compound-engineering-plugin = {
 
 The feature should:
 
-1. discover skill directories under the upstream `skills/` directory;
+1. discover skill directories under the upstream `plugins/compound-engineering/skills/` directory;
 2. link them into the managed skill tree only when enabled;
 3. discover `agents/*.agent.md`;
 4. link those to `~/.pi/agent/agents` when Pi support is enabled;

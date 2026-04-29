@@ -4,8 +4,16 @@ let
   features = toolnixFeatures;
   cfg = config.toolnix;
   agent = features.agentBaseline.data { inherit pkgs lib inputs; };
+  compound = features.compoundEngineering.data { inherit pkgs lib inputs; };
   agentBrowser = features.agentBrowser.data { inherit pkgs; };
   opinionated = features.opinionatedShell.data { inherit pkgs; };
+  compoundSkillsEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.skills.enable;
+  compoundPiEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.pi.enable;
+  managedSkillTree =
+    if compoundSkillsEnabled then
+      agent.mkManagedSkillTree "toolnix-managed-skills-with-compound-engineering" (agent.skillLinks ++ compound.skillLinks)
+    else
+      agent.managedSkillTree;
   hostControl = features.hostControl.data { inherit pkgs; };
 in {
   options.toolnix.hostName = lib.mkOption {
@@ -105,27 +113,35 @@ in {
       force = true;
     };
     home.file.".agents/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = agent.managedSkillTree;
+      source = managedSkillTree;
       force = true;
     };
     home.file.".claude/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = agent.managedSkillTree;
+      source = managedSkillTree;
       force = true;
     };
     home.file.".config/opencode/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = agent.managedSkillTree;
+      source = managedSkillTree;
       force = true;
     };
     home.file.".config/amp/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = agent.managedSkillTree;
+      source = managedSkillTree;
       force = true;
     };
     home.file.".openclaw/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = agent.managedSkillTree;
+      source = managedSkillTree;
       force = true;
     };
     home.file.".pi/agent/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = agent.managedSkillTree;
+      source = managedSkillTree;
+      force = true;
+    };
+    home.file.".pi/agent/agents" = lib.mkIf compoundPiEnabled {
+      source = compound.managedAgentTree;
+      force = true;
+    };
+    home.file.".pi/agent/extensions/subagent" = lib.mkIf (compoundPiEnabled && cfg.compoundEngineering.pi.subagentExtension.enable) {
+      source = compound.piSubagentExtension;
       force = true;
     };
     home.file.".tmux.conf".text = opinionated.renderTmuxConf { };
