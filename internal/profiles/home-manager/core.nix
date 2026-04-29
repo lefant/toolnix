@@ -8,12 +8,18 @@ let
   agentBrowser = features.agentBrowser.data { inherit pkgs; };
   opinionated = features.opinionatedShell.data { inherit pkgs; };
   compoundSkillsEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.skills.enable;
+  compoundOpenCodeEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.opencode.enable;
   compoundPiEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.pi.enable;
   managedSkillTree =
     if compoundSkillsEnabled then
       agent.mkManagedSkillTree "toolnix-managed-skills-with-compound-engineering" (agent.skillLinks ++ compound.skillLinks)
     else
       agent.managedSkillTree;
+  opencodeManagedSkillTree =
+    if compoundOpenCodeEnabled then
+      agent.mkManagedSkillTree "toolnix-managed-opencode-skills-with-compound-engineering" (agent.skillLinks ++ compound.opencodeSkillLinks)
+    else
+      managedSkillTree;
   hostControl = features.hostControl.data { inherit pkgs; };
 in {
   options.toolnix.hostName = lib.mkOption {
@@ -121,7 +127,11 @@ in {
       force = true;
     };
     home.file.".config/opencode/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = managedSkillTree;
+      source = opencodeManagedSkillTree;
+      force = true;
+    };
+    home.file.".config/opencode/agents" = lib.mkIf compoundOpenCodeEnabled {
+      source = compound.managedOpenCodeAgentTree;
       force = true;
     };
     home.file.".config/amp/skills" = lib.mkIf cfg.enableAgentBaseline {

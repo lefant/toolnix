@@ -45,9 +45,25 @@ let
     python3 ${./compound-engineering/render-pi-assets.py} ${lib.escapeShellArg pluginRoot} "$out"
   '';
 
-  skillLinks = map (name: {
+  opencodeAssets = pkgs.runCommand "compound-engineering-opencode-assets" {
+    nativeBuildInputs = [ pkgs.python3 ];
+  } ''
+    python3 ${./compound-engineering/render-opencode-assets.py} ${lib.escapeShellArg pluginRoot} "$out"
+  '';
+
+  rawSkillLinks = map (name: {
+    inherit name;
+    path = "${sourceSkillsDir}/${name}";
+  }) skillNames;
+
+  piSkillLinks = map (name: {
     inherit name;
     path = "${piAssets}/skills/${name}";
+  }) skillNames;
+
+  opencodeSkillLinks = map (name: {
+    inherit name;
+    path = "${opencodeAssets}/skills/${name}";
   }) skillNames;
 
   agentLinks = map (sourceName: {
@@ -55,11 +71,22 @@ let
     path = "${piAssets}/agents/${normalizeName sourceName}.md";
   }) agentSourceNames;
 
+  opencodeAgentLinks = map (sourceName: {
+    name = "${normalizeName sourceName}.md";
+    path = "${opencodeAssets}/agents/${normalizeName sourceName}.md";
+  }) agentSourceNames;
+
   managedSkillTree = pkgs.linkFarm "toolnix-compound-engineering-skills"
-    (map (item: { name = item.name; path = item.path; }) skillLinks);
+    (map (item: { name = item.name; path = item.path; }) piSkillLinks);
 
   managedAgentTree = pkgs.linkFarm "toolnix-compound-engineering-pi-agents"
     (map (item: { name = item.name; path = item.path; }) agentLinks);
+
+  managedOpenCodeSkillTree = pkgs.linkFarm "toolnix-compound-engineering-opencode-skills"
+    (map (item: { name = item.name; path = item.path; }) opencodeSkillLinks);
+
+  managedOpenCodeAgentTree = pkgs.linkFarm "toolnix-compound-engineering-opencode-agents"
+    (map (item: { name = item.name; path = item.path; }) opencodeAgentLinks);
 
   system = pkgs.stdenv.hostPlatform.system;
   piPackage = resolvedInputs.llm-agents.packages.${system}.pi;
@@ -71,8 +98,16 @@ in
     compoundSource
     managedAgentTree
     managedSkillTree
+    managedOpenCodeAgentTree
+    managedOpenCodeSkillTree
+    opencodeAgentLinks
+    opencodeAssets
+    opencodeSkillLinks
     piAssets
+    piSkillLinks
     piSubagentExtension
     pluginRoot
-    skillLinks;
+    rawSkillLinks;
+
+  skillLinks = piSkillLinks;
 }
