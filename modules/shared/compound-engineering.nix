@@ -66,10 +66,15 @@ let
     nativeBuildInputs = [ pkgs.python3 ];
   } ''
     python3 ${./compound-engineering/render-codex-assets.py} ${lib.escapeShellArg pluginRoot} "$out"
-    python3 - <<'PY'
+    OUT="$out" python3 - <<'PY'
+import os
 import pathlib
 import tomllib
-for path in pathlib.Path('$out/agents/compound-engineering').glob('*.toml'):
+agent_dir = pathlib.Path(os.environ['OUT']) / 'agents' / 'compound-engineering'
+agent_files = sorted(agent_dir.glob('*.toml'))
+if not agent_files:
+    raise SystemExit(f'no Codex agent TOML files rendered under {agent_dir}')
+for path in agent_files:
     tomllib.loads(path.read_text(encoding='utf-8'))
 PY
   '';

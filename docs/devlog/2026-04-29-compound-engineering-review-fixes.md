@@ -19,6 +19,8 @@ Ran a read-only Compound Engineering code review over the multi-target Compound 
 - Added the same platform filter to the Nix-side OpenCode skill link list so Home Manager does not link filtered-out skill paths.
 - Changed Codex agent TOML string rendering to `json.dumps(..., ensure_ascii=False)`.
 - Added a Nix build-time validation step that parses every generated Codex agent TOML file with Python `tomllib`.
+- Fixed that build-time TOML validation to use the derivation output path through `OUT` and fail when no TOML files are rendered.
+- Added flake checks for Compound asset rendering and the `toolnix.compoundEngineering.skills.enable = false` option matrix.
 - Split Home Manager gating into target-level agent toggles and skill-specific target toggles:
   - target agents/extensions still follow `toolnix.compoundEngineering.<target>.enable`
   - target skill trees also require `toolnix.compoundEngineering.skills.enable`
@@ -28,9 +30,12 @@ Ran a read-only Compound Engineering code review over the multi-target Compound 
 Commands run:
 
 ```bash
-nix build .#homeConfigurations.lefant-toolnix.activationPackage
-./result/activate
 nix flake check --no-build
+nix build \
+  .#checks.x86_64-linux.compound-engineering-assets \
+  .#checks.x86_64-linux.compound-engineering-skills-opt-out \
+  .#homeConfigurations.lefant-toolnix.activationPackage
+./result-2/activate
 codex debug prompt-input 'check compound assets'
 ```
 
@@ -51,5 +56,8 @@ Observed:
 
 - `~/.config/opencode/skills/ce-update` is absent.
 - All 51 generated Codex agent TOML files parse successfully.
+- `nix flake check --no-build` evaluates the new Compound Engineering checks.
+- `.#checks.x86_64-linux.compound-engineering-assets` verifies OpenCode/Codex platform filtering and parses all Codex agent TOML.
+- `.#checks.x86_64-linux.compound-engineering-skills-opt-out` verifies `toolnix.compoundEngineering.skills.enable = false` removes Compound skills while preserving target-specific agent assets.
 - `codex debug prompt-input` still discovers Compound skills from `compound-engineering-codex-assets`.
 - `codex debug prompt-input` does not show duplicate Compound skills from `compound-engineering-pi-assets` or the Claude-only `ce-update` skill.

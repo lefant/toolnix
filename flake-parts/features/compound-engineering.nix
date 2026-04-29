@@ -1,8 +1,82 @@
-{ ... }:
+{ config, inputs, ... }:
 let
+  flakeConfig = config;
   compoundEngineeringData = import ../../modules/shared/compound-engineering.nix;
 in {
-  config.toolnix.features.compoundEngineering = {
+  config = {
+    perSystem =
+    { pkgs, system, ... }:
+    let
+      lib = pkgs.lib;
+      compound = compoundEngineeringData { inherit pkgs lib inputs; };
+      mkHome = extraModule:
+        inputs.home-manager.lib.homeManagerConfiguration {
+          pkgs = import inputs.nixpkgs { inherit system; };
+          extraSpecialArgs = { inherit inputs; };
+          modules = [
+            flakeConfig.toolnix.profiles.homeManager.defaultModule
+            {
+              home.username = "exedev";
+              home.homeDirectory = "/tmp/toolnix-check";
+              home.stateVersion = "25.05";
+              toolnix.hostName = "toolnix-check";
+            }
+            extraModule
+          ];
+        };
+      skillsOptOut = mkHome {
+        toolnix.compoundEngineering.skills.enable = false;
+      };
+      optOutFiles = skillsOptOut.config.home.file;
+      optOutHasCodexSkills = builtins.hasAttr ".codex/skills/compound-engineering" optOutFiles;
+    in {
+      checks.compound-engineering-assets = pkgs.runCommand "compound-engineering-assets-check" {
+        nativeBuildInputs = [ pkgs.python3 ];
+      } ''
+        set -euo pipefail
+
+        test -e ${compound.managedOpenCodeSkillTree}/ce-code-review/SKILL.md
+        test ! -e ${compound.managedOpenCodeSkillTree}/ce-update
+        test -e ${compound.managedCodexSkillTree}/ce-code-review/SKILL.md
+        test ! -e ${compound.managedCodexSkillTree}/ce-update
+
+        OUT=${compound.managedCodexAgentTree} python3 - <<'PY'
+import os
+import pathlib
+import tomllib
+agent_dir = pathlib.Path(os.environ['OUT'])
+agent_files = sorted(agent_dir.glob('*.toml'))
+if not agent_files:
+    raise SystemExit(f'no Codex agent TOML files rendered under {agent_dir}')
+for path in agent_files:
+    tomllib.loads(path.read_text(encoding='utf-8'))
+PY
+
+        touch "$out"
+      '';
+
+      checks.compound-engineering-skills-opt-out = pkgs.runCommand "compound-engineering-skills-opt-out-check" { } ''
+        set -euo pipefail
+
+        test ! -e ${optOutFiles.".agents/skills".source}/ce-code-review
+        test ! -e ${optOutFiles.".claude/skills".source}/ce-code-review
+        test ! -e ${optOutFiles.".config/opencode/skills".source}/ce-code-review
+        test ! -e ${optOutFiles.".config/amp/skills".source}/ce-code-review
+        test ! -e ${optOutFiles.".pi/agent/skills".source}/ce-code-review
+        ${lib.optionalString optOutHasCodexSkills ''
+          echo "Codex Compound skills should not be linked when toolnix.compoundEngineering.skills.enable = false" >&2
+          exit 1
+        ''}
+
+        test -e ${optOutFiles.".claude/agents".source}/ce-security-reviewer.md
+        test -e ${optOutFiles.".config/opencode/agents".source}/ce-security-reviewer.md
+        test -e ${optOutFiles.".codex/agents/compound-engineering".source}/ce-security-reviewer.toml
+
+        touch "$out"
+      '';
+    };
+
+    toolnix.features.compoundEngineering = {
     data = compoundEngineeringData;
 
     homeManagerOptionModule = { lib, ... }: {
@@ -49,6 +123,7 @@ in {
           description = "Install the Pi subagent extension used by Compound Engineering agents.";
         };
       };
+    };
     };
   };
 }
