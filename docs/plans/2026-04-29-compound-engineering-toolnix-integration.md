@@ -2,7 +2,7 @@
 
 ## Goal
 
-Add a disabled-by-default Toolnix integration for EveryInc Compound Engineering as a direct flake input. Keep `agent-skills` portable and skill-only while allowing `lefant-toolnix` to opt into Compound skills and Pi subagents declaratively.
+Add a Toolnix integration for EveryInc Compound Engineering as a direct flake input. Keep `agent-skills` portable and skill-only while enabling Compound skills and Pi subagents by default for Home Manager hosts.
 
 ## References
 
@@ -38,7 +38,7 @@ Add a disabled-by-default Toolnix integration for EveryInc Compound Engineering 
      - `toolnix.compoundEngineering.skills.enable`
      - `toolnix.compoundEngineering.pi.enable`
      - `toolnix.compoundEngineering.pi.subagentExtension.enable`
-   - [x] Default all Compound options off except nested defaults that apply once the top-level feature is enabled.
+   - [x] Default Compound Engineering on for Home Manager hosts after validation, with explicit opt-out via `toolnix.compoundEngineering.enable = false`.
 
 5. Home Manager fanout
    - [x] Import the new option module in the Home Manager profile.
@@ -49,7 +49,7 @@ Add a disabled-by-default Toolnix integration for EveryInc Compound Engineering 
 
 6. Validation
    - [x] Evaluate/build the self-hosted Home Manager config.
-   - [x] Enable Compound Engineering on `lefant-toolnix` for live validation.
+   - [x] Enable Compound Engineering on `lefant-toolnix` through the default Home Manager option.
    - [x] Activate Home Manager locally.
    - [x] Confirm symlinks:
      - `~/.pi/agent/skills/ce-code-review/SKILL.md`
@@ -72,5 +72,5 @@ Add a disabled-by-default Toolnix integration for EveryInc Compound Engineering 
 
 ## Rollback
 
-- Disable `toolnix.compoundEngineering.enable` to remove runtime fanout.
+- Set `toolnix.compoundEngineering.enable = false` to remove runtime fanout.
 - Revert the flake input and module additions if upstream layout or Pi extension compatibility is not usable.

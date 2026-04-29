@@ -8,13 +8,13 @@
 
 ## Summary
 
-Implemented an optional EveryInc Compound Engineering integration directly in Toolnix. Compound Engineering now enters Toolnix as its own pinned non-flake input instead of being copied into `agent-skills`. The `lefant-toolnix` Home Manager profile enables it for live validation and now exposes Pi-compatible Compound skills, agent definitions, and the Pi subagent extension declaratively.
+Implemented an EveryInc Compound Engineering integration directly in Toolnix. Compound Engineering now enters Toolnix as its own pinned non-flake input instead of being copied into `agent-skills`. Home Manager hosts enable it by default and expose Pi-compatible Compound skills, agent definitions, and the Pi subagent extension declaratively.
 
 ## Implementation
 
 - Added `compound-engineering-plugin` input pinned to `EveryInc/compound-engineering-plugin` rev `e5b397c9d1883354f03e338dd00f98be3da39f9f`.
 - Exported the new input through `devenvSources` and module input forwarding.
-- Added `flake-parts/features/compound-engineering.nix` with disabled-by-default Home Manager options:
+- Added `flake-parts/features/compound-engineering.nix` with default-on Home Manager options:
   - `toolnix.compoundEngineering.enable`
   - `toolnix.compoundEngineering.skills.enable`
   - `toolnix.compoundEngineering.pi.enable`
@@ -29,7 +29,7 @@ Implemented an optional EveryInc Compound Engineering integration directly in To
 - Linked Pi-specific assets:
   - `~/.pi/agent/agents`
   - `~/.pi/agent/extensions/subagent`
-- Enabled `toolnix.compoundEngineering.enable = true` only for the self-hosted `homeConfigurations.lefant-toolnix` output.
+- Changed `toolnix.compoundEngineering.enable` to default to `true` for Home Manager hosts after successful live validation.
 
 ## Validation
 
@@ -125,6 +125,6 @@ tmux -S /tmp/claude-tmux-sockets/claude.sock attach -t pi-compound-run
 ## Follow-ups
 
 - [x] Exercise a real model-backed Pi `subagent` tool call with a small safe task.
-- [ ] Decide whether to keep Compound enabled in `homeConfigurations.lefant-toolnix` after more daily-use validation.
+- [x] Decide whether to keep Compound enabled in `homeConfigurations.lefant-toolnix` after more daily-use validation. Decision: make Compound Engineering default-on for Home Manager hosts, with explicit opt-out.
 - [ ] Consider exposing generated Compound asset trees as flake outputs for easier inspection.
 - [ ] Consider Claude/OpenCode/Codex fanout later, using upstream target converters as references.

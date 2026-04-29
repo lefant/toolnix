@@ -9,8 +9,8 @@ in {
       options.toolnix.compoundEngineering = {
         enable = lib.mkOption {
           type = lib.types.bool;
-          default = false;
-          description = "Enable the optional EveryInc Compound Engineering integration.";
+          default = true;
+          description = "Enable the EveryInc Compound Engineering integration by default for Home Manager hosts.";
         };
 
         skills.enable = lib.mkOption {

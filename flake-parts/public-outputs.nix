@@ -15,7 +15,6 @@ let
           home.stateVersion = "25.05";
 
           toolnix.hostName = hostName;
-          toolnix.compoundEngineering.enable = true;
         }
       ];
     };

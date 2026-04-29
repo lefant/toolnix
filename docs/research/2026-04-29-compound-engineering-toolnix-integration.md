@@ -91,12 +91,12 @@ This preserves boundaries:
 
 - Pi's subagent extension is an example, not a stable built-in API. Toolnix should vendor/copy only the minimum extension code and be ready to adjust on Pi upgrades.
 - Compound agent tool names are Claude-style (`Read`, `Grep`, `Glob`, `Bash`) while Pi tools are lowercase. The current Pi example only passes tool names into prompts/subprocess arguments; verification must confirm whether direct use is acceptable or normalization is needed.
-- Installing 35+ skills and 50+ agents into the default environment could add noise. The feature should be disabled by default.
+- Installing 35+ skills and 50+ agents into the default environment could add noise. Initial rollout should validate the feature before making it default-on.
 - Running upstream `bunx @every-env/compound-plugin install` during activation would reintroduce imperative network setup. Avoid it.
 
 ## Recommendation
 
-Add an optional Toolnix feature backed by a new flake input:
+Add a Toolnix feature backed by a new flake input:
 
 ```nix
 compound-engineering-plugin = {
@@ -108,8 +108,8 @@ compound-engineering-plugin = {
 The feature should:
 
 1. discover skill directories under the upstream `plugins/compound-engineering/skills/` directory;
-2. link them into the managed skill tree only when enabled;
+2. link them into the managed skill tree when enabled;
 3. discover `agents/*.agent.md`;
 4. link those to `~/.pi/agent/agents` when Pi support is enabled;
 5. install a Pi subagent extension declaratively;
-6. remain disabled by default.
+6. default on for Home Manager hosts after validation, while preserving explicit opt-out.

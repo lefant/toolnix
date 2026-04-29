@@ -6,13 +6,13 @@ Toolnix SHALL provide an optional declarative integration for EveryInc Compound 
 
 ## Requirements
 
-### Optional bundle activation
+### Default bundle activation
 
-The system SHALL keep Compound Engineering disabled by default and activate it only through an explicit Toolnix option.
+The system SHALL enable Compound Engineering by default for Home Manager hosts while preserving an explicit opt-out option.
 
 **Scenarios:**
-- GIVEN a default Toolnix host WHEN Home Manager activates THEN Compound Engineering skills and agents are not installed.
-- GIVEN a host enables Compound Engineering WHEN Home Manager activates THEN the configured Compound assets are linked from Nix-managed sources.
+- GIVEN a default Toolnix Home Manager host WHEN Home Manager activates with the agent baseline enabled THEN Compound Engineering skills and Pi agents are linked from Nix-managed sources.
+- GIVEN a host disables Compound Engineering WHEN Home Manager activates THEN Compound Engineering skills and agents are not installed by this integration.
 
 ### Direct upstream source
 
@@ -49,6 +49,6 @@ The system SHALL NOT run upstream network installers or converters during Home M
 
 ## Open Questions
 
-- [ ] Should Compound Engineering be enabled on `lefant-toolnix` by default after validation, or remain available but off?
+- [x] Should Compound Engineering be enabled on `lefant-toolnix` by default after validation, or remain available but off? Decision: enable by default for Home Manager hosts after successful Pi validation.
 - [ ] Should Toolnix normalize Claude-style agent tool names for Pi if testing shows problems?
 - [ ] Should Claude or OpenCode fanout be added after Pi validation?
