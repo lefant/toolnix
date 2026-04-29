@@ -74,10 +74,36 @@ The startup view showed:
 - Compound skills in `[Skills]`, including `ce-code-review`, `ce-work`, `ce-plan`, and others.
 - `~/.pi/agent/extensions/subagent` in `[Extensions]`.
 
-Monitor command for the validation tmux session:
+Live Pi validation then created a throwaway project under `/tmp/toolnix-compound-prime-sieve`:
+
+- implemented a minimal Python Sieve of Eratosthenes package and CLI
+- wrote tests under `tests/test_prime_sieve.py`
+- ran `uv run --with pytest python -m pytest -q`
+- observed `4 passed in 0.08s`
+
+A second Pi session started in `/tmp/toolnix-compound-prime-sieve` invoked `/ce-compound` in full mode. It created:
+
+- `/tmp/toolnix-compound-prime-sieve/docs/solutions/best-practices/prime-sieve-validation-2026-04-29.md`
+
+Compound validation inside Pi:
+
+- read `~/.pi/agent/skills/ce-compound/SKILL.md`
+- used the rendered Compound support files from `~/.pi/agent/skills/ce-compound/references/` and `assets/`
+- ran the installed Compound validator script at `~/.pi/agent/skills/ce-compound/scripts/validate-frontmatter.py`
+- observed `OK: docs/solutions/best-practices/prime-sieve-validation-2026-04-29.md`
+
+A direct model-backed subagent validation also succeeded:
+
+- requested `subagent` with agent `ce-code-simplicity-reviewer`
+- subagent read `src/prime_sieve/core.py`
+- subagent returned a concise review observation
+- Pi rendered the call as `subagent ce-code-simplicity-reviewer [user]`, confirming the installed Pi subagent extension and Compound agent definitions work together
+
+Monitor commands for the validation tmux sessions:
 
 ```bash
 tmux -S /tmp/claude-tmux-sockets/claude.sock attach -t pi-compound-test
+tmux -S /tmp/claude-tmux-sockets/claude.sock attach -t pi-compound-run
 ```
 
 ## Plan vs Reality
@@ -98,7 +124,7 @@ tmux -S /tmp/claude-tmux-sockets/claude.sock attach -t pi-compound-test
 
 ## Follow-ups
 
-- [ ] Exercise a real model-backed Pi `subagent` tool call with a small safe task.
+- [x] Exercise a real model-backed Pi `subagent` tool call with a small safe task.
 - [ ] Decide whether to keep Compound enabled in `homeConfigurations.lefant-toolnix` after more daily-use validation.
 - [ ] Consider exposing generated Compound asset trees as flake outputs for easier inspection.
 - [ ] Consider Claude/OpenCode/Codex fanout later, using upstream target converters as references.

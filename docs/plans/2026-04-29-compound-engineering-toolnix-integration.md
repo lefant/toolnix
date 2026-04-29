@@ -56,7 +56,8 @@ Add a disabled-by-default Toolnix integration for EveryInc Compound Engineering 
      - `~/.pi/agent/agents/ce-security-reviewer.md`
      - `~/.pi/agent/extensions/subagent/index.ts`
    - [x] Start Pi in tmux and verify startup/resource loading.
-   - [ ] Exercise a real `subagent` tool call through a model-backed Pi session.
+   - [x] Exercise a real `subagent` tool call through a model-backed Pi session.
+   - [x] Run `/ce-compound` against a throwaway prime-sieve project and validate generated documentation.
 
 7. Devlog and commit
    - [x] Record implementation results in `docs/devlog/`.
