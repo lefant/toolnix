@@ -266,6 +266,7 @@ Start with:
 - **`docs/research/`**: Discovery notes and analysis
 - **`docs/plans/`**: Time-stamped implementation plans
 - **`docs/devlog/`**: Time-stamped implementation outcomes and learnings
+- **`docs/solutions/`**: Documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
 
 ### AI-Assisted Development
 

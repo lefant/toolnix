@@ -43,7 +43,9 @@ const AskUserParamsSchema = Type.Object({
 
 function optionLabel(option: RawOption): string {
 	if (typeof option === "string") return option;
-	return option.label ?? option.text ?? option.title ?? option.value ?? JSON.stringify(option);
+	if (!option || typeof option !== "object") return String(option);
+	const label = option.label ?? option.text ?? option.title ?? option.value;
+	return label === undefined ? JSON.stringify(option) : String(label);
 }
 
 function normalizeArgs(args: unknown): Record<string, unknown> {
@@ -74,11 +76,10 @@ function parseMultiAnswer(input: string, labels: string[]): string | string[] {
 	const trimmed = input.trim();
 	const parts = trimmed.split(/[\s,]+/).filter(Boolean);
 	if (parts.length > 0 && parts.every((part) => /^\d+$/.test(part))) {
-		const selected = parts
-			.map((part) => Number(part) - 1)
-			.filter((index) => index >= 0 && index < labels.length)
-			.map((index) => labels[index]);
-		if (selected.length > 0) return selected;
+		const indices = parts.map((part) => Number(part) - 1);
+		if (indices.every((index) => index >= 0 && index < labels.length)) {
+			return indices.map((index) => labels[index]);
+		}
 	}
 	return trimmed;
 }
@@ -111,26 +112,35 @@ export default function askUserExtension(pi: ExtensionAPI): void {
 			}
 
 			if (multiSelect && labels.length > 0) {
+				const instruction = allowFreeText
+					? "Select one or more options by number, separated by commas. Or type a custom answer."
+					: "Select one or more options by number, separated by commas.";
 				const body = [
 					prompt,
 					"",
-					"Select one or more options by number, separated by commas. Or type a custom answer.",
+					instruction,
 					"",
 					...labels.map((label, index) => `${index + 1}. ${label}`),
 				].join("\n");
-				const input = await ctx.ui.editor(body, params.default ?? "");
-				if (input === undefined) {
+				while (true) {
+					const input = await ctx.ui.editor(body, params.default ?? "");
+					if (input === undefined) {
+						return {
+							content: [{ type: "text", text: "User cancelled the question." }],
+							details: { question: params.question, options: labels, answer: null, cancelled: true } satisfies AskUserDetails,
+						};
+					}
+					const answer = parseMultiAnswer(input, labels);
+					if (!allowFreeText && !Array.isArray(answer)) {
+						ctx.ui.notify("Select options by number; free-text answers are disabled.", "error");
+						continue;
+					}
+					const answerText = Array.isArray(answer) ? answer.join(", ") : answer;
 					return {
-						content: [{ type: "text", text: "User cancelled the question." }],
-						details: { question: params.question, options: labels, answer: null, cancelled: true } satisfies AskUserDetails,
+						content: [{ type: "text", text: `User answered: ${answerText}` }],
+						details: { question: params.question, options: labels, answer, cancelled: false, custom: !Array.isArray(answer) } satisfies AskUserDetails,
 					};
 				}
-				const answer = parseMultiAnswer(input, labels);
-				const answerText = Array.isArray(answer) ? answer.join(", ") : answer;
-				return {
-					content: [{ type: "text", text: `User answered: ${answerText}` }],
-					details: { question: params.question, options: labels, answer, cancelled: false, custom: !Array.isArray(answer) } satisfies AskUserDetails,
-				};
 			}
 
 			if (labels.length > 0) {
