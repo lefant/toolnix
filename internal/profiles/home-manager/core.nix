@@ -165,10 +165,6 @@ in {
       source = managedSkillTree;
       force = true;
     };
-    home.file.".openclaw/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = managedSkillTree;
-      force = true;
-    };
     home.file.".pi/agent/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = managedSkillTree;
       force = true;

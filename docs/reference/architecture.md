@@ -241,21 +241,23 @@ Persistent agent configuration is managed through Home Manager file entries sour
 - `~/.pi/agent/settings.json`
 - `~/.pi/agent/keybindings.json`
 
-Important boundary:
+Important OpenClaw boundary:
 
 - `~/.openclaw/openclaw.json` is **not** Home Manager-managed
+- `~/.openclaw/skills` is **not** Home Manager-managed
 - the live OpenClaw runtime config is host/application-owned mutable state and must not be replaced by a repo-tracked store symlink during normal toolnix rollouts
+- OpenClaw rejects child symlinks that escape the configured skill-root realpath, so Toolnix's link-farm skill tree is not a valid OpenClaw managed-skill layout
+- until Toolnix can materialize an OpenClaw-specific real directory tree, OpenClaw hosts should use runtime config such as `skills.load.extraDirs` pointed at a local `lefant/agent-skills` checkout
 
-Shared skills are also managed declaratively:
+Shared skills are managed declaratively for compatible targets:
 
 - `~/.agents/skills`
 - `~/.claude/skills`
 - `~/.config/opencode/skills`
 - `~/.config/amp/skills`
-- `~/.openclaw/skills`
 - `~/.pi/agent/skills`
 
-These are wired from the managed skill tree exported by `modules/shared/agent-baseline.nix`.
+These are wired from the managed skill tree exported by `modules/shared/agent-baseline.nix`, with target-specific additions where needed.
 
 ### Activation-time merge behavior
 
