@@ -54,6 +54,7 @@ The rollout is Pi-first, then declarative best-effort fanout for OpenCode, Claud
    - [x] Add Home Manager options:
      - `toolnix.compoundEngineering.enable`
      - `toolnix.compoundEngineering.skills.enable`
+     - `toolnix.compoundEngineering.tools.enable`
      - `toolnix.compoundEngineering.pi.enable`
      - `toolnix.compoundEngineering.pi.subagentExtension.enable`
      - `toolnix.compoundEngineering.opencode.enable`
@@ -61,6 +62,7 @@ The rollout is Pi-first, then declarative best-effort fanout for OpenCode, Claud
      - `toolnix.compoundEngineering.codex.enable`
    - [x] Default Compound Engineering on for Home Manager hosts after validation, with explicit opt-out via `toolnix.compoundEngineering.enable = false`.
    - [x] Keep `skills.enable` as the skill-tree gate; target `*.enable` flags also control target-specific agents/extensions.
+   - [x] Add default-on `tools.enable` to install native helper tools preferred by Compound Engineering agents without including heavyweight `vhs`.
 
 5. Home Manager fanout
    - [x] Import the new option module in the Home Manager profile.
@@ -73,8 +75,13 @@ The rollout is Pi-first, then declarative best-effort fanout for OpenCode, Claud
    - [x] Compose the managed Compound Codex compatibility block into `~/.codex/AGENTS.md`.
    - [x] Keep generic `~/.agents/skills` baseline-only to avoid duplicate Codex discovery of Pi-rendered Compound skills.
    - [x] Avoid changing existing `agent-skills` behavior beyond refreshing the pinned baseline input.
+   - [x] Install Compound helper tools (`ast-grep`, `silicon`) into Home Manager host packages when Compound Engineering tools are enabled.
 
-6. Target renderers
+6. Project shell support
+   - [x] Add a devenv-side `toolnix.compoundEngineering` option namespace.
+   - [x] Install Compound helper tools (`ast-grep`, `silicon`) into Toolnix project shells when Compound Engineering tools are enabled.
+
+7. Target renderers
    - [x] Add Pi renderer for Pi-compatible skills and agents.
    - [x] Add OpenCode renderer for OpenCode-compatible skills and subagent markdown.
    - [x] Add Codex renderer for Codex-compatible skills and custom-agent TOML.
@@ -82,7 +89,7 @@ The rollout is Pi-first, then declarative best-effort fanout for OpenCode, Claud
    - [x] Filter target-specific skills with upstream `ce_platforms` so Claude-only skills such as `ce-update` do not appear in OpenCode or Codex.
    - [x] Validate every generated Codex agent TOML file during Nix build.
 
-7. Validation
+8. Validation
    - [x] Evaluate/build the self-hosted Home Manager config.
    - [x] Enable Compound Engineering on `lefant-toolnix` through the default Home Manager option.
    - [x] Activate Home Manager locally.
@@ -101,7 +108,7 @@ The rollout is Pi-first, then declarative best-effort fanout for OpenCode, Claud
    - [x] Verify activation/build paths do not invoke upstream marketplace, TUI, `bunx`, `npm`, `curl`, or other network installers.
    - [x] Add flake checks for target asset rendering and the skills opt-out matrix.
 
-8. Devlog and commits
+9. Devlog and commits
    - [x] Record implementation results in `docs/devlog/`.
    - [x] Commit implementation and devlog in small reviewable increments.
    - [x] Commit and devlog OpenCode, Claude Code, and Codex CLI fanout separately.
@@ -119,6 +126,7 @@ The rollout is Pi-first, then declarative best-effort fanout for OpenCode, Claud
 
 - Set `toolnix.compoundEngineering.enable = false` to remove all Compound fanout.
 - Set `toolnix.compoundEngineering.skills.enable = false` to remove Compound skill trees while keeping target-specific agent assets available where the target integration remains enabled.
+- Set `toolnix.compoundEngineering.tools.enable = false` to remove Compound helper tools (`ast-grep`, `silicon`) while keeping skills and agent assets enabled.
 - Set per-target flags to disable individual fanout paths:
   - `toolnix.compoundEngineering.pi.enable = false`
   - `toolnix.compoundEngineering.opencode.enable = false`

@@ -9,6 +9,7 @@ let
     else toolnixFlake.devenvSources // { toolnix = toolnixFlake; };
   opinionated = features.opinionatedShell.data { inherit pkgs; };
   agent = features.agentBaseline.data { inherit pkgs lib; inputs = resolvedInputs; };
+  compound = features.compoundEngineering.data { inherit pkgs lib; inputs = resolvedInputs; };
   agentBrowser = features.agentBrowser.data { inherit pkgs; };
 in {
   config =
@@ -19,6 +20,7 @@ in {
       useTmuxHelpers = opinionatedCfg.enable && opinionatedCfg.tmuxHelpers.enable;
       useAgentWrappers = opinionatedCfg.enable && opinionatedCfg.agentWrappers.enable;
       useAgentBrowser = config.toolnix.agentBrowser.enable;
+      useCompoundTools = config.toolnix.compoundEngineering.enable && config.toolnix.compoundEngineering.tools.enable;
       projectOpinionatedShell = opinionated.renderProjectShell {
         includeAliases = useAliases;
         includeTmuxHelpers = useTmuxHelpers;
@@ -44,7 +46,7 @@ in {
         shellcheck
         procps
         less
-      ] ++ agent.packages ++ lib.optionals useAgentBrowser agentBrowser.packages;
+      ] ++ agent.packages ++ lib.optionals useCompoundTools compound.toolPackages ++ lib.optionals useAgentBrowser agentBrowser.packages;
 
       env =
         lib.optionalAttrs useTimezone opinionated.env

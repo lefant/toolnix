@@ -139,6 +139,10 @@ PY
       sed -i "s|from 'typebox';|from '@sinclair/typebox';|" "$out/index.ts"
     fi
   '';
+  toolPackages = with pkgs; [
+    ast-grep
+    silicon
+  ];
 in
 {
   inherit
@@ -161,7 +165,8 @@ in
     piSubagentExtension
     pluginRoot
     rawAgentLinks
-    rawSkillLinks;
+    rawSkillLinks
+    toolPackages;
 
   skillLinks = piSkillLinks;
 }

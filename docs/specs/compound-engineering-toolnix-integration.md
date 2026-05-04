@@ -39,6 +39,16 @@ The system SHALL install Compound Engineering agent definitions and Pi subagent 
 - GIVEN Compound Engineering Pi support is enabled WHEN Pi starts THEN the subagent extension is present under `~/.pi/agent/extensions/subagent`.
 - GIVEN Pi loads the subagent extension WHEN a task requires a specialized reviewer THEN Pi can call the `subagent` tool with a Compound agent name.
 
+### Native helper tools
+
+The system SHALL provide a declarative native-tool bundle for tools preferred by Compound Engineering agents while avoiding oversized optional tools by default.
+
+**Scenarios:**
+- GIVEN Compound Engineering tools are enabled WHEN a Home Manager host activates THEN `ast-grep` and `silicon` are available from Nix-managed packages.
+- GIVEN Compound Engineering tools are enabled WHEN a Toolnix project devenv shell starts THEN `ast-grep` and `silicon` are available on `PATH`.
+- GIVEN the default Compound Engineering tool bundle is installed THEN `vhs` is not included by default because it pulls a browser-sized dependency closure.
+- GIVEN a consumer disables `toolnix.compoundEngineering.tools.enable` THEN the helper tools are not added by this integration.
+
 ### No imperative installer in activation
 
 The system SHALL NOT run upstream network installers or converters during Home Manager activation.

@@ -24,11 +24,18 @@ in {
             extraModule
           ];
         };
+      defaultHome = mkHome { };
+      toolsOptOut = mkHome {
+        toolnix.compoundEngineering.tools.enable = false;
+      };
       skillsOptOut = mkHome {
         toolnix.compoundEngineering.skills.enable = false;
       };
       optOutFiles = skillsOptOut.config.home.file;
       optOutHasCodexSkills = builtins.hasAttr ".codex/skills/compound-engineering" optOutFiles;
+      defaultPackages = defaultHome.config.home.packages;
+      toolsOptOutPackages = toolsOptOut.config.home.packages;
+      hasPackage = pkg: packages: lib.any (candidate: candidate == pkg) packages;
     in {
       checks.compound-engineering-assets = pkgs.runCommand "compound-engineering-assets-check" {
         nativeBuildInputs = [ pkgs.python3 ];
@@ -51,6 +58,33 @@ if not agent_files:
 for path in agent_files:
     tomllib.loads(path.read_text(encoding='utf-8'))
 PY
+
+        touch "$out"
+      '';
+
+      checks.compound-engineering-tools = pkgs.runCommand "compound-engineering-tools-check" { } ''
+        set -euo pipefail
+
+        ${lib.optionalString (!(hasPackage pkgs.ast-grep defaultPackages)) ''
+          echo "ast-grep should be installed when Compound Engineering tools are enabled" >&2
+          exit 1
+        ''}
+        ${lib.optionalString (!(hasPackage pkgs.silicon defaultPackages)) ''
+          echo "silicon should be installed when Compound Engineering tools are enabled" >&2
+          exit 1
+        ''}
+        ${lib.optionalString (hasPackage pkgs.vhs defaultPackages) ''
+          echo "vhs should not be installed by the default Compound Engineering tool bundle" >&2
+          exit 1
+        ''}
+        ${lib.optionalString (hasPackage pkgs.ast-grep toolsOptOutPackages) ''
+          echo "ast-grep should not be installed when toolnix.compoundEngineering.tools.enable = false" >&2
+          exit 1
+        ''}
+        ${lib.optionalString (hasPackage pkgs.silicon toolsOptOutPackages) ''
+          echo "silicon should not be installed when toolnix.compoundEngineering.tools.enable = false" >&2
+          exit 1
+        ''}
 
         touch "$out"
       '';
@@ -93,6 +127,12 @@ PY
           description = "Install Compound Engineering skills into the managed agent skill tree when Compound Engineering is enabled.";
         };
 
+        tools.enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Install native helper tools preferred by Compound Engineering agents.";
+        };
+
         opencode.enable = lib.mkOption {
           type = lib.types.bool;
           default = true;
@@ -121,6 +161,22 @@ PY
           type = lib.types.bool;
           default = true;
           description = "Install the Pi subagent extension used by Compound Engineering agents.";
+        };
+      };
+    };
+
+    devenvOptionModule = { lib, ... }: {
+      options.toolnix.compoundEngineering = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Enable the EveryInc Compound Engineering project-shell integration by default.";
+        };
+
+        tools.enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Install native helper tools preferred by Compound Engineering agents.";
         };
       };
     };

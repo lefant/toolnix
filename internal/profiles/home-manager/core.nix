@@ -15,6 +15,7 @@ let
   compoundCodexEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.codex.enable;
   compoundCodexSkillsEnabled = compoundSkillsEnabled && cfg.compoundEngineering.codex.enable;
   compoundPiEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.pi.enable;
+  compoundToolsEnabled = cfg.compoundEngineering.enable && cfg.compoundEngineering.tools.enable;
   managedSkillTree =
     if compoundSkillsEnabled then
       agent.mkManagedSkillTree "toolnix-managed-skills-with-compound-engineering" (agent.skillLinks ++ compound.skillLinks)
@@ -43,6 +44,7 @@ in {
 
     home.packages =
       lib.optionals cfg.enableAgentBaseline agent.packages
+      ++ lib.optionals compoundToolsEnabled compound.toolPackages
       ++ lib.optionals cfg.agentBrowser.enable agentBrowser.packages;
     home.sessionVariables =
       opinionated.env

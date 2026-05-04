@@ -10,6 +10,7 @@ in {
       features.requiredBaseline.devenvModule
       features.opinionatedShell.devenvOptionModule
       features.agentBrowser.devenvOptionModule
+      features.compoundEngineering.devenvOptionModule
       ../../internal/profiles/devenv/core.nix
     ];
   };
