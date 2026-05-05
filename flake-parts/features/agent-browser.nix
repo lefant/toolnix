@@ -9,7 +9,7 @@ in {
       options.toolnix.agentBrowser.enable = lib.mkOption {
         type = lib.types.bool;
         default = false;
-        description = "Enable opt-in host-native agent-browser support on the host.";
+        description = "Enable opt-in Nix-managed agent-browser support on the host.";
       };
     };
 
@@ -17,7 +17,7 @@ in {
       options.toolnix.agentBrowser.enable = lib.mkOption {
         type = lib.types.bool;
         default = false;
-        description = "Enable opt-in host-native agent-browser support in the project shell.";
+        description = "Enable opt-in Nix-managed agent-browser support in the project shell.";
       };
     };
   };

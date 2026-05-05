@@ -78,7 +78,7 @@ Top-level opt-out:
 }
 ```
 
-Optional `agent-browser` support for project consumers:
+Optional Nix-managed `agent-browser` support for project consumers:
 
 ```nix
 { inputs, ... }: {
@@ -87,22 +87,26 @@ Optional `agent-browser` support for project consumers:
 }
 ```
 
-### Agent-Browser First Run
+Optional full browser-tools support for project consumers:
 
-On a newly enabled host or project:
+```nix
+{ inputs, ... }: {
+  imports = [ "${inputs.toolnix}/modules/devenv/project.nix" ];
+  toolnix.browserTools.enable = true;
+}
+```
 
-- the `agent-browser` wrapper is available on `PATH` immediately
-- the real CLI is installed lazily on first `agent-browser` invocation
-- the browser runtime still needs a one-time install step
+### Browser Tools First Run
+
+`toolnix.agentBrowser.enable` provides the Nix-packaged `agent-browser` CLI and points it at Toolnix's Nix-managed Chromium. No npm first-run install or `agent-browser install` browser download is required for normal use.
 
 Minimal first-run flow:
 
 ```bash
 agent-browser --version
-agent-browser install
 ```
 
-After that, ordinary usage works without Docker:
+Ordinary usage works without Docker:
 
 ```bash
 agent-browser open https://example.com
@@ -111,11 +115,21 @@ agent-browser get title
 agent-browser close
 ```
 
-Host-local state paths used by the opt-in integration:
+`toolnix.browserTools.enable` implies the `agent-browser` behavior above and also provides `vhs` plus the shared Chromium package:
+
+```bash
+vhs --version
+chromium --version
+```
+
+Host-local runtime state used by the opt-in integration:
+
+- browser runtime state: `~/.agent-browser`
+
+Older hosts that used the previous lazy npm wrapper may still have cleanup-safe convenience state under:
 
 - npm prefix: `~/.local/share/toolnix/agent-browser/npm-prefix`
 - npm cache: `~/.cache/toolnix-agent-browser/npm`
-- browser runtime state: `~/.agent-browser`
 
 Other host-local runtime convenience state may also exist outside the durable project layout, for example a librarian-style reference-repo cache under `~/.cache/checkouts/<host>/<org>/<repo>`.
 

@@ -10,7 +10,8 @@ let
   opinionated = features.opinionatedShell.data { inherit pkgs; };
   agent = features.agentBaseline.data { inherit pkgs lib; inputs = resolvedInputs; };
   compound = features.compoundEngineering.data { inherit pkgs lib; inputs = resolvedInputs; };
-  agentBrowser = features.agentBrowser.data { inherit pkgs; };
+  agentBrowser = features.agentBrowser.data { inherit pkgs lib; inputs = resolvedInputs; };
+  browserTools = features.browserTools.data { inherit pkgs lib; inputs = resolvedInputs; };
 in {
   config =
     let
@@ -19,7 +20,8 @@ in {
       useAliases = opinionatedCfg.enable && opinionatedCfg.aliases.enable;
       useTmuxHelpers = opinionatedCfg.enable && opinionatedCfg.tmuxHelpers.enable;
       useAgentWrappers = opinionatedCfg.enable && opinionatedCfg.agentWrappers.enable;
-      useAgentBrowser = config.toolnix.agentBrowser.enable;
+      useAgentBrowser = config.toolnix.agentBrowser.enable || config.toolnix.browserTools.enable;
+      useBrowserTools = config.toolnix.browserTools.enable;
       useCompoundTools = config.toolnix.compoundEngineering.enable && config.toolnix.compoundEngineering.tools.enable;
       projectOpinionatedShell = opinionated.renderProjectShell {
         includeAliases = useAliases;
@@ -46,12 +48,13 @@ in {
         shellcheck
         procps
         less
-      ] ++ agent.packages ++ lib.optionals useCompoundTools compound.toolPackages ++ lib.optionals useAgentBrowser agentBrowser.packages;
+      ] ++ agent.packages ++ lib.optionals useCompoundTools compound.toolPackages ++ lib.optionals useAgentBrowser agentBrowser.packages ++ lib.optionals useBrowserTools browserTools.browserTools.packages;
 
       env =
         lib.optionalAttrs useTimezone opinionated.env
         // agent.env
         // lib.optionalAttrs useAgentBrowser agentBrowser.env
+        // lib.optionalAttrs useBrowserTools browserTools.browserTools.env
         // {
           EDITOR = "emacsclient -c -t";
           VISUAL = "emacsclient -c -t";

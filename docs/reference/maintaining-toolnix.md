@@ -160,6 +160,7 @@ Primary files:
 - `modules/devenv/default.nix`
 - `modules/shared/opinionated-shell.nix`
 - `modules/shared/agent-browser.nix`
+- `modules/shared/browser-tools.nix`
 - `modules/shared/required-baseline.nix`
 - `modules/shared/agent-baseline.nix`
 
@@ -212,9 +213,12 @@ For current host-local `pi` model/backend usage, including Together-backed custo
 
 ### Optional browser state
 
-When `agent-browser` is enabled, host-local state lives under:
+When `agent-browser` or `browserTools` is enabled, host-local browser runtime state lives under:
 
 - `~/.agent-browser`
+
+The current Toolnix integration uses the Nix-packaged `agent-browser` and Nix-managed Chromium, so normal first-run use does not require npm install state. Older hosts may still have cleanup-safe state from the previous lazy npm wrapper under:
+
 - `~/.local/share/toolnix/agent-browser/npm-prefix`
 - `~/.cache/toolnix-agent-browser/npm`
 

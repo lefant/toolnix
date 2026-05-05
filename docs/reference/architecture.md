@@ -169,7 +169,9 @@ As additive wrapped-tool proofs, the flake also exports portable package/app ent
 - `agent-baseline.nix`
   - shared AI-agent tool packages plus the managed skills tree used by the host configuration
 - `agent-browser.nix`
-  - optional host-native browser automation support
+  - optional Nix-managed `agent-browser` support
+- `browser-tools.nix`
+  - optional Nix-managed browser automation/demo bundle using shared Chromium
 - `host-control.nix`
   - optional control-host helpers kept outside the main baseline
 
@@ -278,13 +280,19 @@ These toggles control:
 - tmux helpers
 - agent wrapper aliases
 
-### Agent browser
+### Agent browser and browser tools
 
 `agent-browser` is opt-in for both host and project contexts through:
 
 - `toolnix.agentBrowser.enable = true;`
 
-It provides a host-native wrapper and stores runtime state in user-local paths.
+It provides the Nix-packaged `agent-browser` from the tracked `llm-agents.nix` input and points it at Toolnix's Nix-managed Chromium.
+
+The heavier browser automation/demo bundle is opt-in through:
+
+- `toolnix.browserTools.enable = true;`
+
+That bundle implies `agent-browser` behavior and also provides `vhs` plus the same shared Chromium package. Browser profile/session state remains user-local; the tools share the browser executable package, not browser profiles or sessions.
 
 ### Host control helpers
 
@@ -316,7 +324,7 @@ Persistent user state lives under `$HOME`, including:
 - shell dotfiles managed by Home Manager
 - agent configuration under locations such as `~/.claude/`, `~/.codex/`, `~/.config/opencode/`, `~/.config/amp/`, `~/.openclaw/`, and `~/.pi/agent/`
 - shared user skills under `~/.agents/skills`
-- browser automation state under `~/.agent-browser` and related cache/prefix directories when `agent-browser` is enabled
+- browser automation state under `~/.agent-browser` when `agent-browser` or `browserTools` is enabled
 - environment secrets loaded from `~/.env.toolnix` or the legacy fallback `~/.env.toolbox`
 
 ## What Was Removed
