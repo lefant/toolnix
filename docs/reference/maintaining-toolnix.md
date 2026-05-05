@@ -5,6 +5,7 @@ This document covers the practical maintainer workflow for the self-hosted `tool
 See also:
 
 - [`architecture.md`](architecture.md)
+- [`../specs/toolnix-agent-readiness.md`](../specs/toolnix-agent-readiness.md)
 - [`credentials.md`](credentials.md)
 - [`pi-model-backends.md`](pi-model-backends.md)
 - [`../specs/fresh-environment-bootstrap.md`](../specs/fresh-environment-bootstrap.md)

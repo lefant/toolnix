@@ -43,7 +43,7 @@ _Why it serves the approach:_ the setup must stay declarative and reusable inste
 
 ### Agent-native verification docs
 
-Encode plain-language verification instructions agents can run on VMs, including checks that may need to be ported from `lefant/hackbox-ctrl`.
+Encode plain-language verification instructions agents can run on VMs, including checks ported into [`docs/specs/toolnix-agent-readiness.md`](docs/specs/toolnix-agent-readiness.md) from the `lefant/hackbox-ctrl` readiness pattern.
 
 _Why it serves the approach:_ the product works when agents can change Toolnix and verify the result in the target environment.
 

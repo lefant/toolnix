@@ -2,6 +2,8 @@
 
 This document describes the current self-hosted architecture of `toolnix` after the removal of the previous imperative setup-hook path.
 
+For the agent-readable and human-readable readiness contract across Toolnix consumption modes, see [`docs/specs/toolnix-agent-readiness.md`](../specs/toolnix-agent-readiness.md).
+
 For the migration sequence and intermediate steps, see:
 
 - [`docs/plans/2026-03-28-remove-imperative-setup-hook.md`](../plans/2026-03-28-remove-imperative-setup-hook.md)

@@ -5,6 +5,7 @@ Public Nix-first development environment and host-profile repo.
 ## Start Here
 
 - Architecture reference: [`docs/reference/architecture.md`](docs/reference/architecture.md)
+- Agent readiness spec: [`docs/specs/toolnix-agent-readiness.md`](docs/specs/toolnix-agent-readiness.md)
 - Credentials reference: [`docs/reference/credentials.md`](docs/reference/credentials.md)
 - Pi model backends reference: [`docs/reference/pi-model-backends.md`](docs/reference/pi-model-backends.md)
 - Fresh-environment bootstrap spec: [`docs/specs/fresh-environment-bootstrap.md`](docs/specs/fresh-environment-bootstrap.md)
