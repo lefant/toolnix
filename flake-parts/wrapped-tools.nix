@@ -45,36 +45,28 @@
 
           mkdir -p "$agent_dir" "$agent_dir/extensions"
 
-          if [ ! -e "$agent_dir/settings.json" ]; then
-            ln -s "${piSettings}" "$agent_dir/settings.json"
-          fi
+          link_managed_file() {
+            local source="$1"
+            local target="$2"
 
-          if [ ! -e "$agent_dir/keybindings.json" ]; then
-            ln -s "${piKeybindings}" "$agent_dir/keybindings.json"
-          fi
+            if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+              ln -s "$source" "$target"
+            elif [ -L "$target" ] && [ ! -e "$target" ]; then
+              ln -sfn "$source" "$target"
+            fi
+          }
 
-          if [ ! -e "$agent_dir/AGENTS.md" ]; then
-            ln -s "${piAgents}" "$agent_dir/AGENTS.md"
-          fi
+          link_managed_file "${piSettings}" "$agent_dir/settings.json"
+          link_managed_file "${piKeybindings}" "$agent_dir/keybindings.json"
+          link_managed_file "${piAgents}" "$agent_dir/AGENTS.md"
+          link_managed_file "${piQnaExtension}" "$agent_dir/extensions/qna.ts"
+          link_managed_file "${piAskUserExtension}" "$agent_dir/extensions/ask-user.ts"
+          link_managed_file "${piLoopExtension}" "$agent_dir/extensions/loop.ts"
 
-          if [ ! -e "$agent_dir/extensions/qna.ts" ]; then
-            ln -s "${piQnaExtension}" "$agent_dir/extensions/qna.ts"
-          fi
+          link_managed_file "${agent.managedSkillTree}" "$agent_dir/skills"
 
-          if [ ! -e "$agent_dir/extensions/ask-user.ts" ]; then
-            ln -s "${piAskUserExtension}" "$agent_dir/extensions/ask-user.ts"
-          fi
-
-          if [ ! -e "$agent_dir/extensions/loop.ts" ]; then
-            ln -s "${piLoopExtension}" "$agent_dir/extensions/loop.ts"
-          fi
-
-          if [ ! -e "$agent_dir/skills" ]; then
-            ln -s "${agent.managedSkillTree}" "$agent_dir/skills"
-          fi
-
-          if [ ! -e "$agent_dir/auth.json" ] && [ -f "$HOME/.pi/agent/auth.json" ]; then
-            ln -s "$HOME/.pi/agent/auth.json" "$agent_dir/auth.json"
+          if [ -f "$HOME/.pi/agent/auth.json" ]; then
+            link_managed_file "$HOME/.pi/agent/auth.json" "$agent_dir/auth.json"
           fi
 
           export PI_CODING_AGENT_DIR="$agent_dir"
