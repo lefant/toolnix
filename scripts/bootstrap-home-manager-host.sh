@@ -26,6 +26,7 @@ Options:
   --enable-host-control       Enable toolnix.enableHostControl
   --disable-agent-baseline    Disable toolnix.enableAgentBaseline
   --enable-agent-browser      Enable toolnix.agentBrowser.enable
+  --enable-browser-tools      Enable toolnix.browserTools.enable
   --bootstrap-dir <path>      Bootstrap working dir (default: ~/.local/share/toolnix-bootstrap)
   --backup-extension <ext>    Home Manager backup extension (default: backup)
   --skip-cache-config         Do not attempt machine-local Nix cache configuration
@@ -46,6 +47,7 @@ STATE_VERSION="25.05"
 ENABLE_HOST_CONTROL=false
 ENABLE_AGENT_BASELINE=true
 ENABLE_AGENT_BROWSER=false
+ENABLE_BROWSER_TOOLS=false
 BOOTSTRAP_DIR="$HOME/.local/share/toolnix-bootstrap"
 BACKUP_EXTENSION="backup"
 SKIP_CACHE_CONFIG=false
@@ -82,6 +84,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --enable-agent-browser)
       ENABLE_AGENT_BROWSER=true
+      shift
+      ;;
+    --enable-browser-tools)
+      ENABLE_BROWSER_TOOLS=true
       shift
       ;;
     --bootstrap-dir)
@@ -296,6 +302,7 @@ render_bootstrap_flake() {
             toolnix.enableHostControl = $(bool_to_nix "$ENABLE_HOST_CONTROL");
             toolnix.enableAgentBaseline = $(bool_to_nix "$ENABLE_AGENT_BASELINE");
             toolnix.agentBrowser.enable = $(bool_to_nix "$ENABLE_AGENT_BROWSER");
+            toolnix.browserTools.enable = $(bool_to_nix "$ENABLE_BROWSER_TOOLS");
           }
         ];
       };
