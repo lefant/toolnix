@@ -130,7 +130,15 @@ PY
 
   system = pkgs.stdenv.hostPlatform.system;
   piPackage = resolvedInputs.llm-agents.packages.${system}.pi;
-  rawPiSubagentExtension = "${piPackage}/lib/node_modules/@mariozechner/pi-coding-agent/examples/extensions/subagent";
+  piSubagentExtensionPathCandidates = [
+    "${piPackage}/lib/node_modules/@earendil-works/pi-coding-agent/examples/extensions/subagent"
+    "${piPackage}/lib/node_modules/@mariozechner/pi-coding-agent/examples/extensions/subagent"
+  ];
+  rawPiSubagentExtension =
+    lib.findFirst
+      builtins.pathExists
+      (throw "Pi subagent extension example not found in known pi package locations")
+      piSubagentExtensionPathCandidates;
   piSubagentExtension = pkgs.runCommand "toolnix-patched-pi-subagent-extension" { } ''
     cp -R ${lib.escapeShellArg rawPiSubagentExtension} "$out"
     chmod -R u+w "$out"
