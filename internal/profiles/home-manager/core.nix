@@ -139,6 +139,10 @@ in {
       source = ../../../agents/pi-coding-agent/extensions/loop.ts;
       force = true;
     };
+    home.file.".pi/agent/extensions/login-url-padding.ts" = {
+      source = ../../../agents/pi-coding-agent/extensions/login-url-padding.ts;
+      force = true;
+    };
     home.file.".agents/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = agent.managedSkillTree;
       force = true;

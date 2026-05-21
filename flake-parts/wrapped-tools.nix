@@ -16,6 +16,7 @@
       piQnaExtension = ../agents/pi-coding-agent/extensions/qna.ts;
       piAskUserExtension = ../agents/pi-coding-agent/extensions/ask-user.ts;
       piLoopExtension = ../agents/pi-coding-agent/extensions/loop.ts;
+      piLoginUrlPaddingExtension = ../agents/pi-coding-agent/extensions/login-url-padding.ts;
       piAgents = ../agents/shared/templates/caveman-lite-context.md;
       toolnixTmux = pkgs.writeShellApplication {
         name = "toolnix-tmux";
@@ -62,6 +63,7 @@
           link_managed_file "${piQnaExtension}" "$agent_dir/extensions/qna.ts"
           link_managed_file "${piAskUserExtension}" "$agent_dir/extensions/ask-user.ts"
           link_managed_file "${piLoopExtension}" "$agent_dir/extensions/loop.ts"
+          link_managed_file "${piLoginUrlPaddingExtension}" "$agent_dir/extensions/login-url-padding.ts"
 
           link_managed_file "${agent.managedSkillTree}" "$agent_dir/skills"
 
