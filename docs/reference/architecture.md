@@ -174,6 +174,8 @@ As additive wrapped-tool proofs, the flake also exports portable package/app ent
   - optional Nix-managed `agent-browser` support
 - `browser-tools.nix`
   - optional Nix-managed browser automation/demo bundle using shared Chromium
+- `hitl-browser-automation.nix`
+  - optional human-in-the-loop browser automation runtime support that wraps the skill-owned Browser Debug Hub command and installs browser/VNC dependencies
 - `host-control.nix`
   - optional control-host helpers kept outside the main baseline
 
@@ -296,6 +298,12 @@ The heavier browser automation/demo bundle is opt-in through:
 
 That bundle implies `agent-browser` behavior and also provides `vhs` plus the same shared Chromium package. Browser profile/session state remains user-local; the tools share the browser executable package, not browser profiles or sessions.
 
+Human-in-the-loop browser automation runtime support is opt-in through:
+
+- `toolnix.hitlBrowserAutomation.enable = true;`
+
+That option implies the Nix-managed `agent-browser` behavior, exposes the skill-owned `hitl-browser-hub` command from the `agent-skills` input, and installs the Node/Python/`jq`/VNC-display dependencies needed by the bundled Browser Debug Hub runtime. It does not imply `vhs`. Home Manager owns persistent skill-tree installation for agents; `devenv` provides shell-local command and dependency availability only.
+
 ### Host control helpers
 
 Inventory/control-host behavior is isolated behind:
@@ -326,7 +334,8 @@ Persistent user state lives under `$HOME`, including:
 - shell dotfiles managed by Home Manager
 - agent configuration under locations such as `~/.claude/`, `~/.codex/`, `~/.config/opencode/`, `~/.config/amp/`, `~/.openclaw/`, and `~/.pi/agent/`
 - shared user skills under `~/.agents/skills`
-- browser automation state under `~/.agent-browser` when `agent-browser` or `browserTools` is enabled
+- browser automation state under `~/.agent-browser` when `agent-browser`, `browserTools`, or `hitlBrowserAutomation` is enabled
+- HITL browser automation state under `${XDG_STATE_HOME:-$HOME/.local/state}/hitl-browser-automation/<project-name>-<hash>/` when the skill-owned hub runs
 - environment secrets loaded from `~/.env.toolnix` or the legacy fallback `~/.env.toolbox`
 
 ## What Was Removed
