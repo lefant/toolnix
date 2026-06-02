@@ -22,13 +22,15 @@ require_cmd script
 require_cmd timeout
 
 host_short="$(hostname -s 2>/dev/null || hostname)"
-work_dir="$(mktemp -d "${TMPDIR:-/tmp}/toolnix-opinionated-tmux-XXXXXX")"
-socket="$(basename "$work_dir")"
+tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/toolnix-opinionated-tmux-XXXXXX")"
+work_dir="$tmp_root/e.lefant.net"
+mkdir -p "$work_dir"
+socket="e_lefant_net"
 log_file="${TMPDIR:-/tmp}/${socket}.typescript"
 
 cleanup() {
   tmux -L "$socket" kill-server >/dev/null 2>&1 || true
-  rm -rf "$work_dir" "$log_file"
+  rm -rf "$tmp_root" "$log_file"
 }
 trap cleanup EXIT
 

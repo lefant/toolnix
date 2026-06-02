@@ -60,7 +60,10 @@ let
 
     tmux-here() {
       local s="''${PWD##*/}"
-      s="''${s//[^A-Za-z0-9_.-]/_}"
+      # Tmux parses dotted targets as session.window.pane. Keep generated
+      # socket/session names free of dots so repos like e.lefant.net attach
+      # by exact session name instead of being interpreted as pane targets.
+      s="''${s//[^A-Za-z0-9_-]/_}"
       _tmux-set-colour "''${s}@''${HOST%%.*}"
       _tmux-attach-coloured-session "$s" "$s" "$@"
     }
