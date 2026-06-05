@@ -97,6 +97,17 @@ Optional full browser-tools support for project consumers:
 }
 ```
 
+Optional human-in-the-loop browser automation runtime support:
+
+```nix
+{ inputs, ... }: {
+  imports = [ "${inputs.toolnix}/modules/devenv/project.nix" ];
+  toolnix.hitlBrowserAutomation.enable = true;
+}
+```
+
+This provides the skill-owned `hitl-browser-hub` command plus `agent-browser`, Toolnix Chromium env, Node.js, Python, `jq`, and VNC/display tools. In Home Manager, shared skills are installed persistently for supported agents. In `devenv`, Toolnix provides shell-local commands and dependencies; agent skill discovery still depends on the host agent configuration or direct skill-path use.
+
 ### Browser Tools First Run
 
 `toolnix.agentBrowser.enable` provides the Nix-packaged `agent-browser` CLI and points it at Toolnix's Nix-managed Chromium. No npm first-run install or `agent-browser install` browser download is required for normal use.
@@ -123,14 +134,26 @@ vhs --version
 chromium --version
 ```
 
-Host-local runtime state used by the opt-in integration:
+Host-local runtime state used by the opt-in integrations:
 
 - browser runtime state: `~/.agent-browser`
+- HITL browser automation state: `${XDG_STATE_HOME:-$HOME/.local/state}/hitl-browser-automation/<project-name>-<hash>/`
 
 Older hosts that used the previous lazy npm wrapper may still have cleanup-safe convenience state under:
 
 - npm prefix: `~/.local/share/toolnix/agent-browser/npm-prefix`
 - npm cache: `~/.cache/toolnix-agent-browser/npm`
+
+HITL browser automation first-run flow in an enabled environment:
+
+```bash
+hitl-browser-hub check
+hitl-browser-hub start
+hitl-browser-hub status
+hitl-browser-hub stop
+```
+
+For remote VM use, keep VNC and CDP loopback-bound and use explicit SSH local forwarding as printed by `hitl-browser-hub start`. Raw browser profiles, traces, screenshots, cookies, and logs are sensitive and should not be committed.
 
 Other host-local runtime convenience state may also exist outside the durable project layout, for example a librarian-style reference-repo cache under `~/.cache/checkouts/<host>/<org>/<repo>`.
 

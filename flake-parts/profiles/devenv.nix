@@ -11,6 +11,7 @@ in {
       features.opinionatedShell.devenvOptionModule
       features.agentBrowser.devenvOptionModule
       features.browserTools.devenvOptionModule
+      features.hitlBrowserAutomation.devenvOptionModule
       features.compoundEngineering.devenvOptionModule
       ../../internal/profiles/devenv/core.nix
     ];

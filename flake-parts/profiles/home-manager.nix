@@ -12,6 +12,7 @@ in {
       features.compoundEngineering.homeManagerOptionModule
       features.agentBrowser.homeManagerOptionModule
       features.browserTools.homeManagerOptionModule
+      features.hitlBrowserAutomation.homeManagerOptionModule
       features.hostControl.homeManagerOptionModule
       ../../internal/profiles/home-manager/core.nix
     ];

@@ -12,6 +12,7 @@ let
   compound = features.compoundEngineering.data { inherit pkgs lib; inputs = resolvedInputs; };
   agentBrowser = features.agentBrowser.data { inherit pkgs lib; inputs = resolvedInputs; };
   browserTools = features.browserTools.data { inherit pkgs lib; inputs = resolvedInputs; };
+  hitlBrowserAutomation = features.hitlBrowserAutomation.data { inherit pkgs lib; inputs = resolvedInputs; };
 in {
   config =
     let
@@ -20,7 +21,8 @@ in {
       useAliases = opinionatedCfg.enable && opinionatedCfg.aliases.enable;
       useTmuxHelpers = opinionatedCfg.enable && opinionatedCfg.tmuxHelpers.enable;
       useAgentWrappers = opinionatedCfg.enable && opinionatedCfg.agentWrappers.enable;
-      useAgentBrowser = config.toolnix.agentBrowser.enable || config.toolnix.browserTools.enable;
+      useHitlBrowserAutomation = config.toolnix.hitlBrowserAutomation.enable or false;
+      useAgentBrowser = config.toolnix.agentBrowser.enable || config.toolnix.browserTools.enable || useHitlBrowserAutomation;
       useBrowserTools = config.toolnix.browserTools.enable;
       useCompoundTools = config.toolnix.compoundEngineering.enable && config.toolnix.compoundEngineering.tools.enable;
       projectOpinionatedShell = opinionated.renderProjectShell {
@@ -48,13 +50,14 @@ in {
         shellcheck
         procps
         less
-      ] ++ agent.packages ++ lib.optionals useCompoundTools compound.toolPackages ++ lib.optionals useAgentBrowser agentBrowser.packages ++ lib.optionals useBrowserTools browserTools.browserTools.packages;
+      ] ++ agent.packages ++ lib.optionals useCompoundTools compound.toolPackages ++ lib.optionals useAgentBrowser agentBrowser.packages ++ lib.optionals useBrowserTools browserTools.browserTools.packages ++ lib.optionals useHitlBrowserAutomation hitlBrowserAutomation.packages;
 
       env =
         lib.optionalAttrs useTimezone opinionated.env
         // agent.env
         // lib.optionalAttrs useAgentBrowser agentBrowser.env
         // lib.optionalAttrs useBrowserTools browserTools.browserTools.env
+        // lib.optionalAttrs useHitlBrowserAutomation hitlBrowserAutomation.env
         // {
           EDITOR = "emacsclient -c -t";
           VISUAL = "emacsclient -c -t";

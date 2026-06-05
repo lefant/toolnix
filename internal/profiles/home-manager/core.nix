@@ -7,6 +7,7 @@ let
   compound = features.compoundEngineering.data { inherit pkgs lib inputs; };
   agentBrowser = features.agentBrowser.data { inherit pkgs lib inputs; };
   browserTools = features.browserTools.data { inherit pkgs lib inputs; };
+  hitlBrowserAutomation = features.hitlBrowserAutomation.data { inherit pkgs lib inputs; };
   opinionated = features.opinionatedShell.data { inherit pkgs; };
   compoundSkillsEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.skills.enable;
   compoundOpenCodeEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.opencode.enable;
@@ -17,7 +18,8 @@ let
   compoundCodexSkillsEnabled = compoundSkillsEnabled && cfg.compoundEngineering.codex.enable;
   compoundPiEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.pi.enable;
   compoundToolsEnabled = cfg.compoundEngineering.enable && cfg.compoundEngineering.tools.enable;
-  agentBrowserEffective = cfg.agentBrowser.enable || cfg.browserTools.enable;
+  hitlBrowserAutomationEnabled = cfg.hitlBrowserAutomation.enable or false;
+  agentBrowserEffective = cfg.agentBrowser.enable || cfg.browserTools.enable || hitlBrowserAutomationEnabled;
   managedSkillTree =
     if compoundSkillsEnabled then
       agent.mkManagedSkillTree "toolnix-managed-skills-with-compound-engineering" (agent.skillLinks ++ compound.skillLinks)
@@ -48,12 +50,14 @@ in {
       lib.optionals cfg.enableAgentBaseline agent.packages
       ++ lib.optionals compoundToolsEnabled compound.toolPackages
       ++ lib.optionals agentBrowserEffective agentBrowser.packages
-      ++ lib.optionals cfg.browserTools.enable browserTools.browserTools.packages;
+      ++ lib.optionals cfg.browserTools.enable browserTools.browserTools.packages
+      ++ lib.optionals hitlBrowserAutomationEnabled hitlBrowserAutomation.packages;
     home.sessionVariables =
       opinionated.env
       // lib.optionalAttrs cfg.enableAgentBaseline agent.env
       // lib.optionalAttrs agentBrowserEffective agentBrowser.env
-      // lib.optionalAttrs cfg.browserTools.enable browserTools.browserTools.env;
+      // lib.optionalAttrs cfg.browserTools.enable browserTools.browserTools.env
+      // lib.optionalAttrs hitlBrowserAutomationEnabled hitlBrowserAutomation.env;
 
     home.file.".zshrc".text = ''
       source ~/.zsh/zshrc.sh
