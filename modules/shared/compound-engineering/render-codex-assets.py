@@ -180,6 +180,21 @@ def render_agent(source: Path, target: Path) -> None:
     target.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def discover_agent_files(plugin_root: Path) -> list[Path]:
+    roots = []
+    central_agents = plugin_root / "agents"
+    if central_agents.exists():
+        roots.append(central_agents)
+    roots.extend(sorted((plugin_root / "skills").glob("*/references/agents")))
+
+    seen: dict[str, Path] = {}
+    for root in roots:
+        for agent in sorted(root.glob("*.md")):
+            name = normalize_name(agent.name.removesuffix(".agent.md").removesuffix(".md"))
+            seen.setdefault(name, agent)
+    return [seen[name] for name in sorted(seen)]
+
+
 def main() -> int:
     if len(sys.argv) != 3:
         print("usage: render-codex-assets.py PLUGIN_ROOT OUT", file=sys.stderr)
@@ -192,7 +207,7 @@ def main() -> int:
     skills_out.mkdir(parents=True, exist_ok=True)
     agents_out.mkdir(parents=True, exist_ok=True)
 
-    agent_files = sorted((plugin_root / "agents").glob("*.md"))
+    agent_files = discover_agent_files(plugin_root)
     agent_names = []
     for agent in agent_files:
         frontmatter, _, _ = parse_frontmatter(agent.read_text(encoding="utf-8"))

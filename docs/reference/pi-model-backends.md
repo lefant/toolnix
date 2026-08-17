@@ -4,6 +4,7 @@ This document describes the current local-only pattern for adding experimental `
 
 At the moment, the validated local patterns are:
 
+- built-in OpenAI Codex GPT-5.6 models selected through pi's `openai-codex` provider
 - custom Together models via `~/.pi/agent/models.json`
 - built-in Fireworks models selected directly through pi's `fireworks` provider
 
@@ -28,9 +29,19 @@ It is **not** currently a repo-managed Home Manager artifact.
 
 ## Current local setup shape
 
-The current experimental `pi` backend setup uses two patterns.
+The current experimental `pi` backend setup uses three patterns.
 
-### 1. Custom Together provider
+### 1. Built-in OpenAI Codex provider
+
+The tracked `pi` template now defaults to:
+
+- provider: `openai-codex`
+- model: `gpt-5.6-sol`
+- thinking level: `high`
+
+The updated pi package also exposes `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna` through `openai-codex`.
+
+### 2. Custom Together provider
 
 This path uses:
 
@@ -40,7 +51,7 @@ This path uses:
 
 The helper script exists so `pi` can resolve the Together API key even when the shell has not exported the variable explicitly.
 
-### 2. Built-in Fireworks provider
+### 3. Built-in Fireworks provider
 
 This path uses:
 
@@ -90,6 +101,12 @@ pi
 To opt into one of these backends for a session, launch `pi` with explicit provider/model arguments.
 
 ## How to switch to the validated models
+
+### OpenAI Codex GPT-5.6 Sol
+
+```bash
+pi --provider openai-codex --model gpt-5.6-sol --thinking high
+```
 
 ### Together Qwen3-Coder-Next
 

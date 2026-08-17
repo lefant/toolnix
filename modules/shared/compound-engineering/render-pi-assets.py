@@ -113,6 +113,21 @@ def render_agent(source: Path, target: Path) -> None:
     target.write_text(content, encoding="utf-8")
 
 
+def discover_agent_files(plugin_root: Path) -> list[Path]:
+    roots = []
+    central_agents = plugin_root / "agents"
+    if central_agents.exists():
+        roots.append(central_agents)
+    roots.extend(sorted((plugin_root / "skills").glob("*/references/agents")))
+
+    seen: dict[str, Path] = {}
+    for root in roots:
+        for agent in sorted(root.glob("*.md")):
+            name = normalize_name(agent.name.removesuffix(".agent.md").removesuffix(".md"))
+            seen.setdefault(name, agent)
+    return [seen[name] for name in sorted(seen)]
+
+
 def main() -> int:
     if len(sys.argv) != 3:
         print("usage: render-pi-assets.py PLUGIN_ROOT OUT", file=sys.stderr)
@@ -129,7 +144,7 @@ def main() -> int:
         if skill.is_dir() and (skill / "SKILL.md").exists():
             copy_skill_dir(skill, skills_out / skill.name)
 
-    for agent in sorted((plugin_root / "agents").glob("*.md")):
+    for agent in discover_agent_files(plugin_root):
         name = normalize_name(agent.name.removesuffix(".agent.md").removesuffix(".md"))
         render_agent(agent, agents_out / f"{name}.md")
 

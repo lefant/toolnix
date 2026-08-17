@@ -13,7 +13,10 @@ let
     then compoundInput.outPath
     else compoundInput;
 
-  pluginRoot = "${compoundSource}/plugins/compound-engineering";
+  pluginRoot =
+    if builtins.pathExists "${compoundSource}/plugins/compound-engineering"
+    then "${compoundSource}/plugins/compound-engineering"
+    else compoundSource;
   sourceSkillsDir = "${pluginRoot}/skills";
   sourceAgentsDir = "${pluginRoot}/agents";
 
@@ -39,10 +42,31 @@ let
 
   opencodeSkillNames = lib.filter (skillSupportsPlatform "opencode") skillNames;
 
-  agentSourceNames =
-    lib.filter
-      (name: lib.hasSuffix ".agent.md" name || lib.hasSuffix ".md" name)
-      (fileNames sourceAgentsDir);
+  sourceAgentFiles =
+    let
+      centralAgentFiles =
+        if builtins.pathExists sourceAgentsDir
+        then map (name: {
+          sourceName = name;
+          path = "${sourceAgentsDir}/${name}";
+        }) (lib.filter (name: lib.hasSuffix ".agent.md" name || lib.hasSuffix ".md" name) (fileNames sourceAgentsDir))
+        else [];
+      referenceAgentFiles = lib.flatten (map (skillName:
+        let
+          refsDir = "${sourceSkillsDir}/${skillName}/references/agents";
+        in
+          if builtins.pathExists refsDir
+          then map (name: {
+            sourceName = name;
+            path = "${refsDir}/${name}";
+          }) (lib.filter (name: lib.hasSuffix ".agent.md" name || lib.hasSuffix ".md" name) (fileNames refsDir))
+          else []
+      ) skillNames);
+      byNormalizedName = builtins.listToAttrs (map (agent: {
+        name = normalizeName agent.sourceName;
+        value = agent;
+      }) (centralAgentFiles ++ referenceAgentFiles));
+    in builtins.attrValues byNormalizedName;
 
   normalizeName = name:
     let
@@ -94,20 +118,20 @@ PY
     path = "${opencodeAssets}/skills/${name}";
   }) opencodeSkillNames;
 
-  agentLinks = map (sourceName: {
-    name = "${normalizeName sourceName}.md";
-    path = "${piAssets}/agents/${normalizeName sourceName}.md";
-  }) agentSourceNames;
+  agentLinks = map (agent: {
+    name = "${normalizeName agent.sourceName}.md";
+    path = "${piAssets}/agents/${normalizeName agent.sourceName}.md";
+  }) sourceAgentFiles;
 
-  opencodeAgentLinks = map (sourceName: {
-    name = "${normalizeName sourceName}.md";
-    path = "${opencodeAssets}/agents/${normalizeName sourceName}.md";
-  }) agentSourceNames;
+  opencodeAgentLinks = map (agent: {
+    name = "${normalizeName agent.sourceName}.md";
+    path = "${opencodeAssets}/agents/${normalizeName agent.sourceName}.md";
+  }) sourceAgentFiles;
 
-  rawAgentLinks = map (sourceName: {
-    name = "${normalizeName sourceName}.md";
-    path = "${sourceAgentsDir}/${sourceName}";
-  }) agentSourceNames;
+  rawAgentLinks = map (agent: {
+    name = "${normalizeName agent.sourceName}.md";
+    path = agent.path;
+  }) sourceAgentFiles;
 
   managedSkillTree = pkgs.linkFarm "toolnix-compound-engineering-skills"
     (map (item: { name = item.name; path = item.path; }) piSkillLinks);
@@ -131,6 +155,7 @@ PY
   system = pkgs.stdenv.hostPlatform.system;
   piPackage = resolvedInputs.llm-agents.packages.${system}.pi;
   piSubagentExtensionPathCandidates = [
+    "${piPackage}/libexec/pi/examples/extensions/subagent"
     "${piPackage}/lib/node_modules/@earendil-works/pi-coding-agent/examples/extensions/subagent"
     "${piPackage}/lib/node_modules/@mariozechner/pi-coding-agent/examples/extensions/subagent"
   ];

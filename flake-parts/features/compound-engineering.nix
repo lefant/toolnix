@@ -102,9 +102,9 @@ PY
           exit 1
         ''}
 
-        test -e ${optOutFiles.".claude/agents".source}/ce-security-reviewer.md
-        test -e ${optOutFiles.".config/opencode/agents".source}/ce-security-reviewer.md
-        test -e ${optOutFiles.".codex/agents/compound-engineering".source}/ce-security-reviewer.toml
+        test -e ${optOutFiles.".claude/agents".source}/security-sentinel.md
+        test -e ${optOutFiles.".config/opencode/agents".source}/security-sentinel.md
+        test -e ${optOutFiles.".codex/agents/compound-engineering".source}/security-sentinel.toml
 
         touch "$out"
       '';
