@@ -1,10 +1,10 @@
 # Pi model backends in toolnix
 
-This document describes the current local-only pattern for adding experimental `pi` model backends on a self-hosted `toolnix` machine.
+This document describes Toolnix's tracked Pi default and local-only experimental model backends.
 
 At the moment, the validated local patterns are:
 
-- built-in OpenAI Codex GPT-5.6 models selected through pi's `openai-codex` provider
+- built-in OpenAI Codex GPT-6 Astra selected through pi's `openai-codex` provider
 - custom Together models via `~/.pi/agent/models.json`
 - built-in Fireworks models selected directly through pi's `fireworks` provider
 
@@ -17,15 +17,9 @@ See also:
 
 ## Scope
 
-This is about host-local `pi` model configuration under `~/.pi/agent/`.
+Home Manager manages the default provider, model, and thinking level in `~/.pi/agent/settings.json` from `agents/pi-coding-agent/templates/settings.json`.
 
-It is intentionally:
-
-- local to a machine/user account
-- opt-in at runtime
-- outside the tracked repo state
-
-It is **not** currently a repo-managed Home Manager artifact.
+Experimental providers in `~/.pi/agent/models.json` and all credentials remain machine-local, opt-in state. Home Manager does not manage those files.
 
 ## Current local setup shape
 
@@ -36,10 +30,23 @@ The current experimental `pi` backend setup uses three patterns.
 The tracked `pi` template now defaults to:
 
 - provider: `openai-codex`
-- model: `gpt-5.6-sol`
+- model: `gpt-6-astra`
 - thinking level: `high`
 
-The updated pi package also exposes `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna` through `openai-codex`.
+Pi 0.85.0 exposes `gpt-6-astra` through `openai-codex` with thinking support and a 272K context window. An Astra/high smoke test passed on 2026-09-05.
+
+Codex and OpenCode also default to Astra with high effort. OpenCode 1.18.29 lists `openai/gpt-6-astra`; 1.18.18 did not, even after a catalog refresh. OpenCode's small model remains `openai/gpt-5.6-luna-fast`. Local OAuth refresh failures blocked Codex and OpenCode inference checks on 2026-09-05; catalog/configuration checks are not proof of account access.
+
+### Default rollout and overrides
+
+- Build and activate Home Manager to update persistent host defaults. See [maintaining-toolnix.md](maintaining-toolnix.md).
+- Start a new session to use the new defaults. Resumed sessions, explicit CLI selections, and project settings can retain another model or effort level.
+- Pi 0.85.0 also supports `modelThinkingLevels` overrides per provider/model. The tracked template does not set these.
+- Wrapped `toolnix-pi` seeds settings only when the target is missing or a broken symlink. Existing settings, including valid links to older store paths, are preserved. Use `--provider openai-codex --model gpt-6-astra --thinking high` for a one-run override, or inspect and deliberately update the wrapper's settings.
+- The wrapper's default settings path is `${XDG_STATE_HOME:-$HOME/.local/state}/toolnix/pi/agent/settings.json`; `TOOLNIX_WRAPPED_STATE_DIR` or `PI_CODING_AGENT_DIR` can change it.
+- Devenv supplies packages and shell-local defaults; it does not rewrite persistent agent settings.
+
+Pi's compaction settings remain unchanged: enabled, 100,000 reserved tokens, and 20,000 recent tokens retained. The reserve causes proactive compaction around 172K tokens with this 272K model window; it is not an output-token limit.
 
 ### 2. Custom Together provider
 
@@ -102,10 +109,10 @@ To opt into one of these backends for a session, launch `pi` with explicit provi
 
 ## How to switch to the validated models
 
-### OpenAI Codex GPT-5.6 Sol
+### OpenAI Codex GPT-6 Astra
 
 ```bash
-pi --provider openai-codex --model gpt-5.6-sol --thinking high
+pi --provider openai-codex --model gpt-6-astra --thinking high
 ```
 
 ### Together Qwen3-Coder-Next

@@ -1,10 +1,9 @@
-# Toolbox default Codex configuration.
-#
-# This file is copied to ~/.codex/config.toml on container startup if it does not exist yet.
-# If you already have a config.toml, toolnix will not overwrite it.
+# Toolnix default Codex configuration.
+# Home Manager manages ~/.codex/config.toml from this template and replaces it on activation.
+# Keep credentials in machine-local auth state, not in this file.
 
 personality = "pragmatic"
-model = "gpt-5.6-sol"
+model = "gpt-6-astra"
 model_reasoning_effort = "high"
 
 [projects."/home/exedev/git/lefant/toolnix"]
