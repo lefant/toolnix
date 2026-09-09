@@ -81,6 +81,30 @@ devenv shell
 devenv shell -- true
 ```
 
+### Develop Toolnix and agent-skills together in Amp
+
+Add `github:lefant/agent-skills` as an additional repository in the `lefant/toolnix` Amp project settings. Amp checks additional repositories out next to the primary repository and includes changes from both repositories in the thread's Changes view. Only this primary repository's `.agents/setup` runs automatically; `agent-skills` does not need a separate setup step because Toolnix consumes its files directly.
+
+Normal builds continue to use the `agent-skills` revision pinned in `flake.lock` and `devenv.lock`. An adjacent checkout does not silently change reproducible builds.
+
+For integration work that must test uncommitted `agent-skills` changes, explicitly override the input. These examples assume Amp checked out the additional repository at `../agent-skills`:
+
+```bash
+nix --accept-flake-config build \
+  .#homeConfigurations.lefant-toolnix.activationPackage \
+  --override-input agent-skills path:../agent-skills \
+  --no-link
+```
+
+After the `agent-skills` change is committed and published, update both Toolnix lockfiles and run the normal checks:
+
+```bash
+nix flake update agent-skills
+devenv update agent-skills
+nix --accept-flake-config build .#homeConfigurations.lefant-toolnix.activationPackage --no-link
+devenv shell -- true
+```
+
 ### Build the Home Manager activation package
 
 ```bash

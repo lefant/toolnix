@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+log() {
+  printf '\n==> %s\n' "$1"
+}
+
+if ! command -v nix >/dev/null 2>&1 \
+  && [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+  # shellcheck disable=SC1091
+  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+fi
+
+if ! command -v nix >/dev/null 2>&1; then
+  log "Installing Nix"
+  curl -fsSL https://install.determinate.systems/nix | sh -s -- install --no-confirm
+  # shellcheck disable=SC1091
+  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+fi
+
+log "Configuring the Toolnix binary cache"
+sudo install -d -m 0755 /etc/nix
+sudo tee /etc/nix/nix.custom.conf >/dev/null <<'EOF'
+experimental-features = nix-command flakes
+extra-substituters = https://cache.numtide.com
+extra-trusted-substituters = https://cache.numtide.com
+extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=
+EOF
+
+if command -v systemctl >/dev/null 2>&1 && sudo systemctl list-unit-files nix-daemon.service >/dev/null 2>&1; then
+  sudo systemctl restart nix-daemon.service
+fi
+
+nix_config="$(nix config show)"
+grep -Eq '^substituters = .*https://cache\.numtide\.com' <<<"$nix_config"
+grep -Eq '^trusted-public-keys = .*niks3\.numtide\.com-1:' <<<"$nix_config"
+
+log "Installing devenv"
+nix profile add --accept-flake-config nixpkgs#devenv
+
+profile_marker="# Toolnix orb Nix environment"
+if ! grep -Fqx "$profile_marker" "$HOME/.bash_profile" 2>/dev/null; then
+  cat >>"$HOME/.bash_profile" <<'EOF'
+
+# Toolnix orb Nix environment
+if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+  unset __ETC_PROFILE_NIX_SOURCED
+  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+fi
+EOF
+fi
+
+log "Building the Toolnix Home Manager activation package"
+nix --accept-flake-config build \
+  .#homeConfigurations.lefant-toolnix.activationPackage \
+  --no-link
+
+log "Evaluating the locked Toolnix flake"
+nix --accept-flake-config flake check --no-build --no-eval-cache
+
+log "Orb setup complete"
+nix --version
+devenv version
