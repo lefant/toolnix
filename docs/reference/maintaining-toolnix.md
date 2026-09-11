@@ -139,6 +139,33 @@ The source and destination responsibilities stay separate:
 - The Global Skills repository owns the published snapshot and its Git history.
 - Amp or the user owns the explicit commit and push decision.
 
+#### Publish Compound Engineering as one global Amp plugin
+
+When the hosted Skills profile cannot accommodate every Compound package, Toolnix can instead render one Amp directory plugin named `ce`:
+
+```bash
+nix --accept-flake-config build .#compound-engineering-amp-plugin --no-link
+scripts/export-compound-engineering-amp-plugin.sh <global-plugins-checkout>
+```
+
+The plugin registers all 33 packages under concise qualified names. For example, upstream `ce-plan`, `ce-work`, and `lfg` become `ce:plan`, `ce:work`, and `ce:lfg`. Every rendered `SKILL.md` carries the namespace rule needed to resolve cross-skill handoffs while preserving upstream artifact metadata, configuration values, paths, and internal identifiers.
+
+Discover and prepare the requested Global Plugins repository with `amp plugins repositories`. Use the Global User Plugins repository for one user's projects and threads, or the Workspace Plugins repository when an administrator is publishing the collection for the workspace. Then export and inspect the result:
+
+```bash
+scripts/export-compound-engineering-amp-plugin.sh <global-plugins-checkout>
+git -C <global-plugins-checkout> status --short
+git -C <global-plugins-checkout> diff --stat
+```
+
+The exporter owns only the `ce/` directory carrying its `compound-engineering.lock.json`. It rejects an unmanaged `ce` directory or single-file plugin collision and preserves unrelated plugins. It does not clone, commit, or push.
+
+After reviewing the generated plugin, commit it in the Global Plugins checkout and ask before pushing. A push publishes it for new Amp threads. Existing threads need their plugins reloaded.
+
+An Amp maintainer can be asked to run the workflow with:
+
+> Refresh the Compound Engineering `ce` plugin in the user's Global Plugins repository from Toolnix's pinned input. Reuse or prepare the requested Global Plugins checkout, run `scripts/export-compound-engineering-amp-plugin.sh`, verify that Amp loads all 33 `ce:*` skills, review and commit the generated plugin, and ask before pushing it. After an approved push, reload plugins in the current thread.
+
 ### Build the Home Manager activation package
 
 ```bash
