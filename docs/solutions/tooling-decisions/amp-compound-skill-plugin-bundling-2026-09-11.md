@@ -66,6 +66,8 @@ Do not globally replace upstream skill names throughout package resources. The s
 
 Record the pinned upstream revision and complete upstream-to-bundled mapping in `compound-engineering.lock.json`. Include the upstream license in the generated plugin.
 
+Amp rejects imported plugin items containing more than 200 files. The upstream collection renders to 403 files without adaptation, so Toolnix consolidates prose-only Markdown resources into one `AMP_REFERENCES.md` per skill. It rewrites instructions to name the consolidated file and original-path section. Markdown files addressed by scripts remain at their original paths. This preserves all 33 workflows and executable resources while reducing the published plugin to 153 files.
+
 ## Publication Boundary
 
 Keep rendering, repository export, and publication separate:
@@ -77,7 +79,7 @@ scripts/export-compound-engineering-amp-plugin.sh <global-plugins-checkout>
 
 The exporter updates only a prior Toolnix-managed `ce/` directory. It rejects unmanaged directory, single-file, and symlink collisions, and preserves unrelated plugins. It does not clone, commit, or push the hosted repository.
 
-A Git push publishes the repository contents, but publication and activation are separate states. Verify activation in a fresh Amp thread, not only with the repository checkout or a project-local plugin proof. In the first Toolnix publication, the hosted repository contained the pushed `ce` plugin, while both a plugin reload and a fresh thread still omitted `ce` without reporting a load error. That state requires checking **Personal Settings → Plugins** and enabling the plugin before treating global installation as complete.
+A Git push publishes the repository contents. No repository manifest, import command, or separate Settings registration is required. Verify activation in a fresh Amp process, not only with the repository checkout or a project-local plugin proof. In the first Toolnix publication, the hosted repository contained a 403-file `ce` plugin, while both a plugin reload and a fresh thread silently omitted it. `amp plugins update ce` exposed the otherwise-unreported cause: `The imported item contains too many files to update safely.` Reducing the rendered item below the 200-file boundary made the existing personal plugin appear and activate automatically.
 
 ## Verification
 
@@ -99,7 +101,7 @@ After publishing globally, use a fresh thread as a separate acceptance check. Th
 
 The directory plugin uses Amp's native qualified-name contract rather than adding aliases or wrappers around individual skills. Toolnix owns only the platform adaptation: shortening local package names, supplying cross-skill namespace semantics, preserving upstream resource contracts, and rendering a reproducible artifact from the Nix-pinned source.
 
-Separating the deterministic build proof from hosted activation also prevents a false positive. A project-local plugin can prove the generated TypeScript and skill packages are valid, while a fresh global thread proves that the hosted profile actually exposes the published plugin.
+Separating the deterministic build proof from hosted activation also prevents a false positive. A project-local plugin can prove the generated TypeScript and skill packages are valid, while a fresh global process proves that the hosted profile actually exposes the published plugin. Enforcing the 200-file ceiling in the Nix check prevents valid local exports that Amp's hosted index silently omits.
 
 ## Related
 

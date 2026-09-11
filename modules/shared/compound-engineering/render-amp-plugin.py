@@ -20,6 +20,7 @@ This package is registered as {qualified_name}. When these instructions or bundl
 This mapping applies only to skill selection and user-facing Amp skill names. Do not change upstream artifact metadata, configuration values, paths, environment variables, script arguments, run IDs, or filenames that use the original names.
 <!-- toolnix-amp-ce-namespace:end -->
 """
+REFERENCE_BUNDLE_NAME = "AMP_REFERENCES.md"
 
 
 def bundled_name(upstream_name: str) -> str:
@@ -81,17 +82,97 @@ def render_skill_file(
     )
 
 
+def consolidate_markdown_references(skill_root: Path) -> None:
+    skill_root.chmod(skill_root.stat().st_mode | stat.S_IWUSR | stat.S_IXUSR)
+    for path in skill_root.rglob("*"):
+        if path.is_dir():
+            path.chmod(path.stat().st_mode | stat.S_IWUSR | stat.S_IXUSR)
+        elif path.is_file():
+            path.chmod(path.stat().st_mode | stat.S_IWUSR)
+
+    markdown = sorted(
+        path
+        for path in skill_root.rglob("*.md")
+        if path.name not in {"SKILL.md", REFERENCE_BUNDLE_NAME}
+    )
+    if not markdown:
+        return
+
+    non_markdown_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in skill_root.rglob("*")
+        if path.is_file() and path.suffix != ".md"
+    )
+    bundled = [
+        path
+        for path in markdown
+        if str(path.relative_to(skill_root)) not in non_markdown_text
+        and path.name not in non_markdown_text
+    ]
+    if not bundled:
+        return
+
+    relative_paths = [path.relative_to(skill_root).as_posix() for path in bundled]
+
+    def rewrite(content: str) -> str:
+        replacements: dict[str, str] = {}
+        for index, relative_path in enumerate(relative_paths):
+            section = f"`{REFERENCE_BUNDLE_NAME}` (section `{relative_path}`)"
+            link_token = f"__TOOLNIX_AMP_REFERENCE_LINK_{index}__"
+            section_token = f"__TOOLNIX_AMP_REFERENCE_SECTION_{index}__"
+            content = content.replace(f"]({relative_path})", f"]({link_token})")
+            content = content.replace(f"`{relative_path}`", section_token)
+            content = content.replace(relative_path, section_token)
+            replacements[link_token] = REFERENCE_BUNDLE_NAME
+            replacements[section_token] = section
+        for token, replacement in replacements.items():
+            content = content.replace(token, replacement)
+        return content
+
+    sections = [
+        "# Bundled upstream references\n\n"
+        "Toolnix consolidates these prose resources to keep the global Amp plugin "
+        "within Amp's 200-file imported-item limit. Each section records its original "
+        "package-relative path.\n"
+    ]
+    for source, relative_path in zip(bundled, relative_paths, strict=True):
+        sections.append(
+            f"\n## `{relative_path}`\n\n{rewrite(source.read_text(encoding='utf-8')).strip()}\n"
+        )
+
+    for path in skill_root.rglob("*"):
+        if not path.is_file() or path in bundled:
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        updated = rewrite(content)
+        if updated != content:
+            path.write_text(updated, encoding="utf-8")
+
+    (skill_root / REFERENCE_BUNDLE_NAME).write_text("".join(sections), encoding="utf-8")
+    for path in bundled:
+        path.unlink()
+    for directory in sorted(
+        (path for path in skill_root.rglob("*") if path.is_dir()),
+        key=lambda path: len(path.parts),
+        reverse=True,
+    ):
+        if not any(directory.iterdir()):
+            directory.rmdir()
+
+
 def write_entrypoint(path: Path, names: list[str]) -> None:
-    registrations = "\n".join(f'\t"{name}",' for name in names)
+    registrations = "\n".join(
+        f"\tawait amp.registerSkill({{ path: 'skills/{name}' }})" for name in names
+    )
     path.write_text(
         "import type { PluginAPI } from '@ampcode/plugin'\n\n"
         "export const description =\n"
         "\t'Compound Engineering workflows bundled as Amp skills under the ce namespace.'\n\n"
-        f"const skills = [\n{registrations}\n] as const\n\n"
         "export default async function (amp: PluginAPI) {\n"
-        "\tfor (const skill of skills) {\n"
-        "\t\tawait amp.registerSkill({ path: `skills/${skill}` })\n"
-        "\t}\n"
+        f"{registrations}\n"
         "}\n",
         encoding="utf-8",
     )
@@ -131,6 +212,7 @@ def main() -> int:
         target = skills_out / local_name
         shutil.copytree(skill_source, target, symlinks=False)
         render_skill_file(target / "SKILL.md", skill_source.name, local_name, mappings)
+        consolidate_markdown_references(target)
 
     write_entrypoint(out / "index.ts", local_names)
     shutil.copy2(source / "UPSTREAM_LICENSE", out / "LICENSE")

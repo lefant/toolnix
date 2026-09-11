@@ -150,6 +150,8 @@ scripts/export-compound-engineering-amp-plugin.sh <global-plugins-checkout>
 
 The plugin registers all 33 packages under concise qualified names. For example, upstream `ce-plan`, `ce-work`, and `lfg` become `ce:plan`, `ce:work`, and `ce:lfg`. Every rendered `SKILL.md` carries the namespace rule needed to resolve cross-skill handoffs while preserving upstream artifact metadata, configuration values, paths, and internal identifiers.
 
+Amp limits an imported plugin item to 200 files. The renderer keeps this collection below that boundary by consolidating prose-only Markdown resources into one `AMP_REFERENCES.md` per skill while preserving script-addressed resources at their original paths. The Nix export check enforces the limit; do not publish an unconsolidated source copy directly.
+
 Discover and prepare the requested Global Plugins repository with `amp plugins repositories`. Use the Global User Plugins repository for one user's projects and threads, or the Workspace Plugins repository when an administrator is publishing the collection for the workspace. Then export and inspect the result:
 
 ```bash

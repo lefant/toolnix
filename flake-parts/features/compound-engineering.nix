@@ -151,11 +151,23 @@ PY
         test -f "$plugin/skills/lfg/SKILL.md"
         test ! -e "$plugin/skills/ce-plan"
         test "$(find "$plugin/skills" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 33
+        test "$(find "$plugin" -type f | wc -l)" -le 200
+        test "$(grep -c "await amp.registerSkill({ path: 'skills/" "$plugin/index.ts")" -eq 33
+        grep -q "await amp.registerSkill({ path: 'skills/plan' })" "$plugin/index.ts"
+        grep -q "await amp.registerSkill({ path: 'skills/work' })" "$plugin/index.ts"
+        grep -q "await amp.registerSkill({ path: 'skills/compound' })" "$plugin/index.ts"
+        if grep -Fq 'for (const skill of skills)' "$plugin/index.ts"; then
+          echo "Amp plugin skill registrations must use paths that global indexing can resolve statically" >&2
+          exit 1
+        fi
         grep -q '^name: "plan"$' "$plugin/skills/plan/SKILL.md"
         grep -q 'prefer ce:brainstorm for exploratory framing' "$plugin/skills/plan/SKILL.md"
         grep -q 'This package is registered as `ce:plan`' "$plugin/skills/plan/SKILL.md"
         grep -q 'invoke the Amp bundled skill `ce:<name>` instead' "$plugin/skills/plan/SKILL.md"
-        grep -q 'product_contract_source: ce-plan' "$plugin/skills/plan/references/intake.md"
+        test -f "$plugin/skills/plan/AMP_REFERENCES.md"
+        test ! -f "$plugin/skills/plan/references/agents/agent-native-planning-strategist.md"
+        grep -q '^## `references/agents/agent-native-planning-strategist.md`$' "$plugin/skills/plan/AMP_REFERENCES.md"
+        grep -q 'product_contract_source: ce-plan' "$plugin/skills/plan/AMP_REFERENCES.md"
         test -x "$plugin/skills/babysit-pr/scripts/pr-snapshot"
 
         python3 - "$plugin/compound-engineering.lock.json" <<'PY'
