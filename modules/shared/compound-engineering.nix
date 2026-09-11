@@ -147,6 +147,12 @@ PY
     printf '%s\n' ${lib.escapeShellArg compoundRevision} >"$out/UPSTREAM_REVISION"
   '';
 
+  managedAmpPlugin = pkgs.runCommand "toolnix-compound-engineering-amp-plugin" {
+    nativeBuildInputs = [ pkgs.python3 ];
+  } ''
+    python3 ${./compound-engineering/render-amp-plugin.py} ${managedAmpSkillTree} "$out"
+  '';
+
   managedAgentTree = pkgs.linkFarm "toolnix-compound-engineering-pi-agents"
     (map (item: { name = item.name; path = item.path; }) agentLinks);
 
@@ -196,6 +202,7 @@ in
     compoundRevision
     compoundSource
     managedAgentTree
+    managedAmpPlugin
     managedAmpSkillTree
     managedSkillTree
     managedClaudeAgentTree

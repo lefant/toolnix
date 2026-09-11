@@ -137,6 +137,83 @@ PY
         touch "$out"
       '';
 
+      checks.compound-engineering-amp-plugin-export = pkgs.runCommand "compound-engineering-amp-plugin-export-check" {
+        nativeBuildInputs = [ pkgs.bash pkgs.coreutils pkgs.gnugrep pkgs.python3 ];
+      } ''
+        set -euo pipefail
+
+        plugin=${compound.managedAmpPlugin}
+        test -f "$plugin/index.ts"
+        test -f "$plugin/LICENSE"
+        test -f "$plugin/compound-engineering.lock.json"
+        test -f "$plugin/skills/plan/SKILL.md"
+        test -f "$plugin/skills/work/SKILL.md"
+        test -f "$plugin/skills/lfg/SKILL.md"
+        test ! -e "$plugin/skills/ce-plan"
+        test "$(find "$plugin/skills" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 33
+        grep -q '^name: "plan"$' "$plugin/skills/plan/SKILL.md"
+        grep -q 'prefer ce:brainstorm for exploratory framing' "$plugin/skills/plan/SKILL.md"
+        grep -q 'This package is registered as `ce:plan`' "$plugin/skills/plan/SKILL.md"
+        grep -q 'invoke the Amp bundled skill `ce:<name>` instead' "$plugin/skills/plan/SKILL.md"
+        grep -q 'product_contract_source: ce-plan' "$plugin/skills/plan/references/intake.md"
+        test -x "$plugin/skills/babysit-pr/scripts/pr-snapshot"
+
+        python3 - "$plugin/compound-engineering.lock.json" <<'PY'
+import json
+import pathlib
+import sys
+
+manifest = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+assert manifest["schemaVersion"] == 1
+assert manifest["pluginName"] == "ce"
+assert manifest["source"]["repository"] == "https://github.com/EveryInc/compound-engineering-plugin"
+assert len(manifest["skills"]) == 33
+assert {"upstream": "ce-plan", "bundled": "plan"} in manifest["skills"]
+assert {"upstream": "lfg", "bundled": "lfg"} in manifest["skills"]
+PY
+
+        destination="$TMPDIR/global-plugins"
+        mkdir -p "$destination/unrelated-plugin"
+        printf 'export default function () {}\n' >"$destination/unrelated-plugin/index.ts"
+        ${pkgs.bash}/bin/bash ${../../scripts/export-compound-engineering-amp-plugin.sh} \
+          --source "$plugin" \
+          "$destination"
+        test -f "$destination/unrelated-plugin/index.ts"
+        test -f "$destination/ce/index.ts"
+        test -f "$destination/ce/skills/plan/SKILL.md"
+        test "$(find "$destination/ce/skills" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 33
+
+        ${pkgs.bash}/bin/bash ${../../scripts/export-compound-engineering-amp-plugin.sh} \
+          --source "$plugin" \
+          "$destination"
+        test -f "$destination/unrelated-plugin/index.ts"
+
+        collision="$TMPDIR/collision"
+        mkdir -p "$collision/ce"
+        printf 'unmanaged\n' >"$collision/ce/marker"
+        if ${pkgs.bash}/bin/bash ${../../scripts/export-compound-engineering-amp-plugin.sh} \
+          --source "$plugin" \
+          "$collision"; then
+          echo "exporter should reject an unmanaged plugin-name collision" >&2
+          exit 1
+        fi
+        test -f "$collision/ce/marker"
+
+        file_collision="$TMPDIR/file-collision"
+        mkdir -p "$file_collision"
+        printf 'unmanaged\n' >"$file_collision/ce.ts"
+        if ${pkgs.bash}/bin/bash ${../../scripts/export-compound-engineering-amp-plugin.sh} \
+          --source "$plugin" \
+          "$file_collision"; then
+          echo "exporter should reject a single-file plugin-name collision" >&2
+          exit 1
+        fi
+        test -f "$file_collision/ce.ts"
+
+        touch "$out"
+      '';
+
+      packages.compound-engineering-amp-plugin = compound.managedAmpPlugin;
       packages.compound-engineering-amp-skills = compound.managedAmpSkillTree;
 
       checks.compound-engineering-tools = pkgs.runCommand "compound-engineering-tools-check" { } ''
