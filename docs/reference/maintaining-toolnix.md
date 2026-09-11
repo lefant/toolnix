@@ -105,6 +105,40 @@ nix --accept-flake-config build .#homeConfigurations.lefant-toolnix.activationPa
 devenv shell -- true
 ```
 
+### Publish Compound Engineering skills globally in Amp
+
+Toolnix renders the pinned Compound Engineering input as the `compound-engineering-amp-skills` flake package. The repository exporter copies that package into an existing Amp Global User or Workspace Skills repository checkout:
+
+```bash
+scripts/export-compound-engineering-amp-skills.sh <global-skills-checkout>
+```
+
+The exporter is intentionally local-only. It does not clone the destination, run Git commands, commit, or push. It updates only skill names recorded in `compound-engineering.lock.json`, rejects unmanaged name collisions, preserves unrelated skills, and puts the upstream MIT license in every exported package.
+
+To publish for one user across all Amp projects and threads:
+
+```bash
+amp skill repositories
+amp clone user-skills <global-skills-checkout>
+scripts/export-compound-engineering-amp-skills.sh <global-skills-checkout>
+git -C <global-skills-checkout> status --short
+git -C <global-skills-checkout> diff --stat
+```
+
+Use `amp clone workspace-skills <global-skills-checkout>` instead when a workspace administrator is preparing the shared Workspace Skills repository. Reuse an existing checkout rather than cloning over it.
+
+Review and commit the generated changes in the Global Skills checkout. Pushing that repository publishes the update: new Amp threads load it automatically, while an existing thread needs the `reload_skills` tool.
+
+An Amp maintainer can be asked to carry out the reviewable workflow from this repository with:
+
+> Refresh the Compound Engineering skills in the user's Global Skills repository from Toolnix's pinned input. Reuse or clone the requested Global Skills checkout, run `scripts/export-compound-engineering-amp-skills.sh`, review and validate its diff, commit in that checkout, and ask before pushing it. After an approved push, reload skills in the current thread.
+
+The source and destination responsibilities stay separate:
+
+- Toolnix owns the upstream pin, rendering, validation, and export command.
+- The Global Skills repository owns the published snapshot and its Git history.
+- Amp or the user owns the explicit commit and push decision.
+
 ### Build the Home Manager activation package
 
 ```bash
