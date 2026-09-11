@@ -12,6 +12,10 @@ let
     if builtins.isAttrs compoundInput && compoundInput ? outPath
     then compoundInput.outPath
     else compoundInput;
+  compoundRevision =
+    if builtins.isAttrs compoundInput && compoundInput ? rev
+    then compoundInput.rev
+    else "unlocked";
 
   pluginRoot =
     if builtins.pathExists "${compoundSource}/plugins/compound-engineering"
@@ -136,6 +140,13 @@ PY
   managedSkillTree = pkgs.linkFarm "toolnix-compound-engineering-skills"
     (map (item: { name = item.name; path = item.path; }) piSkillLinks);
 
+  managedAmpSkillTree = pkgs.runCommand "toolnix-compound-engineering-amp-skills" { } ''
+    mkdir -p "$out"
+    cp -RL ${piAssets}/skills/. "$out/"
+    cp ${compoundSource}/LICENSE "$out/UPSTREAM_LICENSE"
+    printf '%s\n' ${lib.escapeShellArg compoundRevision} >"$out/UPSTREAM_REVISION"
+  '';
+
   managedAgentTree = pkgs.linkFarm "toolnix-compound-engineering-pi-agents"
     (map (item: { name = item.name; path = item.path; }) agentLinks);
 
@@ -182,8 +193,10 @@ in
     agentLinks
     codexAgentsBlock
     codexAssets
+    compoundRevision
     compoundSource
     managedAgentTree
+    managedAmpSkillTree
     managedSkillTree
     managedClaudeAgentTree
     managedCodexAgentTree

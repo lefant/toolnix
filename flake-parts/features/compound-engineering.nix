@@ -42,6 +42,11 @@ in {
       } ''
         set -euo pipefail
 
+        test -f ${compound.managedAmpSkillTree}/UPSTREAM_LICENSE
+        test "$(cat ${compound.managedAmpSkillTree}/UPSTREAM_REVISION)" = ${lib.escapeShellArg compound.compoundRevision}
+        test -e ${compound.managedAmpSkillTree}/ce-code-review/SKILL.md
+        test -e ${compound.managedAmpSkillTree}/lfg/SKILL.md
+        test "$(find ${compound.managedAmpSkillTree} -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 33
         test -e ${compound.managedOpenCodeSkillTree}/ce-code-review/SKILL.md
         test ! -e ${compound.managedOpenCodeSkillTree}/ce-update
         test -e ${compound.managedCodexSkillTree}/ce-code-review/SKILL.md
@@ -61,6 +66,78 @@ PY
 
         touch "$out"
       '';
+
+      checks.compound-engineering-amp-export = pkgs.runCommand "compound-engineering-amp-export-check" {
+        nativeBuildInputs = [ pkgs.bash pkgs.coreutils pkgs.python3 ];
+      } ''
+        set -euo pipefail
+
+        destination="$TMPDIR/global-skills"
+        mkdir -p "$destination/unrelated-skill"
+        cat >"$destination/unrelated-skill/SKILL.md" <<'EOF'
+---
+name: unrelated-skill
+description: Remains untouched by the Compound Engineering exporter.
+---
+EOF
+
+        ${pkgs.bash}/bin/bash ${../../scripts/export-compound-engineering-amp-skills.sh} \
+          --source ${compound.managedAmpSkillTree} \
+          "$destination"
+
+        test -e "$destination/unrelated-skill/SKILL.md"
+        test -e "$destination/ce-code-review/SKILL.md"
+        test -e "$destination/ce-code-review/LICENSE"
+        test -x "$destination/ce-babysit-pr/scripts/pr-snapshot"
+        test -e "$destination/lfg/SKILL.md"
+
+        python3 - "$destination/compound-engineering.lock.json" <<'PY'
+import json
+import pathlib
+import sys
+
+manifest = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+assert manifest["schemaVersion"] == 1
+assert manifest["source"]["repository"] == "https://github.com/EveryInc/compound-engineering-plugin"
+assert len(manifest["skills"]) == 33
+assert "ce-code-review" in manifest["skills"]
+assert "lfg" in manifest["skills"]
+PY
+
+        mkdir -p "$destination/retired-skill"
+        python3 - "$destination/compound-engineering.lock.json" <<'PY'
+import json
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+manifest = json.loads(path.read_text(encoding="utf-8"))
+manifest["skills"].append("retired-skill")
+path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+PY
+
+        ${pkgs.bash}/bin/bash ${../../scripts/export-compound-engineering-amp-skills.sh} \
+          --source ${compound.managedAmpSkillTree} \
+          "$destination"
+        test ! -e "$destination/retired-skill"
+        test -e "$destination/unrelated-skill/SKILL.md"
+
+        collision="$TMPDIR/collision"
+        mkdir -p "$collision/ce-code-review"
+        printf 'unmanaged\n' >"$collision/ce-code-review/marker"
+        if ${pkgs.bash}/bin/bash ${../../scripts/export-compound-engineering-amp-skills.sh} \
+          --source ${compound.managedAmpSkillTree} \
+          "$collision"; then
+          echo "exporter should reject an unmanaged skill-name collision" >&2
+          exit 1
+        fi
+        test -e "$collision/ce-code-review/marker"
+        test ! -e "$collision/compound-engineering.lock.json"
+
+        touch "$out"
+      '';
+
+      packages.compound-engineering-amp-skills = compound.managedAmpSkillTree;
 
       checks.compound-engineering-tools = pkgs.runCommand "compound-engineering-tools-check" { } ''
         set -euo pipefail
