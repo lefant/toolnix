@@ -300,6 +300,7 @@ Start with:
 
 - **`docs/specs/`**: Feature specifications and architecture docs
 - **`docs/decisions/`**: Architecture Decision Records (ADRs) for key technical choices
+- **`docs/changelog/`**: Release notes and changelog fragments, when needed
 - **`docs/reference/`**: Technical references and operational details
 - **`docs/research/`**: Discovery notes and analysis
 - **`docs/plans/`**: Time-stamped implementation plans
@@ -308,14 +309,36 @@ Start with:
 
 ### AI-Assisted Development
 
-**Workflow**: Research -> Plan -> Implement -> Devlog
+**Workflow**: Research/Plan → Implement → Review → Compound
 
-Commit progress continuously in small, reviewable increments while work is underway.
+Toolnix pins and installs the `agent-skills` collection and Compound Engineering
+assets for supported Home Manager agents. Do not install duplicate copies. Use the
+names exposed by the active agent. The Home Manager-managed Amp skill tree retains
+upstream names such as `ce-plan`; when the separately published Toolnix `ce` Amp
+plugin is active, it registers concise names such as `ce:plan`, `ce:work`,
+`ce:code-review`, and `ce:compound`. The portable documentation skills are
+`feature-specs`, `architecture-decision-records`, `changelog-fragments`, `devlog`,
+and `atomically-land`. A project-only `devenv` consumer still depends on host agent
+discovery; recommend unavailable skills rather than treating them as installed or
+required.
 
-1. **Research** — document current behavior, constraints, and dependencies
-2. **Plan** — define implementation strategy and sequencing -> `docs/plans/`
-3. **Implement** — execute changes and verification
-4. **Devlog** — record outcomes, caveats, and follow-ups -> `docs/devlog/`
+Commit progress continuously in small, reviewable increments. Once continuous
+pushes to an agreed remote and branch are authorized, push each coherent, checked
+checkpoint without asking again. Inspect automatic deployment effects first;
+release and shared-state actions still need separate authorization.
+
+1. **Research/Plan** — understand current behavior, architecture, constraints, and
+   verification; put durable research in `docs/research/` and plans in `docs/plans/`.
+2. **Implement** — make source changes and verify them against the plan.
+3. **Review** — inspect correctness, module boundaries, security, and test coverage;
+   resolve findings and rerun affected checks.
+4. **Compound** — capture verified reusable lessons in `docs/solutions/`; update an
+   existing owner instead of duplicating knowledge.
+
+Record meaningful session outcomes with `devlog` in `docs/devlog/`. Use
+`atomically-land` when closeout also needs plans, specs, ADRs, or changelog updates.
+Use `docs/` for new work even when an older skill template says `thoughts/shared/`;
+do not move historical files solely to follow the current convention.
 
 ### Naming Conventions
 
