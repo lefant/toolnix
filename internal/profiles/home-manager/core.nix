@@ -25,6 +25,11 @@ let
       agent.mkManagedSkillTree "toolnix-managed-skills-with-compound-engineering" (agent.skillLinks ++ compound.skillLinks)
     else
       agent.managedSkillTree;
+  ampManagedSkillTree =
+    if compoundSkillsEnabled then
+      agent.mkManagedSkillTree "toolnix-managed-amp-skills-with-compound-engineering" (agent.ampSkillLinks ++ compound.skillLinks)
+    else
+      agent.managedAmpSkillTree;
   opencodeManagedSkillTree =
     if compoundOpenCodeSkillsEnabled then
       agent.mkManagedSkillTree "toolnix-managed-opencode-skills-with-compound-engineering" (agent.skillLinks ++ compound.opencodeSkillLinks)
@@ -148,7 +153,7 @@ in {
       force = true;
     };
     home.file.".agents/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = agent.managedSkillTree;
+      source = agent.managedAmpSkillTree;
       force = true;
     };
     home.file.".claude/skills" = lib.mkIf cfg.enableAgentBaseline {
@@ -171,12 +176,16 @@ in {
       source = compound.managedCodexSkillTree;
       force = true;
     };
+    home.file.".codex/skills/matt-pocock" = lib.mkIf cfg.enableAgentBaseline {
+      source = agent.mkManagedSkillTree "toolnix-managed-codex-matt-pocock-skills" agent.mattPocockSkillLinks;
+      force = true;
+    };
     home.file.".codex/agents/compound-engineering" = lib.mkIf compoundCodexEnabled {
       source = compound.managedCodexAgentTree;
       force = true;
     };
     home.file.".config/amp/skills" = lib.mkIf cfg.enableAgentBaseline {
-      source = managedSkillTree;
+      source = ampManagedSkillTree;
       force = true;
     };
     home.file.".pi/agent/skills" = lib.mkIf cfg.enableAgentBaseline {

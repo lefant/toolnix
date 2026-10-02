@@ -29,7 +29,7 @@ let
         }) (dirNames "${agentSkillsPath}/vendor/${org}"))
       (dirNames "${agentSkillsPath}/vendor");
 
-  dedupedSkillLinks =
+  dedupeSkillLinks = links:
     lib.mapAttrsToList
       (name: path: { inherit name path; })
       (lib.foldl'
@@ -39,12 +39,25 @@ let
           else
             acc // { "${item.name}" = item.path; })
         {}
-        rawSkillLinks);
+        links);
+
+  dedupedSkillLinks = dedupeSkillLinks rawSkillLinks;
 
   mkManagedSkillTree = name: skillLinks: pkgs.linkFarm name
     (map (item: { name = item.name; path = item.path; }) skillLinks);
 
   managedSkillTree = mkManagedSkillTree "toolnix-managed-skills" dedupedSkillLinks;
+
+  # Amp also discovers ~/.agents/skills. Filter before deduplication so a
+  # non-MP skill with the same name remains available in Amp's shared tree.
+  ampSkillLinks = dedupeSkillLinks (builtins.filter
+    (item: !(lib.hasPrefix "${agentSkillsPath}/vendor/mattpocock/" item.path))
+    rawSkillLinks);
+  managedAmpSkillTree = mkManagedSkillTree "toolnix-managed-amp-baseline-skills"
+    ampSkillLinks;
+  mattPocockSkillLinks = builtins.filter
+    (item: lib.hasPrefix "${agentSkillsPath}/vendor/mattpocock/" item.path)
+    dedupedSkillLinks;
 
   toolnixClaudeStatusline = pkgs.writeShellScriptBin "toolnix-claude-statusline" ''
     toolnix_root="''${TOOLNIX_SOURCE_DIR:-${toolnixRoot}}"
@@ -52,7 +65,7 @@ let
   '';
 in
 {
-  inherit managedSkillTree mkManagedSkillTree;
+  inherit managedSkillTree managedAmpSkillTree mkManagedSkillTree ampSkillLinks mattPocockSkillLinks;
   skillLinks = dedupedSkillLinks;
 
   packages =
