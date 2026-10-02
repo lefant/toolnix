@@ -1,24 +1,27 @@
 ---
 date: 2026-10-02
-status: 🔄 PARTIAL
+status: ✅ COMPLETED
 ---
 
-# Antithesis Amp plugin preparation
+# Antithesis Amp plugin publication
 
-## Outcome and pending publication
+## Outcome
 
-Prepared the 14-skill `antithesis` directory plugin using the same renderer,
-guarded exporter, and Home Manager filtering pattern as MP. Nothing is pushed,
-merged, activated on a host, or published to Personal Plugins. The vendor
-snapshot is committed locally in the
+Published the 14-skill `antithesis` directory plugin using the same renderer,
+guarded exporter, and Home Manager filtering pattern as MP. The user authorized
+shipping after the vendor snapshot was published by the
 [agent-skills thread](https://ampcode.com/threads/T-01a0fc2e-ce55-701b-8ad2-2758926db91b).
-Toolnix's `flake.lock` and `devenv.lock` still point to the previously published
-agent-skills revision: ordinary Antithesis builds require the pending pin update.
+Both `flake.lock` and `devenv.lock` now pin
+[the published vendor commit](https://github.com/lefant/agent-skills/commit/ab5f3072557c8ac72f3965e09a38f181fe4f9bcc).
+The implementation and pins were pushed to Toolnix `origin/main`, and the
+regenerated plugin was SSH-signed with Amp's managed signing helper and pushed
+to the Personal/User Plugins repository. No host activation or deployment ran.
 
-After approval, publish the vendor snapshot first, update both lockfiles to its
-published commit, rerun the checks without overrides, and regenerate the personal
-plugin before publishing it. The prepared personal copy records `unlocked`; it
-must not be mistaken for a release built from the published vendor pin.
+The full `nix --accept-flake-config flake check -L` passed without overrides.
+The published plugin matches the pinned Nix build byte-for-byte and records the
+published vendor revision, not `unlocked`. A plugin reload succeeded; fresh Amp
+discovery reported 14 Antithesis, 33 CE, and 27 MP skills with no errors.
+New threads load it automatically; existing threads require a plugin reload.
 
 ## Source and packaging
 
