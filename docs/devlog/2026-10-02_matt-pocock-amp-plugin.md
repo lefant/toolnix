@@ -7,7 +7,7 @@ related_issues:
 
 # Prepare the Matt Pocock Amp plugin
 
-Implemented and verified locally; publication remains deliberately unperformed.
+Implemented and verified locally, then published after explicit user approval.
 Both Toolnix lockfiles now consume the merged
 [agent-skills source](https://github.com/lefant/agent-skills/commit/9b6fb9b7e083fda0e31614f011cf38f995e5d844).
 The `matt-pocock-amp-plugin` package and
@@ -71,9 +71,20 @@ The durable usage and publication instructions are in
 [maintaining-toolnix](../reference/maintaining-toolnix.md#prepare-matt-pococks-mp-plugin-alongside-ce).
 Select MP or CE explicitly per task, and compare them in fresh threads.
 
-## Delivery boundary
+## Approved publication
 
-Local implementation only. Toolnix has not been pushed and the MP plugin has not
-been published to Personal/User or Workspace Plugins. A later approved export,
-review, and push to the user's Plugins repository is required for availability
-across Amp projects and orbs. Toolnix shipping requires its own authorization.
+The initial checkpoint stopped at local implementation. The user subsequently
+approved both Toolnix shipping and Personal/User Plugin publication.
+
+- Exported `mp` to the user's Personal Plugins repository and pushed an
+  SSH-signed commit. The existing `ce` tree is byte-for-byte unchanged.
+- Reloading plugins reported `amp-global-plugin:mp` active at user scope with no
+  error. A fresh CLI discovery found 27 MP and 33 CE skills, zero errors.
+  `mp:tdd` and `mp:grill-me` resolve from the global plugin cache, and the
+  materialized TDD instructions and wizard template match the published files.
+- Re-ran the full flake check before shipping; all checks passed. Toolnix
+  shipping is tracked in [PR #2](https://github.com/lefant/toolnix/pull/2).
+
+New Amp threads load the personal plugin automatically; existing threads need
+a plugin reload. No host activation, infrastructure changes, or workspace-wide
+plugin changes were performed.
