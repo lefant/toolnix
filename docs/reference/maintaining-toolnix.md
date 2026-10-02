@@ -254,6 +254,57 @@ published personal plugin becomes available to new threads; existing threads
 need a plugin reload. Toolnix publication and plugin publication are separate
 approval steps. Neither is performed by the export command.
 
+#### Prepare Antithesis's `antithesis` plugin
+
+Toolnix packages the 14 published root skills from
+`antithesishq/antithesis-skills`, using `vendor/antithesishq` in the
+`agent-skills` input. The renderer checks the reviewed upstream revision;
+`antithesis.lock.json` records both upstream and vendor provenance. A local
+path override records the vendor revision as `unlocked`.
+
+```bash
+nix --accept-flake-config build .#antithesis-amp-plugin --no-link
+nix --accept-flake-config build \
+  .#checks.x86_64-linux.antithesis-amp-plugin-export \
+  .#checks.x86_64-linux.antithesis-agent-baseline --no-link
+scripts/export-antithesis-amp-plugin.sh <global-plugins-checkout>
+```
+
+The exporter also accepts `--source <built-plugin>`. It replaces only an owned
+`antithesis/` directory and rejects unmanaged, single-file, or symlink
+collisions. It neither commits nor publishes the plugin. Use the same Personal
+Plugins checkout and publication approval process described above for MP.
+
+Amp names drop the redundant prefix: `antithesis-research` becomes
+`antithesis:research`, `antithesis-triage` becomes `antithesis:triage`, and so on.
+Each skill carries an explicit invocation mapping that also applies to its
+resources. Only the frontmatter name changes; upstream bodies, metadata, URLs,
+feedback identifiers, resources, and executable modes remain intact. Modified
+skill files carry a Toolnix notice; the bundle includes the Apache-2.0 license.
+The package has 111 files, including vendor provenance and safety notes in
+`SOURCE.md`, below Amp's 200-file limit, without consolidation.
+
+Home Manager excludes the bare Antithesis skills from both Amp discovery trees.
+Claude, OpenCode, and Pi retain the upstream names, and Codex receives them in
+`~/.codex/skills/antithesis`. The generic `agent-browser` skill remains available
+and is distinct from the Antithesis tenant-authentication helper. Neither Home
+Manager nor a project `devenv` shell installs the global plugin automatically.
+
+**Installation is not operational authorization.** These skills can install or
+use Snouty, build and upload images, submit paid Antithesis runs, manipulate
+Kubernetes clusters, and run mutation helpers that clean local files. Review
+helpers and obtain approval for consequential actions. Browser workflows need
+interactive tenant authentication and the required `agent-browser` version;
+keep saved sessions, credentials, logs, and debug artifacts out of Git and
+public reports. Packaging tests do not establish that authenticated Antithesis
+workflows work, and do not execute those operations.
+
+For local development before the vendor snapshot is published, pass
+`--override-input agent-skills path:/absolute/agent-skills --no-write-lock-file`
+to the build commands. After publication, update **both** Toolnix lockfiles to
+the published vendor commit and repeat checks without an override before
+shipping Toolnix or publishing the generated plugin.
+
 ### Build the Home Manager activation package
 
 ```bash

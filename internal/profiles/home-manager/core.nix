@@ -180,6 +180,10 @@ in {
       source = agent.mkManagedSkillTree "toolnix-managed-codex-matt-pocock-skills" agent.mattPocockSkillLinks;
       force = true;
     };
+    home.file.".codex/skills/antithesis" = lib.mkIf cfg.enableAgentBaseline {
+      source = agent.mkManagedSkillTree "toolnix-managed-codex-antithesis-skills" agent.antithesisSkillLinks;
+      force = true;
+    };
     home.file.".codex/agents/compound-engineering" = lib.mkIf compoundCodexEnabled {
       source = compound.managedCodexAgentTree;
       force = true;

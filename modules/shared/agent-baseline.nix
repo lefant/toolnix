@@ -49,14 +49,18 @@ let
   managedSkillTree = mkManagedSkillTree "toolnix-managed-skills" dedupedSkillLinks;
 
   # Amp also discovers ~/.agents/skills. Filter before deduplication so a
-  # non-MP skill with the same name remains available in Amp's shared tree.
+  # non-plugin skill with the same name remains available in Amp's shared tree.
   ampSkillLinks = dedupeSkillLinks (builtins.filter
-    (item: !(lib.hasPrefix "${agentSkillsPath}/vendor/mattpocock/" item.path))
+    (item: !(lib.hasPrefix "${agentSkillsPath}/vendor/mattpocock/" item.path)
+      && !(lib.hasPrefix "${agentSkillsPath}/vendor/antithesishq/" item.path))
     rawSkillLinks);
   managedAmpSkillTree = mkManagedSkillTree "toolnix-managed-amp-baseline-skills"
     ampSkillLinks;
   mattPocockSkillLinks = builtins.filter
     (item: lib.hasPrefix "${agentSkillsPath}/vendor/mattpocock/" item.path)
+    dedupedSkillLinks;
+  antithesisSkillLinks = builtins.filter
+    (item: lib.hasPrefix "${agentSkillsPath}/vendor/antithesishq/" item.path)
     dedupedSkillLinks;
 
   toolnixClaudeStatusline = pkgs.writeShellScriptBin "toolnix-claude-statusline" ''
@@ -65,7 +69,7 @@ let
   '';
 in
 {
-  inherit managedSkillTree managedAmpSkillTree mkManagedSkillTree ampSkillLinks mattPocockSkillLinks;
+  inherit managedSkillTree managedAmpSkillTree mkManagedSkillTree ampSkillLinks mattPocockSkillLinks antithesisSkillLinks;
   skillLinks = dedupedSkillLinks;
 
   packages =
