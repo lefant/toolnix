@@ -170,11 +170,17 @@ An Amp maintainer can be asked to run the workflow with:
 
 #### Prepare Matt Pocock's `mp` plugin alongside `ce`
 
-Toolnix packages all 27 skills published in Matt Pocock's upstream plugin v1.2.3
+Toolnix packages all 27 skills published in Matt Pocock's upstream plugin v1.3.1
 from `agent-skills/vendor/mattpocock`. Both lockfiles pin the published
 `lefant/agent-skills` source. The generated `matt-pocock.lock.json` records the
 vendor revision and original upstream revision. Updating the snapshot requires
 reviewing the renderer's explicit skill list and upstream revision too.
+The pinned canonical vendor snapshot differs from upstream tag `v1.3.1` in one
+sentence in `ask-matt/SKILL.md` (its bug-fix handoff predates the tag's retro
+recommendation); the manifest records this exception. Canonical `agent-skills`
+still labels this collection v1.2.3 in its README, despite containing the 27
+v1.3.1 packages. Correct that provenance in the canonical repository before a
+future refresh; do not infer exact tag fidelity from its README.
 Local `path:` input overrides record the vendor revision as `unlocked`; use the
 normal pinned build for publication.
 
@@ -194,6 +200,13 @@ their paths; the MIT license and two plugin metadata files make 82 files total,
 below Amp's 200-file import limit. Supporting resources are byte-identical;
 `SKILL.md` retains upstream frontmatter/body and adds Amp integration guidance.
 Unlike CE, MP needs no Markdown resource consolidation.
+The published set includes `implement-spec`, `pr`, and `retro`, and excludes
+`resolving-merge-conflicts`. If a previous standalone installation still has
+that deleted skill, remove it there; the managed link farm and exported plugin
+drop it automatically. Existing project domain docs created under the old
+`CONTEXT.md`/`CONTEXT-MAP.md` names must be renamed to
+`GLOSSARY.md`/`GLOSSARY-MAP.md` before using the updated skills. Toolnix itself
+has no project domain docs under the old names to move.
 
 The plugin registers `mp:<skill>` names, including `/mp:grill-me`, `/mp:tdd`, and
 `/mp:ask-matt`. Each skill carries a complete internal-call mapping: resolve MP

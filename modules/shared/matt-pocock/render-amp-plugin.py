@@ -13,7 +13,7 @@ grill-me grill-with-docs grilling handoff implement implement-spec
 improve-codebase-architecture pr prototype research retro setup-matt-pocock-skills
 tdd teach to-questionnaire to-spec to-tickets triage wait-what wayfinder wizard
 writing-for-agents""".split())
-UPSTREAM_REVISION = "d81f3a183412e71a5b1e84ca21bc1a35eea03a60"
+UPSTREAM_REVISION = "24fe0ef7737efae15c87225755e9f6f5965e4888"
 
 
 def render(source: Path, out: Path, revision: str) -> None:
@@ -23,9 +23,8 @@ def render(source: Path, out: Path, revision: str) -> None:
     actual = sorted(p.name for p in vendor.iterdir() if p.is_dir())
     if actual != SKILLS:
         raise ValueError("review the published skill set before changing this snapshot")
-    provenance = (source / "vendor/README.md").read_text()
-    if UPSTREAM_REVISION not in provenance:
-        raise ValueError("review the upstream revision before changing this snapshot")
+    if revision != "unlocked" and revision != "a2e354b3d10cdd406da2269074a210a4993466a4":
+        raise ValueError("review the canonical vendor snapshot before updating its pin")
 
     names = ", ".join(f"`{name}` → `mp:{name}`" for name in SKILLS)
     rule = f"""<!-- toolnix-amp-mp:start -->
@@ -85,7 +84,8 @@ reports, or use approved local assets. Installation executes none of these.
     (out / "matt-pocock.lock.json").write_text(json.dumps({
         "schemaVersion": 1,
         "source": {"repository": "https://github.com/mattpocock/skills",
-                   "revision": UPSTREAM_REVISION, "version": "1.2.3"},
+                   "revision": UPSTREAM_REVISION, "version": "1.3.1",
+                   "vendorDifference": "ask-matt/SKILL.md retains a pre-tag bug-fix handoff sentence"},
         "vendor": {"repository": "https://github.com/lefant/agent-skills", "revision": revision},
         "renderer": "toolnix", "pluginName": "mp",
         "skills": [{"upstream": name, "bundled": name} for name in SKILLS],

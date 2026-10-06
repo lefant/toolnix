@@ -13,7 +13,11 @@ manifest = json.loads((plugin / "matt-pocock.lock.json").read_text())
 names = sorted(p.name for p in source.iterdir() if p.is_dir())
 assert len(names) == 27
 assert [s["bundled"] for s in manifest["skills"]] == names
-assert manifest["source"]["version"] == "1.2.3"
+assert manifest["source"]["version"] == "1.3.1"
+assert manifest["source"]["revision"] == "24fe0ef7737efae15c87225755e9f6f5965e4888"
+assert "ask-matt/SKILL.md" in manifest["source"]["vendorDifference"]
+assert {"implement-spec", "pr", "retro"} <= set(names)
+assert "resolving-merge-conflicts" not in names
 assert (plugin / "LICENSE").read_bytes() == (source / "LICENSE").read_bytes()
 assert len(list(plugin.rglob("SKILL.md"))) == 27
 assert len([p for p in plugin.rglob("*") if p.is_file()]) == 82  # Below Amp's 200-file limit.
@@ -39,6 +43,11 @@ for name in names:
             assert "`prototype` → `mp:prototype`" in result
             assert "`code-review` → `mp:code-review`" in result
             assert "does not run setup or authorize" in result
+            for invoked in re.findall(r'Call the Skill tool with [`"]([a-z-]+)[`"]', upstream, re.I):
+                assert invoked in names, (name, invoked)
+                assert f"`{invoked}` → `mp:{invoked}`" in result, (name, invoked)
+            for link in re.findall(r'\]\((\./[^)#]+\.md)\)', upstream):
+                assert (original / link).is_file(), (name, link)
             manual = "disable-model-invocation: true" in frontmatter
             manual_count += manual
             assert ("Upstream marks this skill manual-only" in result) == manual
@@ -87,4 +96,4 @@ with tempfile.TemporaryDirectory() as tmp:
     export(destination, ok=False, src=malformed)
     assert (destination / "mp/index.ts").read_bytes() == before
 
-print("PASS: 27 skills, 82 files, 16 manual flags, resource fidelity, export/update/collision safety")
+print("PASS: 27 skills, 82 files, 16 manual flags, Skill-tool and local links, resource fidelity, export/update/collision safety")
