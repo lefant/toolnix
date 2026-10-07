@@ -23,7 +23,7 @@ def render(source: Path, out: Path, revision: str) -> None:
     actual = sorted(p.name for p in vendor.iterdir() if p.is_dir())
     if actual != SKILLS:
         raise ValueError("review the published skill set before changing this snapshot")
-    if revision != "unlocked" and revision != "a2e354b3d10cdd406da2269074a210a4993466a4":
+    if revision != "unlocked" and revision != "ddc10f079e33701a6922a7ce0d97ef4978b23427":
         raise ValueError("review the canonical vendor snapshot before updating its pin")
 
     names = ", ".join(f"`{name}` → `mp:{name}`" for name in SKILLS)
@@ -85,7 +85,7 @@ reports, or use approved local assets. Installation executes none of these.
         "schemaVersion": 1,
         "source": {"repository": "https://github.com/mattpocock/skills",
                    "revision": UPSTREAM_REVISION, "version": "1.3.1",
-                   "vendorDifference": "ask-matt/SKILL.md retains a pre-tag bug-fix handoff sentence"},
+                   "vendorDifference": "implement/SKILL.md uses two harness-neutral Skill tool calls"},
         "vendor": {"repository": "https://github.com/lefant/agent-skills", "revision": revision},
         "renderer": "toolnix", "pluginName": "mp",
         "skills": [{"upstream": name, "bundled": name} for name in SKILLS],

@@ -175,12 +175,10 @@ from `agent-skills/vendor/mattpocock`. Both lockfiles pin the published
 `lefant/agent-skills` source. The generated `matt-pocock.lock.json` records the
 vendor revision and original upstream revision. Updating the snapshot requires
 reviewing the renderer's explicit skill list and upstream revision too.
-The pinned canonical vendor snapshot differs from upstream tag `v1.3.1` in one
-sentence in `ask-matt/SKILL.md` (its bug-fix handoff predates the tag's retro
-recommendation); the manifest records this exception. Canonical `agent-skills`
-still labels this collection v1.2.3 in its README, despite containing the 27
-v1.3.1 packages. Correct that provenance in the canonical repository before a
-future refresh; do not infer exact tag fidelity from its README.
+The canonical vendor records the v1.3.1 provenance. Its only deliberate
+departure from the tagged packages is two harness-neutral Skill-tool calls in
+`implement/SKILL.md` (instead of `/tdd` and `/code-review`); the generated
+manifest records this exception.
 Local `path:` input overrides record the vendor revision as `unlocked`; use the
 normal pinned build for publication.
 

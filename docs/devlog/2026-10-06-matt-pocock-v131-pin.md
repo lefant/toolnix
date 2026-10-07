@@ -6,13 +6,11 @@ status: ✅ COMPLETED
 # Matt Pocock v1.3.1-compatible pin
 
 Both Toolnix locks now pin published `lefant/agent-skills` revision
-`a2e354b3d10cdd406da2269074a210a4993466a4`. Its 27 published packages
+`ddc10f079e33701a6922a7ce0d97ef4978b23427`. Its 27 published packages
 match upstream tag `v1.3.1` (`24fe0ef7737efae15c87225755e9f6f5965e4888`)
-except for one later sentence in `ask-matt/SKILL.md`: the tag recommends
-`retro` after a difficult bug, while the vendor still mentions an architecture
-handoff. The generated manifest discloses the difference. The canonical vendor
-README still claims v1.2.3; a future canonical update should correct it. No
-unpublished `agent-skills` commit is required to build Toolnix.
+except for two harness-neutral Skill-tool calls in `implement/SKILL.md` in place
+of `/tdd` and `/code-review`. The generated manifest discloses this intentional
+difference; the canonical vendor README now records v1.3.1 provenance.
 
 The packaged set includes `implement-spec`, `pr`, and `retro`, not
 `resolving-merge-conflicts`. Toolnix has no `CONTEXT.md` or `CONTEXT-MAP.md` to

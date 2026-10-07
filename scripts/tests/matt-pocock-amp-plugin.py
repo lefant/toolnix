@@ -15,7 +15,7 @@ assert len(names) == 27
 assert [s["bundled"] for s in manifest["skills"]] == names
 assert manifest["source"]["version"] == "1.3.1"
 assert manifest["source"]["revision"] == "24fe0ef7737efae15c87225755e9f6f5965e4888"
-assert "ask-matt/SKILL.md" in manifest["source"]["vendorDifference"]
+assert "implement/SKILL.md" in manifest["source"]["vendorDifference"]
 assert {"implement-spec", "pr", "retro"} <= set(names)
 assert "resolving-merge-conflicts" not in names
 assert (plugin / "LICENSE").read_bytes() == (source / "LICENSE").read_bytes()
