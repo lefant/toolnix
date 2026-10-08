@@ -85,7 +85,7 @@ in {
           echo "vhs should not be installed by default" >&2
           exit 1
         ''}
-        ${lib.optionalString (hasPackage pkgs.chromium defaultPackages || hasPackage pkgs.chromium defaultDevenvPackages) ''
+        ${lib.optionalString (hasPackage browserTools.chromium defaultPackages || hasPackage browserTools.chromium defaultDevenvPackages) ''
           echo "chromium should not be installed by default" >&2
           exit 1
         ''}
@@ -105,7 +105,7 @@ in {
           echo "vhs should be installed when toolnix.browserTools.enable = true" >&2
           exit 1
         ''}
-        ${lib.optionalString (!(hasPackage pkgs.chromium browserToolsPackages) || !(hasPackage pkgs.chromium browserToolsDevenvPackages)) ''
+        ${lib.optionalString (!(hasPackage browserTools.chromium browserToolsPackages) || !(hasPackage browserTools.chromium browserToolsDevenvPackages)) ''
           echo "chromium should be installed when toolnix.browserTools.enable = true" >&2
           exit 1
         ''}
