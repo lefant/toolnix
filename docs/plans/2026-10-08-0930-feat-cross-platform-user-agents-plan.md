@@ -3,7 +3,7 @@ title: Shared user agent environment on Linux and macOS
 date: 2026-10-08
 type: feat
 artifact_contract: ce-unified-plan/v1
-artifact_readiness: requirements-only
+artifact_readiness: implementation-ready
 product_contract_source: ce-brainstorm
 execution: code
 ---
@@ -16,7 +16,7 @@ execution: code
 
 **Means:** Move the Mac's host composition into `lefant/nix-darwin`, retaining a separate reusable Arkion module, then integrate the extracted Toolnix user-level agent configuration through Home Manager.
 
-**Product authority:** Decisions agreed in [the source brainstorm](https://ampcode.com/threads/T-01a11557-64d2-75d6-accd-d2360e19811e). This artifact defines requirements, not an executable implementation plan.
+**Product authority:** Decisions agreed in [the source brainstorm](https://ampcode.com/threads/T-01a11557-64d2-75d6-accd-d2360e19811e). The Product Contract defines scope; the Planning Contract defines execution boundaries.
 
 **Open blockers:** No product decisions block planning. Darwin packaging, configuration ownership, and runner access need technical verification before implementation and activation.
 
@@ -124,7 +124,7 @@ This artifact owns the cross-platform user agent setup and its actual Mac adopti
 
 **Resolve Before Planning:** None.
 
-**Deferred to Planning:**
+**Research questions and execution gates:** The Planning Contract below resolves the design choices and assigns remaining runtime checks to implementation units.
 
 - Confirm the Darwin browser package, executable path, and lifecycle supported by the pinned `agent-browser` version, including clean-session and persistence semantics.
 - Identify which agent configuration files can remain immutable and which need supported mutable-state handling without violating R3 and R12.
@@ -143,3 +143,144 @@ The current readiness contract is `docs/specs/toolnix-agent-readiness.md`.
 Initial investigation evaluated upstream Apple Silicon derivations for the five agent CLIs, but did not build or run the full Toolnix setup on macOS.
 The existing `toolnix.agentBrowser.enable` flag is opt-in; its current implementation assumes Nix Chromium's Linux-style executable path.
 No implementation or host activation is represented as complete by this requirements artifact.
+
+## Planning Contract
+
+Product Contract unchanged, except relabeling its research-question list to point to the resolutions below. R1–R24 and AE1–AE7 retain their meaning.
+
+### Approach and Technical Decisions
+
+- KTD1. Export `homeManagerModules.agents` using the existing feature registry and a new agent-only profile. Move agent packages, static files, skills, and applicable integrations out of the host core; the existing full profile imports it rather than duplicating declarations. Covers R1–R7, R9.
+- KTD2. Separate portable agent preferences from a Linux-host compatibility policy. The old host explicitly retains its aliases, trusted paths, Claude runtime seeding, and MCP policy; the new agent-only export does not seed bypass acknowledgements. Characterize Linux outputs before refactoring. Covers R9–R10.
+- KTD3. Keep one package source: Toolnix's pinned `llm-agents` packages. Remove the Mac's old system-level declarations for the three replaced CLIs when user-level ownership takes effect. Do not change package pins merely to perform extraction. Covers R1–R3.
+- KTD4. Keep static settings declarative, but classify each file before migration. Preserve the Linux `.claude.json` merge in its compatibility policy; do not generalize it to all settings. If a CLI rewrites a declarative file, use its supported override/configuration mechanism or a narrowly scoped generated mutable copy, never overwrite a mixed credential file. Covers R3, R10–R12.
+- KTD5. Implement adoption as a pre-link, scoped backup step for the exact new module-owned targets. Remove unconditional `force` from the new portable ownership path. Use private, unique backup locations and notifications; recognize managed store links, detect dangling/unmanaged symlinks, and never traverse their targets. Do not apply a global backup policy to unrelated Home Manager files. Covers R11–R12.
+- KTD6. Preserve the current cached Linux browser repack. On Darwin, use the pinned upstream CLI directly with a platform-specific wrapper around a fixed-output Chrome for Testing browser package. Prefer `playwright-driver.components.chromium` if present in the locked nixpkgs; otherwise add a narrowly pinned mac-arm64 archive derivation rather than a broad nixpkgs update. No runtime browser download. Covers R13, R17.
+- KTD7. Do not set a global persistent profile or auto-restore default. Document and verify the pinned CLI's isolated temporary sessions and explicit named persistence; add a small wrapper only if native flags cannot meet R14–R16. Session names alone must not imply restoration.
+- KTD8. Move host composition into the personal flake, consuming a committed company-module input. Initially retain the company checkout as a locked local-Git input because it has no publication authorization. Remove its dependency on the personal flake from the new company export to avoid a cycle. Retain the old host via its recorded commit/generation, not a circular compatibility import. Covers R21–R24.
+- KTD9. Preserve existing agent-specific skill layouts and generated integrations. Inventory signed-in Amp discovery before removing any local assets; filter only confirmed account-provided duplicates, and retain nonduplicated local skills. Do not publish plugins. Covers R4–R6.
+
+### High-Level Technical Design
+
+These sketches describe responsibility boundaries, not prescribed function signatures.
+
+```diagram
+lefant/nix-darwin: Mac host
+  ├── personal modules
+  ├── pinned Arkion module ── company settings only
+  └── Home Manager user ── Toolnix agents profile
+                              ├── five pinned CLIs
+Toolnix Linux full profile ────┤── preferences and integrations
+  └── VM compatibility policy └── optional platform browser
+```
+
+```diagram
+Adoption target
+  ├── absent / already managed ──────────────▶ link declared file
+  ├── unmanaged file, directory, or symlink ─▶ private unique backup
+  │                                           └── success ─▶ link
+  │                                           └── failure ─▶ stop
+  └── credential / history / unowned path ───▶ never modify
+```
+
+| Browser mode | Commands in the same run | Later run |
+|---|---|---|
+| Fresh or named temporary | Reuse isolated live session | No saved state loaded |
+| Explicit named persistence | Reuse isolated live session | Restore that named automation state |
+| Everyday browser | Not attached or imported | Unchanged |
+
+### Execution Gates and Risks
+
+The plan is ready to implement, but no activation is allowed until its relevant build and migration gates pass.
+Mac paths and repository state come from thread reports, not a current checkout inspection; inspect them on the authorized runner before editing.
+The actual account reported is `lefant`, host key `Fabians-MacBook-Pro`; neither is to be inferred from a display name.
+Keep company file contents, browser credentials, and backup contents out of public Toolnix docs and logs.
+
+For backups, successful Home Manager generation rollback does not itself restore adopted unmanaged files. Record both the prior generation and a private path-to-backup manifest; recovery must refuse to overwrite newer user edits without review.
+For browser packaging, modern nixpkgs exposes an Apple Silicon Playwright Chromium component, but availability and the app-bundle executable path in Toolnix's locked nixpkgs remain an implementation smoke-test gate.
+The pinned upstream agent-browser is 0.38.1; current orb CLI documentation is not a substitute for that version's flags.
+If runtime findings require changed user behavior or a version divergence, stop and revise the affected requirement rather than silently weakening it.
+
+## Implementation Units
+
+### U1. Capture baselines and reconcile source state
+
+**Requirements:** R2, R9, R19–R20, R23. **Dependencies:** None.
+Inspect local/remote state in all three repositories, the separate Beads delivery, and the Mac runner's allowed checkouts. Reconcile the planning commits without overwriting concurrent work. Record current Linux generated packages, environment, managed-file contents, skills, and VM trust behavior; record the actual Mac host inputs, effective settings, current generation, and file owners privately.
+**Files:** existing `flake-parts/features/agent-baseline.nix`; new `scripts/check-agent-profile.py` for normalized public comparison data; Mac host files identified in U2.
+**Tests:** comparison rejects a changed model, missing skill, changed trust path, or missing CLI; ignores only store-prefix/generation metadata that cannot affect behavior. Never collect auth contents. Beads is the sole preauthorized behavioral exclusion.
+**Execution note:** Establish characterization coverage before moving code. Readiness evidence is separate from production activation.
+
+### U2. Reverse Mac host ownership without behavior changes
+
+**Requirements:** R21–R24, AE7. **Dependencies:** U1.
+In `lefant/nix-darwin`, extend `flake.nix` and add `hosts/fabians-macbook-pro.nix` from the inspected host-owned settings. In `skyqraft/mac-dev-setup`, keep `nix/arkion.nix` reusable and adjust `flake.nix` exports so the company input does not import Lefant. Preserve dependency revisions where possible; update each affected `flake.lock` deliberately. Record the old entrypoint and commit before changing its composition.
+**Tests:** new `scripts/check-host-equivalence.nix` in the personal repo compares selected effective host options and package versions against the old host; independently evaluate the company module with a minimal non-Lefant host fixture. Compare system derivations where feasible, explaining benign source/revision metadata differences. Build the actual host before agent integration.
+**Gate:** no unrelated company or personal settings may change; do not publish the company repo or copy its reusable contents into the personal repo.
+
+### U3. Extract the shared agent module with Linux compatibility
+
+**Requirements:** R1–R6, R9–R10, AE1, AE3. **Dependencies:** U1.
+Create `internal/profiles/home-manager/agents.nix`, wire it through `flake-parts/profiles/home-manager.nix` and `flake-parts/public-outputs.nix`, and reduce `internal/profiles/home-manager/core.nix` to host ownership plus explicit compatibility policy. Keep `modules/shared/agent-baseline.nix` as package/skill data owner and reuse `modules/shared/compound-engineering.nix`. Split VM-only template fields where needed without changing their Linux values.
+**Tests:** new `flake-parts/checks/agent-profile.nix`, imported through `flake-parts/default.nix`, evaluates agent-only and full-profile fixtures. Verify all five packages, expected files/skills, no shell/Git/SSH files in the agent-only fixture, no Mac VM bypass/trust seeds, and unchanged Linux characterization outputs. Retain existing Compound, MP, and Antithesis checks.
+**Execution note:** Commit the behavior-preserving extraction before adding portable behavior or changing conflict handling.
+
+### U4. Add safe portable configuration adoption
+
+**Requirements:** R3, R7, R11–R12, AE2. **Dependencies:** U3.
+Add the scoped pre-link backup behavior to `internal/profiles/home-manager/agents.nix`; use a dedicated helper only if required for testability. Keep existing managed Linux targets on their compatibility path. Notifications expose backup locations, not contents. A failed backup stops activation before that target is replaced; partial completion is recoverable from the manifest.
+**Tests:** new `scripts/tests/test-agent-adoption.sh`, wired into the profile checks, uses a disposable HOME. Exercise absent target, regular-file conflict, directory conflict, dangling symlink, foreign symlink, existing managed symlink, repeated activation, second unmanaged conflict, backup failure, and unrelated credential/history sentinels. Require private permissions, unique retained backups, untouched symlink destinations, and no lost original on failure.
+
+### U5. Add Apple Silicon outputs and browser packaging
+
+**Requirements:** R2, R13–R17, AE4–AE5. **Dependencies:** U3.
+Extend `flake.nix` systems with `aarch64-darwin`; audit per-system checks so Linux-only checks are guarded, not disabled globally. Update `modules/shared/browser-tools.nix` to select browser/package paths by platform and avoid the Linux-only upstream wrapped-file assumption on Darwin. Keep full browser-tools/HITL separate. Ensure `flake-parts/wrapped-tools.nix` still builds where exported.
+**Tests:** new `flake-parts/checks/browser-platform.nix` verifies platform package composition and executable selection. New `scripts/check-agent-browser-sessions.sh` exercises a disposable local fixture: same-run state survives, fresh runs lose it, explicit persistence restores it, parallel session names remain isolated, and an everyday-profile sentinel is untouched. Execute builds and browser smoke checks on both target platforms; macOS executable paths with spaces must work.
+**Gate:** confirm cached/fixed browser source and pinned CLI semantics before activation; do not rely on `npx`, globally installed Chrome, or `agent-browser install`.
+
+### U6. Integrate the user environment and activate the Mac
+
+**Requirements:** R1–R8, R11–R19, AE1–AE2, AE4–AE6. **Dependencies:** U2, U4, U5.
+In `lefant/nix-darwin/flake.nix`, pin Toolnix and compatible Home Manager inputs; configure the user module in `hosts/fabians-macbook-pro.nix`. Remove superseded CLI declarations from `config/lefant-nix-darwin.nix`. Enable basic agent-browser, not VNC. Check downstream Numtide cache configuration without assuming input-level nixConfig propagates.
+Resolve runtime PATH for the actual Amp runner using its existing launch environment; do not introduce unrelated global shell files or restart unrelated workloads. Build, inspect the scoped backup inventory, and activate with the human supplying any required administrator credentials. Keep live account sign-in human-controlled.
+**Tests:** new personal-repo `scripts/check-coding-agents.sh` checks paths, versions, configuration and discovery without printing secrets. Run from a terminal and the actual runner, compare five CLI versions to the Linux baseline, verify account/local plugin duplication, and execute U5 browser checks. Report missing authenticated access as blocked. Verify no second old system CLI shadows a user-profile binary.
+
+### U7. Document, publish, and record delivery evidence
+
+**Requirements:** R18–R20, R24. **Dependencies:** U6 for completion; the checked Toolnix source checkpoint must be published before U6 pins its final revision. Publication of that checkpoint does not imply Mac activation or U7 completion.
+Update `README.md`, `docs/reference/architecture.md`, `docs/specs/toolnix-agent-readiness.md`, and the personal repo's `docs/CodingAgents.md`; record outcomes in `docs/devlog/`. Document activation ownership, backup recovery, browser modes, and boundaries between account plugins and local integrations.
+Inspect push effects, publish checked Toolnix changes, then pin the published revision in the personal configuration and verify the final locked Mac build before its checked push. Keep company-module commits local. Never claim a local override demonstrates the final published pin.
+**Verification:** compare recorded deployed revisions with committed locks, report pushes and Mac activation separately, and confirm no Linux VM activation or company publication occurred.
+
+## Verification Contract
+
+| Surface | Required evidence | Failure disposition |
+|---|---|---|
+| Linux extraction | Normalized before/after comparison; existing Home Manager, Pi and relevant flake checks; devenv smoke | Fix regression before portable behavior lands |
+| Mac host migration | Old/new host comparison and actual host build; independent company-module evaluation | Do not add agents until equivalent |
+| File adoption | Disposable-HOME conflict/failure/repeat tests and protected runtime sentinels | Do not activate if backup or ownership check fails |
+| Darwin packages | Native Mac builds and five version checks against pinned Linux versions | No silent fallback to different versions |
+| Browser | Native launch, snapshot, inspected screenshot, fresh/persistent isolation checks | Do not count package evaluation as runtime proof |
+| Agent discovery | Actual runner's binary paths and skill/plugin inventory; signed-in checks where available | Missing auth is blocked, not passed |
+| Delivery | Published personal/Toolnix revisions, locked deployed input, Mac generation, local company commit | State partial delivery honestly |
+
+Use existing Home Manager activation-package builds and `devenv shell -- true` checks plus the new focused checks above. Test artifacts use disposable data; no test reads or exports personal cookie stores. Build failures caused by cache trust, unavailable native builders, or disk pressure must be distinguished from implementation defects.
+
+## Definition of Done
+
+- All R1–R24 are covered by the implementation and recorded evidence, including actual Mac activation and runner verification.
+- Linux behavior is preserved without activating shared VMs; the intentional Beads change is reconciled separately.
+- The personal repo owns the host and imports the company module without a dependency cycle or company-content publication.
+- Credentials/history remain intact, private backups are recoverable, and browser profiles are isolated.
+- Final published pins are verified, the two authorized repositories are pushed, and any remaining human/authentication blocker is reported rather than called complete.
+
+## Appendix
+
+### Research Sources and Confidence
+
+Local findings are grounded in the owners listed above and `docs/solutions/tooling-decisions/nix-browser-tool-cache-friendly-repack-2026-05-05.md`, `docs/devlog/2026-04-16-openclaw-runtime-config-out-of-home-manager.md`, and `docs/devlog/2026-04-29-compound-engineering-codex-default.md`.
+The pinned [upstream agent-browser derivation](https://github.com/numtide/llm-agents.nix/blob/af40d966859ec4075ecc172dbb39e53f474dc5d9/packages/agent-browser/package.nix) wraps Chromium only on Linux; Darwin needs its own browser binding.
+The [nixpkgs Playwright Chromium source](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/web/playwright/chromium.nix) provides the candidate Darwin fixed-output archive; this research references upstream master, so U5 must check the actual locked package before using it.
+The [Home Manager Darwin integration](https://github.com/nix-community/home-manager/blob/master/nix-darwin/default.nix) and [file collision checks](https://github.com/nix-community/home-manager/blob/master/modules/files/check-link-targets.sh) inform adoption design; implementation must use the pinned versions, particularly for unmanaged symlinks and repeated backup collisions.
+
+Confidence is high in module ownership and migration sequencing, moderate in platform packaging and live discovery until native execution. Those uncertainties are bounded U5/U6 gates, not claims of completed verification. No production changes, builds, or runtime tests were performed during this planning pass.
