@@ -14,7 +14,7 @@ execution: code
 
 **Objective:** Lefant has the same Nix-managed coding-agent versions, personal preferences, skills, and supported integrations on existing Toolnix Linux VMs and the main user account of an Apple Silicon Mac.
 
-**Means:** Extract a reusable user-level agent configuration from the existing host profile and integrate it into the Mac's existing nix-darwin setup through Home Manager.
+**Means:** Move the Mac's host composition into `lefant/nix-darwin`, retaining a separate reusable Arkion module, then integrate the extracted Toolnix user-level agent configuration through Home Manager.
 
 **Product authority:** Decisions agreed in [the source brainstorm](https://ampcode.com/threads/T-01a11557-64d2-75d6-accd-d2360e19811e). This artifact defines requirements, not an executable implementation plan.
 
@@ -68,6 +68,13 @@ Reusing personal agent preferences should not require adopting that whole host p
 - R19. Commit and push coherent, checked changes in `lefant/toolnix` and `lefant/nix-darwin`; inspect automatic effects before pushing and retain human checkpoints for administrator credentials.
 - R20. Verify Linux preservation without activating shared Linux VMs as part of this delivery.
 
+**Host ownership prerequisite**
+
+- R21. Move the actual `Fabians-MacBook-Pro` host composition from `skyqraft/mac-dev-setup` into `lefant/nix-darwin`, where it composes personal settings, the reusable Arkion company module, and eventually Toolnix agents.
+- R22. Keep reusable company settings in the Arkion repository without a dependency on Lefant's personal modules, allowing colleagues to consume them independently.
+- R23. Verify equivalent effective host configuration before and after the ownership migration, before adding the agent setup; preserve a recoverable previous host entrypoint until the new one is verified.
+- R24. Limit company-repository changes to the host/module separation and necessary local commits; do not publish company content or rename repositories as part of this work.
+
 ### Key Decisions
 
 - **One personal setup, not a separate Mac preference set.** Governs R2–R5. (session-settled: user-directed — chosen over host-specific preferences: versions, models, skills, and plugins should match.)
@@ -78,10 +85,11 @@ Reusing personal agent preferences should not require adopting that whole host p
 - **Fresh browser sessions by default.** Governs R14–R16. (session-settled: user-directed — chosen over persistent-by-default automation: persistence should be an opt-in.)
 - **Signed-in Amp operation.** Governs R6. (session-settled: user-directed — chosen over offline plugin duplication: model-provider access already requires connectivity.)
 - **Deliver on the Mac, not only as an example.** Governs R18–R20. (session-settled: user-directed — chosen over module-only delivery: apply, verify, commit, and push.)
+- **Personal repo owns the machine; company repo owns reusable company settings.** Governs R21–R24. (session-settled: user-approved — chosen over a third host repository or full consolidation: allow future company co-maintenance without company configuration depending on personal settings.)
 
 ### Key Flows
 
-1. **Adopt on the Mac:** Resolve the actual user and existing configuration owners, build the configuration, back up unmanaged conflicts, activate with any required human administrator step, and verify from the runner. Covers R7–R8, R11–R12, R18.
+1. **Adopt on the Mac:** Resolve the actual user and existing configuration owners, migrate and verify host composition, then build the agent configuration, back up unmanaged conflicts, activate with any required human administrator step, and verify from the runner. Covers R7–R8, R11–R12, R18, R21–R24.
 2. **Update personal defaults:** Change the Nix-declared preferences or input pins, build both platform configurations, and activate the Mac through its unified configuration. Linux rollout remains separate. Covers R2–R3, R9, R20.
 3. **Automate a browser:** Start a fresh isolated run, use the same session for subsequent commands, and close it; request named persistence only when cross-run state is intended. Covers R13–R17.
 
@@ -93,12 +101,14 @@ Reusing personal agent preferences should not require adopting that whole host p
 - AE4. From the actual Mac Amp runner, `agent-browser` launches its installed browser and produces a snapshot and screenshot without an ad hoc `npx` installation or interactive-shell-only PATH adjustment. Covers R13, R18.
 - AE5. A new fresh browser run does not inherit a prior run's login, while an explicitly persistent named run restores supported saved state; neither changes the everyday browser profile. Covers R14–R16.
 - AE6. After activation, all five CLIs launch and discover their intended configuration and integrations; authenticated live checks use user-provided local logins and report unavailable credentials as blockers, not successful verification. Covers R1–R6, R18.
+- AE7. Before agent integration, the personal repo's host entrypoint produces equivalent effective host settings and package versions to the original company-repo entrypoint, and the Arkion module can be consumed without importing Lefant's personal configuration. Covers R21–R23.
 
 ### Scope Boundaries
 
 GUI agent applications and personal desktop-browser configuration are excluded, except installing the browser required by R13.
 Plugin publication to Amp account repositories, offline Amp plugin support, Mac VNC tooling, per-agent switches, and skill exclusion controls are excluded.
 There is no authorization to delete user data, activate Linux VMs, merge pull requests, or manually trigger deployments.
+Host/module separation under R21–R24 is included; repository renaming, a third host repository, and company-repository publication are excluded.
 The first supported Mac target is Apple Silicon; Intel Mac support is not implied.
 
 <!-- ce-section: work-relationships -->
@@ -107,7 +117,7 @@ The first supported Mac target is Apple Silicon; Intel Mac support is not implie
 This artifact owns the cross-platform user agent setup and its actual Mac adoption.
 
 - **Coordinate with Beads removal:** [The separate removal thread](https://ampcode.com/threads/T-01a1167a-3d81-7499-8895-cf0fad7103b1) reported a local checked commit on `remove-beads`, not pushed or transferred here at report time. Inspect its current delivery state before integration; do not duplicate or assume the change is already on the remote.
-- **Integrate with the Mac configuration:** [The Mac setup thread](https://ampcode.com/threads/T-01a10c67-6753-7022-8e1c-e7524b741f1f) and its `docs/CodingAgents.md` describe the initial CLI setup. Reconcile ownership in that checkout rather than installing a second copy.
+- **Integrate with the Mac configuration:** [The Mac setup thread](https://ampcode.com/threads/T-01a10c67-6753-7022-8e1c-e7524b741f1f) reports that `skyqraft/mac-dev-setup` currently composes `Fabians-MacBook-Pro` from its company/host modules and a locked local-Git input of `lefant/nix-darwin`. R21–R24 reverse that ownership before agent integration. The personal repo's `docs/CodingAgents.md` describes the initial CLI setup; reconcile package ownership rather than installing duplicate copies.
 - **Use runner evidence without changing marimo:** [The browser-workaround thread](https://ampcode.com/threads/T-01a1168b-33d0-7464-85de-d6378b231d86) reported successful ephemeral Nix Node plus `npx agent-browser` use. That does not establish reproducible browser packaging or default runner PATH availability.
 
 ### Outstanding Questions
@@ -123,6 +133,8 @@ This artifact owns the cross-platform user agent setup and its actual Mac adopti
 - Confirm the Mac runner, checkout, user short name, home directory, existing worktree changes, and administrator activation mechanism; do not infer them from a display name.
 - Establish platform build capability and regression comparisons, including the patched nixpkgs evaluation step that required Darwin execution during initial investigation.
 - Reconcile both repositories' current remote state and agreed working branches before checked pushes, including Beads removal status.
+- Inspect the company checkout's current module exports and lock graph; choose a pinned company-module input in the personal repo that works with its current local-only status without publishing company content or creating a dependency cycle.
+- Identify host-equivalence comparisons and the recoverable old entrypoint for R23, keeping existing dependency revisions stable during ownership migration.
 
 ### Evidence and Limitations
 
