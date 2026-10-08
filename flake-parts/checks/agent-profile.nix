@@ -18,12 +18,23 @@ in {
       portable = (mkHome profiles.agentsModule {}).config;
       full = (mkHome profiles.defaultModule {}).config;
       disabled = (mkHome profiles.defaultModule { toolnix.enableAgentBaseline = false; }).config;
+      retargeted = (mkHome profiles.agentsModule {
+        home.file.".claude/settings.json".target = ".claude/custom-settings.json";
+        home.file.".codex/config.toml".enable = false;
+      }).config;
       files = portable.home.file;
       packageNames = map (p: p.pname or p.name or "") portable.home.packages;
       required = [ ".claude/settings.json" ".codex/config.toml" ".pi/agent/settings.json" ".config/amp/settings.json" ".config/opencode/opencode.json" ".agents/skills" ".claude/skills" ".pi/agent/skills" ];
       absent = [ ".zshrc" ".gitconfig" ".ssh/config" ".tmux.conf" ];
       assertCheck = condition: message: if condition then true else throw message;
       checked = builtins.deepSeq [
+        (assertCheck (lib.all (name: !files.${name}.force) required) "portable profile still forces managed agent links")
+        (assertCheck (lib.all (name: full.home.file.${name}.force) required) "full profile lost forced links")
+        (assertCheck (builtins.hasAttr "toolnixAdoptAgents" portable.home.activation) "portable profile missing adoption")
+        (assertCheck (!(builtins.hasAttr "toolnixAdoptAgents" full.home.activation)) "full profile gained adoption")
+        (assertCheck (lib.hasInfix ".claude/custom-settings.json" retargeted.home.activation.toolnixAdoptAgents.data) "adoption omitted retargeted file")
+        (assertCheck (!(lib.hasInfix "'.codex/config.toml'" retargeted.home.activation.toolnixAdoptAgents.data)) "adoption included disabled file")
+        (assertCheck (!(lib.hasInfix "'.claude/settings.json'" retargeted.home.activation.toolnixAdoptAgents.data)) "adoption included old target")
         (assertCheck (lib.all (name: builtins.hasAttr name files) required) "agent profile missing an agent file")
         (assertCheck (lib.all (name: !(builtins.hasAttr name files)) absent) "agent profile owns host files")
         (assertCheck (lib.all (name: lib.any (pkg: lib.hasInfix name pkg) packageNames) [ "claude" "codex" "pi" "amp" "opencode" ]) "agent profile missing a CLI")
@@ -36,7 +47,18 @@ in {
         (assertCheck (!(builtins.hasAttr ".agents/skills" disabled.home.file)) "baseline disable flag lost effect")
         (assertCheck (builtins.hasAttr ".claude/settings.json" disabled.home.file) "unconditional settings became gated")
       ] true;
+      managedStore = pkgs.runCommand "test-home-manager-files" {} ''
+        mkdir -p "$out/.claude"
+        echo managed > "$out/.claude/settings.json"
+      '';
     in {
-      checks.agent-profile = assert checked; pkgs.runCommand "agent-profile-check" {} ''touch "$out"'';
+      checks.agent-profile = assert checked; pkgs.runCommand "agent-profile-check" {
+        nativeBuildInputs = [ pkgs.bash pkgs.coreutils pkgs.findutils ];
+        TOOLNIX_TEST_MANAGED_STORE = managedStore;
+        TOOLNIX_TEST_HELPER = ../../scripts/agent-adoption.sh;
+      } ''
+        bash ${../../scripts/tests/test-agent-adoption.sh}
+        touch "$out"
+      '';
     };
 }

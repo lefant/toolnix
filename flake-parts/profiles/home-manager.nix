@@ -22,5 +22,6 @@ in {
       features.hostControl.homeManagerOptionModule
       ../../internal/profiles/home-manager/core.nix
     ];
+    toolnix.agentLinuxForceCompatibility = true;
   };
 }
