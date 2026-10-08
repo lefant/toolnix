@@ -11,6 +11,21 @@ let
   portableCodex = builtins.removeAttrs
     (builtins.fromTOML (builtins.readFile ../../../agents/codex/templates/config.toml))
     [ "projects" ];
+  codex = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex;
+  codexDefaults = lib.concatMap (name: [ "-c" "${name}=${builtins.toJSON portableCodex.${name}}" ])
+    [ "model" "model_reasoning_effort" "personality" ];
+  portableCodexPackage = pkgs.symlinkJoin {
+    name = "codex-${codex.version}";
+    inherit (codex) version;
+    pname = "codex";
+    paths = [ codex ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      rm "$out/bin/codex"
+      makeWrapper ${codex}/bin/codex "$out/bin/codex" \
+        --add-flags ${lib.escapeShellArg (lib.escapeShellArgs codexDefaults)}
+    '';
+  };
   portableOpenCode = builtins.removeAttrs
     (builtins.fromJSON (builtins.readFile ../../../agents/opencode/templates/opencode.json))
     [ "permission" ];
@@ -24,6 +39,22 @@ let
   compoundPiEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.pi.enable;
   compoundToolsEnabled = cfg.compoundEngineering.enable && cfg.compoundEngineering.tools.enable;
   compatibility = config.toolnix.agentLinuxForceCompatibility;
+  # Confirmed signed-in User Skills on 2026-10-08. Keep unlisted/new skills local.
+  # Account revisions can differ from the pinned collection; do not claim parity.
+  ampAccountSkills = [
+    "agent-browser" "ai-sdk" "architecture-decision-records" "ast-grep"
+    "atomically-land" "changelog-fragments" "chrome-devtools-cli" "context7"
+    "defuddle" "devenv" "devlog" "doc-audit" "exa" "exe-dev-fleet"
+    "feature-specs" "frontend-design" "get-api-docs" "git-resolve-merge-conflicts"
+    "github-access" "github-get-pr-comments" "handover" "hegel" "hegel-review"
+    "hitl-browser-automation" "json-canvas" "librarian" "marimo-notebook"
+    "marimo-pair" "markdown-converter" "mermaid-diagrams" "pdf" "proofs"
+    "provider-upgrade" "pulumi-best-practices" "pulumi-overview"
+    "pulumi-terraform-to-pulumi" "qrspi" "recent-context-from-git" "rpi" "sentry"
+    "show-me" "skill-creator" "skills-best-practices" "ste-writing" "tasknotes"
+    "test-analyzer" "typesafe-ai" "untis-access" "vercel-react-best-practices"
+    "youtube-transcript" "zfc"
+  ];
   agentTargets = [
     ".claude/settings.json" ".claude/CLAUDE.md" ".codex/config.toml" ".codex/AGENTS.md"
     ".config/opencode/opencode.json" ".config/amp/settings.json"
@@ -33,7 +64,7 @@ let
     ".agents/skills" ".claude/skills" ".claude/agents"
     ".config/opencode/skills" ".config/opencode/agents"
     ".codex/skills/compound-engineering" ".codex/skills/matt-pocock"
-    ".codex/skills/antithesis" ".codex/agents/compound-engineering"
+    ".codex/skills/antithesis" ".codex/skills/toolnix" ".codex/agents/compound-engineering"
     ".config/amp/skills" ".pi/agent/skills" ".pi/agent/agents"
     ".pi/agent/extensions/subagent"
   ];
@@ -46,7 +77,10 @@ let
     else
       agent.managedSkillTree;
   ampManagedSkillTree =
-    if compoundSkillsEnabled then
+    if !compatibility then
+      agent.mkManagedSkillTree "toolnix-managed-amp-local-skills"
+        (builtins.filter (item: !(lib.elem item.name ampAccountSkills)) agent.ampSkillLinks)
+    else if compoundSkillsEnabled then
       agent.mkManagedSkillTree "toolnix-managed-amp-skills-with-compound-engineering" (agent.ampSkillLinks ++ compound.skillLinks)
     else
       agent.managedAmpSkillTree;
@@ -74,7 +108,9 @@ in {
       ''
     );
     home.packages =
-      lib.optionals cfg.enableAgentBaseline agent.packages
+      lib.optionals cfg.enableAgentBaseline (map
+        (package: if !compatibility && package == codex then portableCodexPackage else package)
+        agent.packages)
       ++ lib.optionals compoundToolsEnabled compound.toolPackages
       ++ lib.optionals cfg.agentBrowser.enable agentBrowser.packages;
     home.sessionVariables =
@@ -88,7 +124,9 @@ in {
       source = ../../../agents/shared/templates/caveman-lite-context.md;
       force = compatibility;
     };
-    home.file.".codex/config.toml" = {
+    # Codex persists project trust in this file. Portable preferences use CLI
+    # overrides so the active config remains writable and runtime-owned.
+    home.file.".codex/config.toml" = lib.mkIf compatibility {
       source = (pkgs.formats.toml {}).generate "codex-config.toml" portableCodex;
       force = compatibility;
     };
@@ -133,9 +171,15 @@ in {
       source = ../../../agents/pi-coding-agent/extensions/login-url-padding.ts;
       force = compatibility;
     };
-    home.file.".agents/skills" = lib.mkIf cfg.enableAgentBaseline {
+    home.file.".agents/skills" = lib.mkIf (cfg.enableAgentBaseline && compatibility) {
       source = agent.managedAmpSkillTree;
       force = compatibility;
+    };
+    # The shared ~/.agents tree is also discovered by Amp. Keep Codex's full
+    # local baseline here so account-delivered Amp skills are not duplicated.
+    home.file.".codex/skills/toolnix" = lib.mkIf (cfg.enableAgentBaseline && !compatibility) {
+      source = agent.managedAmpSkillTree;
+      force = false;
     };
     home.file.".claude/skills" = lib.mkIf cfg.enableAgentBaseline {
       source = claudeManagedSkillTree;
