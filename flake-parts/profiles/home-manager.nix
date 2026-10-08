@@ -8,6 +8,7 @@ in {
         _module.args.toolnixFeatures = features;
       })
       features.agentBaseline.homeManagerOptionModule
+      features.agentBrowser.homeManagerOptionModule
       features.compoundEngineering.homeManagerOptionModule
       ../../internal/profiles/home-manager/agents.nix
     ];
@@ -16,7 +17,6 @@ in {
     imports = [
       features.requiredBaseline.homeManagerModule
       config.toolnix.profiles.homeManager.agentsModule
-      features.agentBrowser.homeManagerOptionModule
       features.browserTools.homeManagerOptionModule
       features.hitlBrowserAutomation.homeManagerOptionModule
       features.hostControl.homeManagerOptionModule

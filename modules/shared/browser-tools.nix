@@ -13,8 +13,11 @@ let
     then llmAgentsInput.outPath
     else llmAgentsInput;
 
-  chromium = pkgs.chromium;
-  chromiumExecutable = "${chromium}/bin/chromium";
+  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+  chromium = if isDarwin then pkgs.playwright-driver.components.chromium else pkgs.chromium;
+  chromiumExecutable = if isDarwin
+    then "${chromium}/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+    else "${chromium}/bin/chromium";
   system = pkgs.stdenv.hostPlatform.system;
   llmAgentsPackages =
     if builtins.isAttrs llmAgentsInput
@@ -29,7 +32,10 @@ let
   # Use the cached llm-agents package output as the source payload, but do not
   # expose it directly: upstream wraps it to llm-agents' Chromium. Copy and patch
   # the executable/share payload so this output only points at Toolnix Chromium.
-  agentBrowserPackage = pkgs.stdenvNoCC.mkDerivation {
+  agentBrowserPackage = if isDarwin then pkgs.writeShellScriptBin "agent-browser" ''
+    export AGENT_BROWSER_EXECUTABLE_PATH=${lib.escapeShellArg chromiumExecutable}
+    exec ${upstreamAgentBrowserPackage}/bin/agent-browser "$@"
+  '' else pkgs.stdenvNoCC.mkDerivation {
     pname = "agent-browser";
     version = upstreamAgentBrowserPackage.version or "0.26.0";
     nativeBuildInputs = [
@@ -66,7 +72,7 @@ PY
       runHook postInstall
     '';
   };
-  vhsPackage = pkgs.vhs.override {
+  vhsPackage = if isDarwin then pkgs.vhs else pkgs.vhs.override {
     inherit chromium;
   };
 
@@ -101,7 +107,7 @@ in {
       install = ''
         agent-browser --version
         vhs --version
-        chromium --version
+        ${if isDarwin then lib.escapeShellArg chromiumExecutable else "chromium"} --version
       '';
     };
   };

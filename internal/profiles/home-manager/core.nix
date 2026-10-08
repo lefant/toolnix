@@ -8,7 +8,7 @@ let
   browserTools = toolnixFeatures.browserTools.data { inherit pkgs lib inputs; };
   hitlBrowserAutomation = toolnixFeatures.hitlBrowserAutomation.data { inherit pkgs lib inputs; };
   hitlEnabled = cfg.hitlBrowserAutomation.enable or false;
-  browserEnabled = cfg.agentBrowser.enable || cfg.browserTools.enable || hitlEnabled;
+  browserEnabled = cfg.browserTools.enable || hitlEnabled;
 in {
   options.toolnix.hostName = lib.mkOption {
     type = lib.types.str;
@@ -18,7 +18,7 @@ in {
   config = {
     programs.home-manager.enable = true;
     home.packages =
-      lib.optionals browserEnabled agentBrowser.packages
+      lib.optionals (browserEnabled && !cfg.agentBrowser.enable) agentBrowser.packages
       ++ lib.optionals cfg.browserTools.enable browserTools.browserTools.packages
       ++ lib.optionals hitlEnabled hitlBrowserAutomation.packages;
     home.sessionVariables = opinionated.env

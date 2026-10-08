@@ -3,6 +3,7 @@ let
   features = toolnixFeatures;
   cfg = config.toolnix;
   agent = features.agentBaseline.data { inherit pkgs lib inputs; };
+  agentBrowser = features.agentBrowser.data { inherit pkgs lib inputs; };
   compound = features.compoundEngineering.data { inherit pkgs lib inputs; };
   compoundSkillsEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.skills.enable;
   compoundOpenCodeEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.opencode.enable;
@@ -65,9 +66,11 @@ in {
     );
     home.packages =
       lib.optionals cfg.enableAgentBaseline agent.packages
-      ++ lib.optionals compoundToolsEnabled compound.toolPackages;
+      ++ lib.optionals compoundToolsEnabled compound.toolPackages
+      ++ lib.optionals cfg.agentBrowser.enable agentBrowser.packages;
     home.sessionVariables =
-      lib.optionalAttrs cfg.enableAgentBaseline agent.env;
+      lib.optionalAttrs cfg.enableAgentBaseline agent.env
+      // lib.optionalAttrs cfg.agentBrowser.enable agentBrowser.env;
     home.file.".claude/settings.json" = {
       source = ../../../agents/claude/templates/settings-portable.json;
       force = compatibility;
