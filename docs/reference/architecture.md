@@ -220,6 +220,21 @@ The Home Manager host module owns persistent user-facing configuration under `$H
 
 This is the declarative owner of persistent self-hosted runtime state.
 
+### Portable user agent profile
+
+`homeManagerModules.agents` exports the agent-only owner in
+`internal/profiles/home-manager/agents.nix` for x86_64-linux and aarch64-darwin.
+The full host profile imports it, then retains its existing forced links and
+VM policy. The portable export adds no shell, Git, SSH, tmux, or desktop policy.
+It adopts only declared agent targets with private backups before linking.
+
+Portable Codex uses a preference wrapper, not an immutable active config file:
+project trust remains Codex-owned. Other static preferences remain Nix files.
+Portable Amp uses confirmed account collections plus local-only skills; the
+Codex baseline lives in its agent-specific tree to avoid Amp's shared discovery.
+The full Linux profile keeps its previous file layout and package behavior.
+See the [user-agent setup and recovery instructions](../../README.md#user-only-coding-agents-on-linux-and-apple-silicon).
+
 ### Project / self-hosted devenv shell
 
 The `devenv` module owns shell-local behavior only, including:
@@ -290,7 +305,7 @@ These toggles control:
 
 - `toolnix.agentBrowser.enable = true;`
 
-It provides the Nix-packaged `agent-browser` from the tracked `llm-agents.nix` input and points it at Toolnix's Nix-managed Chromium.
+It provides the Nix-packaged `agent-browser` from the tracked `llm-agents.nix` input and points it at Toolnix's Nix-managed browser: Chromium on Linux, the fixed-source Playwright Chrome for Testing component on Apple Silicon. The Darwin wrapper binds the executable directly, including its app-bundle path with spaces, without relying on inherited Home Manager environment variables.
 
 The heavier browser automation/demo bundle is opt-in through:
 

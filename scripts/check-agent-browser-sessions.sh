@@ -84,6 +84,8 @@ ab writer --restore explicit-proof --restore-save auto close
 ab reader --restore explicit-proof --restore-save auto open "$url"
 expect reader persistent --restore explicit-proof --restore-save auto
 echo 'PASS explicit named restore across distinct sessions'
+ab fresh close
+ab reader --restore explicit-proof --restore-save auto close
 ab parallel-a open "$url" &
 pid_a=$!
 ab parallel-b open "$url" &
@@ -96,12 +98,20 @@ set_state parallel-a alpha
 set_state parallel-b beta
 expect parallel-a alpha
 expect parallel-b beta
+ab parallel-a close
+ab parallel-b close
+ab reader --restore explicit-proof --restore-save auto open "$url"
 expect reader persistent --restore explicit-proof --restore-save auto
+ab reader --restore explicit-proof --restore-save auto close
+ab fresh open "$url"
 empty fresh
 echo 'PASS concurrent session isolation'
 expect everyday untouched
 echo 'PASS disposable everyday sentinel untouched'
 if [[ -n "$screenshot" ]]; then
+  ab fresh close
+  ab reader --restore explicit-proof open "$url"
+  ab reader --restore explicit-proof set viewport 1280 720 2
   ab reader --restore explicit-proof eval "document.getElementById('result').textContent = 'PASS: same-run retention, fresh loss, named restore, parallel isolation, untouched sentinel.'"
   ab reader --restore explicit-proof screenshot "$screenshot"
 fi

@@ -139,6 +139,23 @@ The Home Manager host profile SHALL own persistent user-facing Toolnix state und
 - GIVEN Pi, Claude, Codex, OpenCode, Amp, or other configured agents require local auth WHEN live prompt acceptance runs THEN missing local credentials are **blocked**, not an automatic Toolnix failure.
 - GIVEN OpenClaw runtime config is inspected WHEN host readiness is checked THEN mutable OpenClaw state is not assumed to be Home Manager-managed.
 
+### Portable user-agent readiness
+
+**Validation preference:** mixed. Package/configuration checks are deterministic;
+signed-in discovery, runner PATH, and native browser execution need host checks.
+
+- GIVEN `homeManagerModules.agents` is selected WHEN evaluated THEN all five coding-agent CLIs are installed without shell, Git, SSH, tmux, or VM trust policy.
+- GIVEN unmanaged declared targets exist WHEN activation adopts them THEN unique private backups and a manifest are retained; credentials, history, and portable Codex runtime configuration are untouched.
+- GIVEN the same Toolnix pin on Linux and Apple Silicon WHEN CLI versions are checked THEN upstream versions match; the portable Codex preference wrapper does not select another version.
+- GIVEN portable Amp is signed in WHEN discovery is checked THEN account-provided collections are available without duplicated Toolnix names, while non-account skills remain local. Missing account delivery is **blocked**, not silently treated as full coverage.
+- GIVEN the optional browser is enabled WHEN tested from the actual runner THEN the Nix-installed browser launches without a download, snapshots and screenshots work, fresh runs lose state, explicit named restores retain state, and concurrent sessions stay isolated.
+- GIVEN a native build passed WHEN deployment is reported THEN the final published input lock, active generation, runner paths, and remaining authentication blockers are recorded separately. Evaluation is not runtime proof.
+
+Use `checks.<system>.agent-profile`, `checks.<system>.browser-platform`, and
+`scripts/check-agent-browser-sessions.sh` for the focused checks. See the
+[portable setup instructions](../../README.md#user-only-coding-agents-on-linux-and-apple-silicon)
+for ownership, preference precedence, and backup recovery.
+
 ### Project devenv consumer readiness
 
 **Validation preference:** primarily deterministic smoke checks, with optional interactive acceptance for shell ergonomics.

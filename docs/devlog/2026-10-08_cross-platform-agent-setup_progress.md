@@ -32,3 +32,45 @@ The Mac daemon does not yet trust Numtide, causing large source-build fallback. 
 4. Complete Mac integration, settings/runtime ownership checks, documentation, full regression checks, and code review before final publication and agent activation.
 
 Do not mistake transferred snapshots or Linux builds for proof of the final published Mac pin. Preserve existing Mac credentials and administrator checkpoints. Keep private migration patches and backups out of this repository.
+
+## Post-cache verification
+
+The user activated the cache-only host (generation 16). Native builds now use the
+cache. Darwin flake evaluation, agent-profile/adoption, browser-platform, wrapped
+Pi, and wrapped tmux pass. Both native Darwin and Linux disposable browser proofs
+passed same-run retention, fresh state loss, explicit named restore, concurrent
+isolation, and an untouched disposable everyday sentinel. Screenshots were inspected;
+no personal browser data was accessed. The script closes sessions as it proceeds
+to keep at most three live browsers.
+
+Linux `devenv shell -- true`, the focused nine-build set, and flake evaluation
+pass. `scripts/check-agent-profile.py` compares source-captured configuration
+contents, package identities, environment, targets, and force flags against the
+pre-extraction merge base: equal after repository-source/statusline path
+normalization. Negative controls reject model, trust-path, CLI, and skill removal.
+
+Portable Codex now supplies three Nix preferences through leading CLI overrides,
+leaving its writable trust/configuration file unmanaged. Explicit later overrides
+remain available; profiles cannot override those invocation preferences. Claude
+and Pi retain immutable preference files, so in-app saves may fail or be session-only.
+This preserves the existing full Linux profile while avoiding Codex trust-write failures.
+
+Signed-in Mac Amp discovery confirmed 51 account User Skills plus CE/MP/Antithesis
+plugins. The portable profile keeps the remaining 25 skill names locally and moves
+Codex's full baseline to its own tree to avoid shared Amp duplication. Account
+revisions are not asserted equal to the Nix-pinned source.
+
+All five CLI versions execute and match across native Mac and Linux: Claude
+2.1.285, Codex 0.159.2, Pi 0.99.1, Amp 0.0.1790712063-gb89205, OpenCode 1.18.33.
+The native development host with user-only Home Manager builds. Its Home Manager
+library uses the Toolnix-compatible extended library without changing system pins.
+Final published-pin build, agent activation, and actual runner restart verification
+remain outstanding; the older native Amp currently shadows the pending user profile.
+
+Code review: skipped (ce-code-review unavailable) — the skill was invoked, but
+this harness disallows routine self-review delegation. Direct diff review covered
+module ownership, Linux preservation, portable trust policy, backup failure paths,
+wrapper precedence, platform selection, and account/local discovery. A focused
+Oracle consultation resolved the Codex runtime-state boundary; it was not a general
+review receipt. No PR or merge is authorized. Repository workflow inspection found
+no GitHub Actions workflows for Toolnix; publication is a feature-branch checkpoint.
