@@ -8,7 +8,7 @@ related_plan: docs/plans/2026-10-08-0930-feat-cross-platform-user-agents-plan.md
 
 ## Summary
 
-The shared Home Manager agent module, scoped configuration adoption, and Apple Silicon browser packaging are implemented locally on `feat/cross-platform-user-agents`. Beads removal was already on origin/main and is included. Delivery is incomplete: native browser/session verification, final Mac integration and activation, account-plugin discovery, final code review, documentation, and pushes remain.
+The shared Home Manager agent module, scoped configuration adoption, and Apple Silicon browser packaging are published on `feat/cross-platform-user-agents`. The user activated the verified personal Mac configuration in generation 17. Linux preservation, native builds, and installed browser checks pass. Remaining human steps are the app-managed runner restart and agent sign-ins; authenticated model requests are not verified. Neither feature branch is merged, and company changes remain local. Earlier checkpoints below describe the implementation sequence, not current blockers.
 
 ## Verified checkpoints
 
@@ -18,7 +18,7 @@ The shared Home Manager agent module, scoped configuration adoption, and Apple S
 - Portable preferences derive from the existing templates, dropping Claude project-MCP policy, Codex project trust, and OpenCode blanket permission allowance. Full Linux profiles retain the original templates and runtime seed.
 - The Mac thread reports native agent-profile/adoption and wrapped tmux builds passed on an earlier transferred checkpoint. Native full flake evaluation exposed unconditional Linux Chromium comparisons; those were fixed here and await the updated native check.
 
-## Mac ownership and blocker
+## Initial Mac ownership and cache blocker
 
 [Mac implementation thread](https://ampcode.com/threads/T-01a11b01-2af8-77b2-8fd5-161c32d07735) owns changes in the actual personal and company checkouts. Parent inspected its private migration patches. The personal host now consumes the standalone company module; old, new, and running host system derivations match exactly. Personal and company migration commits are local; company publication is excluded.
 
@@ -26,10 +26,9 @@ The Mac daemon does not yet trust Numtide, causing large source-build fallback. 
 
 ## Resume
 
-1. Confirm cache-only Mac activation with the user and verify cache trust in the runner thread.
-2. Continue native checks from the latest transferred Toolnix snapshot, not the old snapshot or origin/main.
-3. Verify browser modes with disposable state and inspect a screenshot; verify account/local Amp discovery without duplicate collections.
-4. Complete Mac integration, settings/runtime ownership checks, documentation, full regression checks, and code review before final publication and agent activation.
+1. Have the user pause other active Mac runner threads and toggle Amp.app's runner off/on.
+2. Rerun the personal repository's `scripts/check-coding-agents.sh` in that actual runner; a fresh login shell already passes, but the existing runner still resolves the native Amp first.
+3. Complete human-controlled Claude and Pi sign-ins; verify OpenCode provider access without exposing credentials. Do not report stored-login status as a successful model request.
 
 Do not mistake transferred snapshots or Linux builds for proof of the final published Mac pin. Preserve existing Mac credentials and administrator checkpoints. Keep private migration patches and backups out of this repository.
 
@@ -74,3 +73,23 @@ wrapper precedence, platform selection, and account/local discovery. A focused
 Oracle consultation resolved the Codex runtime-state boundary; it was not a general
 review receipt. No PR or merge is authorized. Repository workflow inspection found
 no GitHub Actions workflows for Toolnix; publication is a feature-branch checkpoint.
+
+## Published-pin activation
+
+The user activated personal [57f7345](https://github.com/lefant/nix-darwin/commit/57f7345adeb0ed2480407829bee7e294634404eb),
+which locks [Toolnix c5e53ea](https://github.com/lefant/toolnix/commit/c5e53ea63151a50441e92df2104143989d73415b).
+The native runner verified generation 17 at the previously built
+`/nix/store/q6lng8cdq2qa91qrsaj4vm6hnffp2509-darwin-system-26.05.c3e90c8`.
+Home Manager installed the user packages and links successfully. Codex's runtime
+config remains a writable, user-owned regular file. The installed user-profile
+browser passed the disposable session tests.
+
+The login-shell verifier exits 0. The existing runner verifier exits 1 because
+`~/.local/bin/amp` still precedes the Nix profile in its inherited PATH; the other
+four agents already resolve through the Nix profile. The user-owned shell PATH
+adjustment is in place, but no runner was restarted automatically.
+
+Safe status checks report Codex and Amp signed in, Claude not signed in, and Pi's
+configured provider not ready. OpenCode has no stored credentials and detects
+provider environment variables; their presence does not establish working API
+access. No sign-in state was changed, and no authenticated model request is claimed.
