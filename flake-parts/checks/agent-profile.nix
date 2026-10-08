@@ -44,6 +44,10 @@ in {
         (assertCheck (!(lib.hasInfix "enableAllProjectMcpServers" (builtins.readFile files.".claude/settings.json".source))) "portable profile inherited MCP policy")
         (assertCheck (lib.hasInfix "trust_level" (builtins.readFile full.home.file.".codex/config.toml".source)) "full profile lost trust policy")
         (assertCheck (!(lib.hasInfix "trust_level" (builtins.readFile files.".codex/config.toml".source))) "portable profile inherited trust policy")
+        (assertCheck (!(builtins.fromJSON (builtins.readFile files.".config/opencode/opencode.json".source) ? permission)) "portable profile inherited OpenCode blanket permissions")
+        (assertCheck ((builtins.fromJSON (builtins.readFile full.home.file.".config/opencode/opencode.json".source)).permission."*" == "allow") "Linux OpenCode permissions changed")
+        (assertCheck ((builtins.fromJSON (builtins.readFile files.".claude/settings.json".source)).model == "opus") "portable Claude model changed")
+        (assertCheck ((builtins.fromTOML (builtins.readFile files.".codex/config.toml".source)).model == "gpt-6-astra") "portable Codex model changed")
         (assertCheck (!(builtins.hasAttr ".agents/skills" disabled.home.file)) "baseline disable flag lost effect")
         (assertCheck (builtins.hasAttr ".claude/settings.json" disabled.home.file) "unconditional settings became gated")
       ] true;

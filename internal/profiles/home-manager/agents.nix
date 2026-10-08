@@ -5,6 +5,15 @@ let
   agent = features.agentBaseline.data { inherit pkgs lib inputs; };
   agentBrowser = features.agentBrowser.data { inherit pkgs lib inputs; };
   compound = features.compoundEngineering.data { inherit pkgs lib inputs; };
+  portableClaude = builtins.removeAttrs
+    (builtins.fromJSON (builtins.readFile ../../../agents/claude/templates/settings.json))
+    [ "enableAllProjectMcpServers" "enabledMcpjsonServers" "disabledMcpjsonServers" ];
+  portableCodex = builtins.removeAttrs
+    (builtins.fromTOML (builtins.readFile ../../../agents/codex/templates/config.toml))
+    [ "projects" ];
+  portableOpenCode = builtins.removeAttrs
+    (builtins.fromJSON (builtins.readFile ../../../agents/opencode/templates/opencode.json))
+    [ "permission" ];
   compoundSkillsEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.skills.enable;
   compoundOpenCodeEnabled = cfg.enableAgentBaseline && cfg.compoundEngineering.enable && cfg.compoundEngineering.opencode.enable;
   compoundOpenCodeSkillsEnabled = compoundSkillsEnabled && cfg.compoundEngineering.opencode.enable;
@@ -72,7 +81,7 @@ in {
       lib.optionalAttrs cfg.enableAgentBaseline agent.env
       // lib.optionalAttrs cfg.agentBrowser.enable agentBrowser.env;
     home.file.".claude/settings.json" = {
-      source = ../../../agents/claude/templates/settings-portable.json;
+      source = (pkgs.formats.json {}).generate "claude-settings.json" portableClaude;
       force = compatibility;
     };
     home.file.".claude/CLAUDE.md" = {
@@ -80,7 +89,7 @@ in {
       force = compatibility;
     };
     home.file.".codex/config.toml" = {
-      source = ../../../agents/codex/templates/config-portable.toml;
+      source = (pkgs.formats.toml {}).generate "codex-config.toml" portableCodex;
       force = compatibility;
     };
     home.file.".codex/AGENTS.md" = {
@@ -89,7 +98,7 @@ in {
       force = compatibility;
     };
     home.file.".config/opencode/opencode.json" = {
-      source = ../../../agents/opencode/templates/opencode.json;
+      source = (pkgs.formats.json {}).generate "opencode-config.json" portableOpenCode;
       force = compatibility;
     };
     home.file.".config/amp/settings.json" = {

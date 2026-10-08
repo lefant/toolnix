@@ -63,6 +63,7 @@ in {
     home.file.".ssh/config".source = ../../../home-manager/files/ssh-config;
     home.file.".claude/settings.json".source = lib.mkForce ../../../agents/claude/templates/settings.json;
     home.file.".codex/config.toml".source = lib.mkForce ../../../agents/codex/templates/config.toml;
+    home.file.".config/opencode/opencode.json".source = lib.mkForce ../../../agents/opencode/templates/opencode.json;
     home.file.".tmux.conf".text = opinionated.renderTmuxConf { };
     home.file.".tmux.conf.meta".text = hostControl.tmuxConf;
 
