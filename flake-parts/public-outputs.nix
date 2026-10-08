@@ -2,6 +2,7 @@
 let
   system = "x86_64-linux";
   homeManagerDefaultModule = config.toolnix.profiles.homeManager.defaultModule;
+  homeManagerAgentsModule = config.toolnix.profiles.homeManager.agentsModule;
   devenvDefaultModule = config.toolnix.profiles.devenv.defaultModule;
   mkHome = hostName:
     inputs.home-manager.lib.homeManagerConfiguration {
@@ -24,11 +25,10 @@ in {
       lefant-toolnix = mkHome "lefant-toolnix";
     };
 
-    homeManagerModules.default =
-      args:
-      {
+    homeManagerModules = let
+      exportModule = module: args: {
         imports = [
-          homeManagerDefaultModule
+          module
           ({ ... }: {
             _module.args.inputs =
               (args.inputs or {})
@@ -39,6 +39,10 @@ in {
           })
         ];
       };
+    in {
+      default = exportModule homeManagerDefaultModule;
+      agents = exportModule homeManagerAgentsModule;
+    };
 
     devenvSources = {
       inherit (inputs) agent-skills claude-code-plugins compound-engineering-plugin llm-agents nixpkgs home-manager;

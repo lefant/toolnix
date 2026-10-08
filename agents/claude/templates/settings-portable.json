@@ -1,0 +1,14 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "forceLoginMethod": "claudeai",
+  "alwaysThinkingEnabled": true,
+  "model": "opus",
+  "effortLevel": "max",
+  "statusLine": {
+    "type": "command",
+    "command": "toolnix-claude-statusline",
+    "padding": 0
+  }
+}

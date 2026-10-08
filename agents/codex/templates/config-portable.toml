@@ -1,0 +1,4 @@
+# Shared personal Codex preferences; host-specific trust belongs to the host profile.
+personality = "pragmatic"
+model = "gpt-6-astra"
+model_reasoning_effort = "high"

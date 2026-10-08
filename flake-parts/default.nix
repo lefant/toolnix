@@ -4,3 +4,4 @@
   ./public-outputs.nix
   ./wrapped-tools.nix
 ] ++ (import ./features) ++ (import ./profiles)
+  ++ [ ./checks/agent-profile.nix ]
