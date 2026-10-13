@@ -74,7 +74,6 @@
           export PI_CODING_AGENT_DIR="$agent_dir"
           export PI_SKIP_VERSION_CHECK=1
           export TOOLNIX_SOURCE_DIR="${../.}"
-          export BEADS_NO_DAEMON=1
           export CODEX_CHECK_FOR_UPDATE_ON_STARTUP=false
           export DISABLE_AUTOUPDATER=1
           export CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1

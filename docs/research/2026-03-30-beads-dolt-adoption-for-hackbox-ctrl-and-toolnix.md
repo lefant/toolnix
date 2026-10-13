@@ -6,6 +6,11 @@ tags: [research, beads, dolt, toolnix, hackbox-ctrl, agents, workflow]
 
 # Adopting Beads And Dolt Within hackbox-ctrl And toolnix
 
+> Superseded on 2026-10-07: Toolnix no longer includes Beads or sets its
+> environment defaults. The observations and adoption recommendation below are
+> historical, not current setup guidance. See the
+> [removal devlog](../devlog/2026-10-07-remove-beads.md).
+
 ## Purpose
 
 Record the current design considerations for using **beads** as a durable work-tracking layer in the `toolnix` / `hackbox-ctrl` ecosystem, including what role **Dolt** actually plays, where ownership should live, and what a practical adoption path could look like.

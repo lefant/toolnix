@@ -63,7 +63,8 @@ in {
         (env.AGENT_BROWSER_EXECUTABLE_PATH or null) == browserTools.chromiumExecutable
         && (env.TOOLNIX_CHROMIUM or null) == browserTools.chromiumExecutable;
     in {
-      checks.hitl-browser-automation-packages = pkgs.runCommand "hitl-browser-automation-packages-check" { } ''
+      checks = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+      hitl-browser-automation-packages = pkgs.runCommand "hitl-browser-automation-packages-check" { } ''
         set -euo pipefail
 
         ${lib.optionalString (hasPackage hitl.hitlBrowserHub defaultPackages || hasPackage hitl.hitlBrowserHub defaultDevenvPackages) ''
@@ -119,6 +120,7 @@ in {
 
         touch "$out"
       '';
+      };
     };
 
     toolnix.features.hitlBrowserAutomation = {

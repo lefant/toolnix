@@ -77,14 +77,12 @@ in
     ++ (with resolvedInputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
       claude-code
       codex
-      beads
       opencode
       pi
       amp
     ]);
 
   env = {
-    BEADS_NO_DAEMON = "1";
     CODEX_CHECK_FOR_UPDATE_ON_STARTUP = "false";
     DISABLE_AUTOUPDATER = "1";
     CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";

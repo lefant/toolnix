@@ -50,6 +50,61 @@ Do not treat these as the default focus here:
 
 `tmux-meta` is available by default as a harmless secondary tmux session wrapper.
 
+## User-only coding agents on Linux and Apple Silicon
+
+`homeManagerModules.agents` installs Claude Code, Codex, Pi, Amp CLI, and OpenCode
+for one Home Manager user, with the pinned preferences, skills, and integrations.
+It does not configure the user's shell, Git, SSH, tmux, or desktop applications.
+The existing `homeManagerModules.default` remains the full Linux host profile.
+
+Within an existing nix-darwin/Home Manager configuration:
+
+```nix
+home-manager.users.lefant = {
+  imports = [ inputs.toolnix.homeManagerModules.agents ];
+  home.stateVersion = "25.05"; # Retain the user's existing value when present.
+  toolnix.agentBrowser.enable = true;
+};
+```
+
+Pin Toolnix and Home Manager in the consuming flake. Configure Numtide trust in
+the host Nix daemon before building; an input's `nixConfig` does not propagate.
+Build before activation, remove superseded system-level agent packages, and
+verify the actual runner's PATH as well as an interactive terminal.
+
+The portable module omits VM permission bypasses, project trust, MCP approvals,
+and Claude onboarding seeds. Codex's active `~/.codex/config.toml` stays writable
+and unmanaged because Codex stores project trust there. A wrapper supplies the
+declared model, effort, and personality via leading `-c` arguments. Explicit
+`-m` or later `-c` arguments can override them; profile/project preferences do
+not override these invocation settings. Claude and Pi preferences remain
+read-only Nix files: in-app preference changes may be session-only or report a
+save failure. Change their persistent preferences in Toolnix. Auth and history
+are not managed.
+
+Amp requires the signed-in account's CE, MP, Antithesis, and shared User Skills.
+The portable profile omits the 51 confirmed account-provided skill names and
+installs the remaining names locally; account revisions need not match Nix pins.
+Other agents retain full local collections. Codex gets its baseline under
+`~/.codex/skills/toolnix` rather than the Amp-visible `~/.agents/skills` tree.
+Existing Linux full-profile discovery remains unchanged.
+
+### Adoption and recovery
+
+Before linking declared files, the portable module moves unmanaged conflicts
+into private, unique directories beneath
+`${XDG_STATE_HOME:-$HOME/.local/state}/toolnix/agent-backups`. Activation prints
+each destination; its `manifest` lists relative original paths. Earlier backups
+are retained. Dry runs do not move files. Symlink parents require manual review.
+Only enabled module-owned targets are adopted; Codex runtime config, credentials,
+history, and unrelated files remain untouched.
+
+A Home Manager rollback does not restore adopted files. To restore one, first
+remove that target from declarative ownership, inspect its manifest and any newer
+local edits, then restore the saved file or symlink to the original relative path.
+Do not blindly copy backups over newer data. Backups may contain sensitive data;
+keep them local and out of Git.
+
 ## Project Consumer Shape
 
 Minimal project consumer:
@@ -126,6 +181,25 @@ agent-browser wait --load networkidle
 agent-browser get title
 agent-browser close
 ```
+
+On Apple Silicon, the basic flag installs Nix's fixed-source Chrome for Testing
+component and binds the CLI to its app-bundle executable. It does not use the
+everyday Chrome profile or install VNC.
+
+For the pinned agent-browser 0.38.1, `--session work` names a live temporary
+session, not persistent storage. Reuse that name within a run, then `close` it.
+A new run starts empty. Explicit persistence uses a separate restore name:
+
+```bash
+agent-browser --session work --restore project-login --restore-save auto open https://example.com
+agent-browser --session work --restore project-login --restore-save auto close
+agent-browser --session later --restore project-login --restore-save auto open https://example.com
+```
+
+Saved state stays local. Do not enable automatic personal-browser attachment or
+point automation at an everyday browser profile. The disposable proof script
+`scripts/check-agent-browser-sessions.sh /absolute/path/to/agent-browser`
+checks cookies/localStorage retention, fresh loss, named restoration, and isolation.
 
 `toolnix.browserTools.enable` implies the `agent-browser` behavior above and also provides `vhs` plus the shared Chromium package:
 
