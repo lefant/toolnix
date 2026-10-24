@@ -23,7 +23,7 @@ def render(source: Path, out: Path, revision: str) -> None:
     actual = sorted(p.name for p in vendor.iterdir() if p.is_dir())
     if actual != SKILLS:
         raise ValueError("review the published skill set before changing this snapshot")
-    if revision != "unlocked" and revision != "ddc10f079e33701a6922a7ce0d97ef4978b23427":
+    if revision != "unlocked" and revision != "38f16e15d6ec972b772a460bc6fd21407a24a5c9":
         raise ValueError("review the canonical vendor snapshot before updating its pin")
 
     names = ", ".join(f"`{name}` → `mp:{name}`" for name in SKILLS)
