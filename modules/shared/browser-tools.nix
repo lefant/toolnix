@@ -87,27 +87,23 @@ PY
 in {
   inherit chromium chromiumExecutable agentBrowserPackage vhsPackage browserEnv;
 
+  # Preserve consumer opt-ins, but install no automation until TLS is verified.
   agentBrowser = {
-    packages = [ agentBrowserPackage ];
-    env = browserEnv;
+    packages = [ ];
+    env = { };
     docs = {
       install = ''
-        agent-browser --version
+        echo "Toolnix browser automation is paused pending TLS remediation."
       '';
     };
   };
 
   browserTools = {
-    packages = [
-      vhsPackage
-      chromium
-    ];
-    env = browserEnv;
+    packages = [ ];
+    env = { };
     docs = {
       install = ''
-        agent-browser --version
-        vhs --version
-        ${if isDarwin then lib.escapeShellArg chromiumExecutable else "chromium"} --version
+        echo "Toolnix browser automation is paused pending TLS remediation."
       '';
     };
   };

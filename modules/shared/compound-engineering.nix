@@ -169,8 +169,7 @@ PY
   managedCodexAgentTree = "${codexAssets}/agents/compound-engineering";
   codexAgentsBlock = builtins.readFile ./compound-engineering/codex-agents-block.md;
 
-  system = pkgs.stdenv.hostPlatform.system;
-  piPackage = resolvedInputs.llm-agents.packages.${system}.pi;
+  piPackage = import ./pi-package.nix { inherit pkgs; inputs = resolvedInputs; };
   piSubagentExtensionPathCandidates = [
     "${piPackage}/libexec/pi/examples/extensions/subagent"
     "${piPackage}/lib/node_modules/@earendil-works/pi-coding-agent/examples/extensions/subagent"

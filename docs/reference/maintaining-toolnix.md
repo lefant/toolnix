@@ -40,7 +40,7 @@ Important boundary:
 - packages
 - shell-local environment
 - aliases and helper functions
-- optional shell features such as `agent-browser`
+- optional shell features (browser automation is currently paused)
 
 `devenv` should not be used to provision persistent host runtime state.
 
@@ -53,7 +53,32 @@ Local runtime secrets and credentials are still loaded from:
 
 These files are local-only and not repo-managed.
 
+## Current trust-update policy
+
+Codex is disabled indefinitely, with no replacement or migration scheduled.
+Its package, preference wrapper, and shell alias are omitted; settings, skills,
+credentials, and history are retained. Pi stays on the `llm-agents` recipe with
+prebuilt Bun 1.4.4 used to bundle it, not a local Bun source build.
+
+Browser automation is paused across `toolnix.agentBrowser.enable`,
+`toolnix.browserTools.enable`, and `toolnix.hitlBrowserAutomation.enable`.
+Existing opt-ins remain valid but contribute no packages or browser environment
+variables, including the dependent HITL runtime. Retained skills do not install
+those tools. Check independently installed copies and the actual runner's PATH;
+neither removing a package nor changing a pin removes old running processes.
+
+The [recovery record](../research/2026-10-25-trust-update-recovery.md) separates
+recovered evidence from new verification. The Nix CA-bundle update is not a
+complete trust-store rollout. A consuming NixOS/nix-darwin system's
+`security.pki.caCertificateBlacklist` is complementary to Toolnix; embedded,
+browser, host-native, and shared stores each need independent verification.
+
 ## Common maintainer commands
+
+Before build, run, shell, or activation commands below, follow the
+[owner's build approval rule](../../README.md#build-approval) and inspect the
+[dry-run/cache diagnostics](#binary-cache-note). None of these examples grants
+permission for a large source build, a retry, publication, or host activation.
 
 ### Bootstrap a fresh host without a target-side toolnix clone
 
@@ -447,13 +472,18 @@ Persistent host state lives under `$HOME`, including:
 
 For current host-local `pi` model/backend usage, including Together-backed custom models and validated Fireworks opt-in models, see [`pi-model-backends.md`](pi-model-backends.md).
 
-### Optional browser state
+### Retained browser state (integration paused)
 
-When `agent-browser` or `browserTools` is enabled, host-local browser runtime state lives under:
+Existing browser runtime state can remain under:
 
 - `~/.agent-browser`
+- `${XDG_STATE_HOME:-$HOME/.local/state}/hitl-browser-automation/<project-name>-<hash>/`
 
-The current Toolnix integration uses the Nix-packaged `agent-browser` and Nix-managed Chromium, so normal first-run use does not require npm install state. Older hosts may still have cleanup-safe state from the previous lazy npm wrapper under:
+The paused Toolnix integrations neither provide runtimes nor remove saved state,
+even when an existing opt-in is `true`. Do not work around the pause by installing
+an unverified browser. Legacy usage remains in the
+[paused README reference](../../README.md#browser-tools-first-run-paused-reference).
+Older hosts may still have cleanup-safe state from the previous lazy npm wrapper under:
 
 - `~/.local/share/toolnix/agent-browser/npm-prefix`
 - `~/.cache/toolnix-agent-browser/npm`
@@ -499,14 +529,31 @@ extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc
 
 Keep the standard `cache.nixos.org` cache enabled as well.
 
-For diagnostics, compare:
+For diagnostics, inspect the effective configuration and a build plan without
+realizing the output:
 
 ```bash
 nix config show | rg 'substituters|trusted-substituters|trusted-public-keys|extra-substituters|extra-trusted-substituters|extra-trusted-public-keys'
-nix run -L --accept-flake-config github:lefant/toolnix#toolnix-pi -- --help
+nix build --dry-run --no-link --accept-flake-config \
+  --option allow-import-from-derivation false --no-write-lock-file \
+  github:lefant/toolnix#toolnix-pi
 ```
 
-A healthy cache path should show Nix copying from caches rather than building large dependency chains locally.
+Use `.#toolnix-pi` instead when inspecting the local checkout; a remote flake
+does not test unpublished changes. Stop if evaluation requires a build rather
+than relaxing the import-from-derivation guard. Even a `nix run ... -- --help`
+diagnostic can trigger compilation.
+
+Inspect exact `drvPath`/`outPath` identities and complete substitute availability
+for the intended platform, not just the package version. Check both lockfiles,
+`follows`/overrides, daemon trust, and upstream release binaries before concluding
+that a source build is needed. A locally present output can hide a cache miss;
+cache metadata alone does not prove signatures or a complete downloadable closure.
+Follow the [exact-output procedure](../solutions/tooling-decisions/exact-output-cache-checks-before-agent-builds.md).
+
+If a large source build still appears necessary, ask the owner for explicit
+approval before starting or retrying it, even if it seems the only feasible
+option. Cache acceptance is not that approval.
 
 Related artifacts:
 

@@ -9,7 +9,7 @@
         lib = pkgs.lib;
         inputs = inputs // { toolnix = inputs.self or null; };
       };
-      llmAgentsPkgs = inputs.llm-agents.packages.${system};
+      piPackage = import ../modules/shared/pi-package.nix { inherit pkgs inputs; };
       tmuxConf = pkgs.writeText "toolnix-wrapped-tmux.conf" (opinionated.renderTmuxConf { });
       piSettings = ../agents/pi-coding-agent/templates/settings.json;
       piKeybindings = ../agents/pi-coding-agent/templates/keybindings.json;
@@ -37,7 +37,7 @@
       };
       toolnixPi = pkgs.writeShellApplication {
         name = "toolnix-pi";
-        runtimeInputs = [ llmAgentsPkgs.pi pkgs.coreutils pkgs.findutils ];
+        runtimeInputs = [ piPackage pkgs.coreutils pkgs.findutils ];
         text = ''
           set -euo pipefail
 
@@ -79,7 +79,7 @@
           export CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1
           export AMP_SKIP_UPDATE_CHECK=1
 
-          exec ${llmAgentsPkgs.pi}/bin/pi "$@"
+          exec ${piPackage}/bin/pi "$@"
         '';
       };
     in {

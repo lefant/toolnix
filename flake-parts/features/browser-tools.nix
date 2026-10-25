@@ -70,54 +70,32 @@ in {
       browserToolsEnv = browserToolsHome.config.home.sessionVariables;
       agentBrowserDevenvEnv = agentBrowserDevenv.config.env;
       browserToolsDevenvEnv = browserToolsDevenv.config.env;
-      hasPackage = pkg: packages: lib.any (candidate: candidate == pkg) packages;
-      hasAgentBrowserChromiumEnv = env:
-        (env.AGENT_BROWSER_EXECUTABLE_PATH or null) == browserTools.chromiumExecutable;
+      combinedHome = mkHome {
+        toolnix.agentBrowser.enable = true;
+        toolnix.browserTools.enable = true;
+        toolnix.hitlBrowserAutomation.enable = true;
+      };
+      combinedDevenv = mkDevenv {
+        toolnix.agentBrowser.enable = true;
+        toolnix.browserTools.enable = true;
+        toolnix.hitlBrowserAutomation.enable = true;
+      };
+      checked = assert browserTools.agentBrowser.packages == [ ];
+        assert browserTools.browserTools.packages == [ ];
+        assert agentBrowserPackages == defaultPackages;
+        assert browserToolsPackages == defaultPackages;
+        assert combinedHome.config.home.packages == defaultPackages;
+        assert agentBrowserDevenvPackages == defaultDevenvPackages;
+        assert browserToolsDevenvPackages == defaultDevenvPackages;
+        assert combinedDevenv.config.packages == defaultDevenvPackages;
+        assert lib.all (env: env == defaultHome.config.home.sessionVariables) [
+          agentBrowserEnv browserToolsEnv combinedHome.config.home.sessionVariables
+        ];
+        assert lib.all (env: env == defaultDevenv.config.env) [
+          agentBrowserDevenvEnv browserToolsDevenvEnv combinedDevenv.config.env
+        ]; true;
     in {
-      checks.browser-tools-packages = pkgs.runCommand "browser-tools-packages-check" { } ''
-        set -euo pipefail
-
-        ${lib.optionalString (hasPackage browserTools.agentBrowserPackage defaultPackages || hasPackage browserTools.agentBrowserPackage defaultDevenvPackages) ''
-          echo "agent-browser should not be installed by default" >&2
-          exit 1
-        ''}
-        ${lib.optionalString (hasPackage browserTools.vhsPackage defaultPackages || hasPackage browserTools.vhsPackage defaultDevenvPackages) ''
-          echo "vhs should not be installed by default" >&2
-          exit 1
-        ''}
-        ${lib.optionalString (hasPackage browserTools.chromium defaultPackages || hasPackage browserTools.chromium defaultDevenvPackages) ''
-          echo "chromium should not be installed by default" >&2
-          exit 1
-        ''}
-        ${lib.optionalString (!(hasPackage browserTools.agentBrowserPackage agentBrowserPackages) || !(hasPackage browserTools.agentBrowserPackage agentBrowserDevenvPackages)) ''
-          echo "agent-browser should be installed when toolnix.agentBrowser.enable = true" >&2
-          exit 1
-        ''}
-        ${lib.optionalString (hasPackage browserTools.vhsPackage agentBrowserPackages || hasPackage browserTools.vhsPackage agentBrowserDevenvPackages) ''
-          echo "vhs should not be installed when only toolnix.agentBrowser.enable = true" >&2
-          exit 1
-        ''}
-        ${lib.optionalString (!(hasPackage browserTools.agentBrowserPackage browserToolsPackages) || !(hasPackage browserTools.agentBrowserPackage browserToolsDevenvPackages)) ''
-          echo "agent-browser should be installed when toolnix.browserTools.enable = true" >&2
-          exit 1
-        ''}
-        ${lib.optionalString (!(hasPackage browserTools.vhsPackage browserToolsPackages) || !(hasPackage browserTools.vhsPackage browserToolsDevenvPackages)) ''
-          echo "vhs should be installed when toolnix.browserTools.enable = true" >&2
-          exit 1
-        ''}
-        ${lib.optionalString (!(hasPackage browserTools.chromium browserToolsPackages) || !(hasPackage browserTools.chromium browserToolsDevenvPackages)) ''
-          echo "chromium should be installed when toolnix.browserTools.enable = true" >&2
-          exit 1
-        ''}
-        ${lib.optionalString (!(hasAgentBrowserChromiumEnv agentBrowserEnv) || !(hasAgentBrowserChromiumEnv agentBrowserDevenvEnv)) ''
-          echo "agent-browser env should point at toolnix pkgs.chromium when toolnix.agentBrowser.enable = true" >&2
-          exit 1
-        ''}
-        ${lib.optionalString (!(hasAgentBrowserChromiumEnv browserToolsEnv) || !(hasAgentBrowserChromiumEnv browserToolsDevenvEnv)) ''
-          echo "agent-browser env should point at toolnix pkgs.chromium when toolnix.browserTools.enable = true" >&2
-          exit 1
-        ''}
-
+      checks.browser-tools-packages = assert checked; pkgs.runCommand "browser-tools-packages-check" { } ''
         touch "$out"
       '';
     };
@@ -129,7 +107,7 @@ in {
         options.toolnix.browserTools.enable = lib.mkOption {
           type = lib.types.bool;
           default = false;
-          description = "Enable opt-in Nix-managed browser automation tools: agent-browser, vhs, and Chromium.";
+          description = "Reserved browser-tools opt-in; currently a no-op pending TLS remediation.";
         };
       };
 
@@ -137,7 +115,7 @@ in {
         options.toolnix.browserTools.enable = lib.mkOption {
           type = lib.types.bool;
           default = false;
-          description = "Enable opt-in Nix-managed browser automation tools in the project shell: agent-browser, vhs, and Chromium.";
+          description = "Reserved browser-tools opt-in; currently a no-op pending TLS remediation.";
         };
       };
     };

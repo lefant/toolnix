@@ -11,21 +11,6 @@ let
   portableCodex = builtins.removeAttrs
     (builtins.fromTOML (builtins.readFile ../../../agents/codex/templates/config.toml))
     [ "projects" ];
-  codex = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex;
-  codexDefaults = lib.concatMap (name: [ "-c" "${name}=${builtins.toJSON portableCodex.${name}}" ])
-    [ "model" "model_reasoning_effort" "personality" ];
-  portableCodexPackage = pkgs.symlinkJoin {
-    name = "codex-${codex.version}";
-    inherit (codex) version;
-    pname = "codex";
-    paths = [ codex ];
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-    postBuild = ''
-      rm "$out/bin/codex"
-      makeWrapper ${codex}/bin/codex "$out/bin/codex" \
-        --add-flags ${lib.escapeShellArg (lib.escapeShellArgs codexDefaults)}
-    '';
-  };
   portableOpenCode = builtins.removeAttrs
     (builtins.fromJSON (builtins.readFile ../../../agents/opencode/templates/opencode.json))
     [ "permission" ];
@@ -108,9 +93,7 @@ in {
       ''
     );
     home.packages =
-      lib.optionals cfg.enableAgentBaseline (map
-        (package: if !compatibility && package == codex then portableCodexPackage else package)
-        agent.packages)
+      lib.optionals cfg.enableAgentBaseline agent.packages
       ++ lib.optionals compoundToolsEnabled compound.toolPackages
       ++ lib.optionals cfg.agentBrowser.enable agentBrowser.packages;
     home.sessionVariables =
@@ -124,8 +107,7 @@ in {
       source = ../../../agents/shared/templates/caveman-lite-context.md;
       force = compatibility;
     };
-    # Codex persists project trust in this file. Portable preferences use CLI
-    # overrides so the active config remains writable and runtime-owned.
+    # Retain dormant settings while Codex is disabled; portable trust stays writable.
     home.file.".codex/config.toml" = lib.mkIf compatibility {
       source = (pkgs.formats.toml {}).generate "codex-config.toml" portableCodex;
       force = compatibility;

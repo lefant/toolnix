@@ -76,11 +76,10 @@ in
     [ toolnixClaudeStatusline ]
     ++ (with resolvedInputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
       claude-code
-      codex
       opencode
-      pi
       amp
-    ]);
+    ])
+    ++ [ (import ./pi-package.nix { inherit pkgs; inputs = resolvedInputs; }) ];
 
   env = {
     CODEX_CHECK_FOR_UPDATE_ON_STARTUP = "false";

@@ -36,19 +36,13 @@ in {
   inherit hitlBrowserHub skillPath skillCommand vncPackages;
   inherit (browserToolsData) chromium chromiumExecutable agentBrowserPackage browserEnv;
 
-  packages = [
-    hitlBrowserHub
-    pkgs.nodejs
-    pkgs.python3
-    pkgs.jq
-    pkgs.curl
-  ] ++ vncPackages;
-
-  env = browserToolsData.browserEnv;
+  # The hub must not fall back to an independently installed vulnerable browser.
+  packages = [ ];
+  env = { };
 
   docs = {
     install = ''
-      hitl-browser-hub check
+      echo "Toolnix HITL browser automation is paused pending TLS remediation."
     '';
   };
 }

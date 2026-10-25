@@ -9,7 +9,7 @@ in {
       options.toolnix.agentBrowser.enable = lib.mkOption {
         type = lib.types.bool;
         default = false;
-        description = "Enable opt-in Nix-managed agent-browser support on the host.";
+        description = "Reserved agent-browser opt-in; currently a no-op pending TLS remediation.";
       };
     };
 
@@ -17,7 +17,7 @@ in {
       options.toolnix.agentBrowser.enable = lib.mkOption {
         type = lib.types.bool;
         default = false;
-        description = "Enable opt-in Nix-managed agent-browser support in the project shell.";
+        description = "Reserved agent-browser opt-in; currently a no-op pending TLS remediation.";
       };
     };
   };

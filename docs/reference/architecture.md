@@ -26,7 +26,7 @@ flowchart LR
       CLAUDE_PLUGINS["github:lefant/claude-code-plugins<br/>tracked Claude plugin source"]
       LLM_AGENTS["github:numtide/llm-agents.nix<br/>agent package set + Numtide cache"]
       HOME_MANAGER["github:nix-community/home-manager<br/>Home Manager switch entrypoint"]
-      NIXPKGS["github:cachix/devenv-nixpkgs<br/>primary nixpkgs input"]
+      NIXPKGS["github:NixOS/nixpkgs<br/>direct lock-pinned primary input"]
       FLAKE_PARTS_UP["github:hercules-ci/flake-parts<br/>flake composition library"]
     end
 
@@ -171,11 +171,11 @@ As additive wrapped-tool proofs, the flake also exports portable package/app ent
 - `agent-baseline.nix`
   - shared AI-agent tool packages plus the managed skills tree used by the host configuration
 - `agent-browser.nix`
-  - optional Nix-managed `agent-browser` support
+  - paused `agent-browser` integration; no packages or environment contribution
 - `browser-tools.nix`
-  - optional Nix-managed browser automation/demo bundle using shared Chromium
+  - paused browser automation/demo integration, including Chromium and `vhs`
 - `hitl-browser-automation.nix`
-  - optional human-in-the-loop browser automation runtime support that wraps the skill-owned Browser Debug Hub command and installs browser/VNC dependencies
+  - paused dependent Browser Debug Hub runtime; no command, browser/VNC packages, or environment contribution
 - `host-control.nix`
   - optional control-host helpers kept outside the main baseline
 
@@ -228,12 +228,24 @@ The full host profile imports it, then retains its existing forced links and
 VM policy. The portable export adds no shell, Git, SSH, tmux, or desktop policy.
 It adopts only declared agent targets with private backups before linking.
 
-Portable Codex uses a preference wrapper, not an immutable active config file:
-project trust remains Codex-owned. Other static preferences remain Nix files.
+Codex is disabled indefinitely across both profiles and the project shell:
+no package, preference wrapper, or shell alias is installed. Settings and skill
+wiring remain; credentials, history, and user data are not removed. Portable
+Codex project trust remains user-owned in its writable active config.
+Other static preferences remain Nix files.
 Portable Amp uses confirmed account collections plus local-only skills; the
 Codex baseline lives in its agent-specific tree to avoid Amp's shared discovery.
-The full Linux profile keeps its previous file layout and package behavior.
+The full Linux profile keeps its previous file layout, including its managed
+Codex config, but no longer installs the Codex runtime.
 See the [user-agent setup and recovery instructions](../../README.md#user-only-coding-agents-on-linux-and-apple-silicon).
+
+Pi remains on the `llm-agents` recipe, bundled with prebuilt Bun 1.4.4. Replacing
+a standalone runtime does not update a runtime embedded in an existing agent.
+The trust-update reconstruction uses a direct locked Nixpkgs source for the
+NSS 3.131.1 CA bundle rather than the previous compatibility shim. Effective
+bundle content, exact package outputs, and cache coverage need checking after
+input changes; a moved pin alone is not verification. See the
+[recovery evidence and limits](../research/2026-10-25-trust-update-recovery.md).
 
 ### Project / self-hosted devenv shell
 
@@ -243,7 +255,7 @@ The `devenv` module owns shell-local behavior only, including:
 - shell-local environment variables
 - interactive aliases and helper functions
 - editor defaults
-- optional project-shell features such as `agent-browser`
+- optional project-shell features (browser integrations are currently paused)
 
 `devenv` shapes the active shell session and does not perform persistent home-directory provisioning.
 
@@ -299,25 +311,31 @@ These toggles control:
 - tmux helpers
 - agent wrapper aliases
 
-### Agent browser and browser tools
+### Agent browser and browser tools (paused)
 
-`agent-browser` is opt-in for both host and project contexts through:
+These compatibility options remain accepted but are no-ops while paused:
 
 - `toolnix.agentBrowser.enable = true;`
-
-It provides the Nix-packaged `agent-browser` from the tracked `llm-agents.nix` input and points it at Toolnix's Nix-managed browser: Chromium on Linux, the fixed-source Playwright Chrome for Testing component on Apple Silicon. The Darwin wrapper binds the executable directly, including its app-bundle path with spaces, without relying on inherited Home Manager environment variables.
-
-The heavier browser automation/demo bundle is opt-in through:
-
 - `toolnix.browserTools.enable = true;`
-
-That bundle implies `agent-browser` behavior and also provides `vhs` plus the same shared Chromium package. Browser profile/session state remains user-local; the tools share the browser executable package, not browser profiles or sessions.
-
-Human-in-the-loop browser automation runtime support is opt-in through:
-
 - `toolnix.hitlBrowserAutomation.enable = true;`
 
-That option implies the Nix-managed `agent-browser` behavior, exposes the skill-owned `hitl-browser-hub` command from the `agent-skills` input, and installs the Node/Python/`jq`/VNC-display dependencies needed by the bundled Browser Debug Hub runtime. It does not imply `vhs`. Home Manager owns persistent skill-tree installation for agents; `devenv` provides shell-local command and dependency availability only.
+Even existing `true` values contribute no packages or browser environment
+variables. The pause covers `agent-browser`, Chromium/Chrome for Testing, `vhs`,
+and the dependent `hitl-browser-hub` runtime and its dependencies. It does not
+remove dependencies independently supplied by another baseline or consumer,
+shared skills, saved sessions, or independently installed executables.
+
+Before the pause, `agent-browser` used Chromium on Linux and Playwright's
+fixed-source Chrome for Testing component on Apple Silicon. The full browser
+bundle also supplied `vhs`; HITL supplied the skill-owned hub plus
+Node/Python/`jq`/VNC-display dependencies. These are retained design context,
+not currently enabled capabilities. See the
+[paused usage reference](../../README.md#browser-tools-first-run-paused-reference).
+
+The native CLI's HTTPS/WSS verifier and the browser's page-traffic verifier are
+separate. Headless mode or a native TLS fix does not establish browser trust.
+Re-enablement requires an explicit owner decision and verification of both paths;
+weekly readiness research is not permission to re-enable automatically.
 
 ### Host control helpers
 
@@ -349,9 +367,15 @@ Persistent user state lives under `$HOME`, including:
 - shell dotfiles managed by Home Manager
 - agent configuration under locations such as `~/.claude/`, `~/.codex/`, `~/.config/opencode/`, `~/.config/amp/`, `~/.openclaw/`, and `~/.pi/agent/`
 - shared user skills under `~/.agents/skills`
-- browser automation state under `~/.agent-browser` when `agent-browser`, `browserTools`, or `hitlBrowserAutomation` is enabled
-- HITL browser automation state under `${XDG_STATE_HOME:-$HOME/.local/state}/hitl-browser-automation/<project-name>-<hash>/` when the skill-owned hub runs
+- retained browser automation state under `~/.agent-browser` (integration paused)
+- retained HITL state under `${XDG_STATE_HOME:-$HOME/.local/state}/hitl-browser-automation/<project-name>-<hash>/` (runtime paused)
 - environment secrets loaded from `~/.env.toolnix` or the legacy fallback `~/.env.toolbox`
+
+Host-native, embedded, browser, and shared trust stores are separate from these
+module settings and require independent verification. A consuming NixOS or
+nix-darwin system's `security.pki.caCertificateBlacklist` complements Toolnix's
+package updates; it is not owned by the Home Manager module and does not prove
+that every application uses that trust store.
 
 ## What Was Removed
 

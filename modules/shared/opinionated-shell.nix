@@ -12,7 +12,6 @@ let
   '';
   agentWrappersBody = ''
     alias claude='claude --dangerously-skip-permissions --model opus'
-    alias codex='codex --yolo'
   '';
   tmuxHelpersBody = ''
     _tmux-set-colour() {

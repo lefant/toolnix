@@ -18,21 +18,13 @@
         ];
       }).config;
       packages = home.home.packages;
-      browserCount = lib.length (lib.filter (pkg: pkg == browser.agentBrowserPackage) packages);
-      expected = if pkgs.stdenv.hostPlatform.isDarwin
-        then "${browser.chromium}/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
-        else "${pkgs.chromium}/bin/chromium";
-      checked = assert browserCount == 1;
-        assert home.home.sessionVariables.AGENT_BROWSER_EXECUTABLE_PATH == expected;
-        assert home.home.sessionVariables.TOOLNIX_CHROMIUM == expected;
-        assert !(lib.any (pkg: pkg == browser.vhsPackage || pkg == browser.chromium) packages);
+      checked = assert browser.agentBrowser.packages == [ ];
+        assert !(home.home.sessionVariables ? AGENT_BROWSER_EXECUTABLE_PATH);
+        assert !(home.home.sessionVariables ? TOOLNIX_CHROMIUM);
+        assert !(lib.any (pkg: lib.elem (lib.getName pkg) [ "agent-browser" "vhs" "chromium" ]) packages);
         true;
     in {
       checks.browser-platform = assert checked; pkgs.runCommand "browser-platform-check" { } ''
-        ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
-          grep -F -- ${lib.escapeShellArg expected} ${browser.agentBrowserPackage}/bin/agent-browser
-          test -x ${lib.escapeShellArg expected}
-        ''}
         touch "$out"
       '';
     };

@@ -50,12 +50,33 @@ Do not treat these as the default focus here:
 
 `tmux-meta` is available by default as a harmless secondary tmux session wrapper.
 
+## Build approval
+
+Before realizing a Nix output, inspect its dry-run build plan and exact output
+cache availability. Check daemon cache trust/configuration, both lockfiles, and
+input alignment (including `follows` and overrides), then check upstream prebuilts.
+A cache miss for one derivation does not mean no fixed prebuilt exists.
+Even `nix run ... -- --help` can compile dependencies; use `nix build --dry-run`
+with import-from-derivation and lockfile writes disabled for diagnostics.
+
+If a large source build still appears necessary, stop and ask the owner for
+explicit approval before starting or retrying it, even if it seems the only
+feasible option. See the [cache diagnostic procedure](docs/reference/maintaining-toolnix.md#binary-cache-note)
+and [exact-output cache checks](docs/solutions/tooling-decisions/exact-output-cache-checks-before-agent-builds.md).
+
 ## User-only coding agents on Linux and Apple Silicon
 
-`homeManagerModules.agents` installs Claude Code, Codex, Pi, Amp CLI, and OpenCode
+`homeManagerModules.agents` installs Claude Code, Pi, Amp CLI, and OpenCode
 for one Home Manager user, with the pinned preferences, skills, and integrations.
 It does not configure the user's shell, Git, SSH, tmux, or desktop applications.
 The existing `homeManagerModules.default` remains the full Linux host profile.
+
+Codex is disabled indefinitely: Toolnix installs no Codex package, preference
+wrapper, or shell alias. Its settings, skills, credentials, and history are
+retained; disabling it is not a data-removal operation or a package migration.
+Pi remains supplied through `llm-agents`, bundled with prebuilt Bun 1.4.4 rather
+than compiling Bun. See the [trust-update recovery record](docs/research/2026-10-25-trust-update-recovery.md)
+for the evidence and remaining verification boundaries.
 
 Within an existing nix-darwin/Home Manager configuration:
 
@@ -63,7 +84,6 @@ Within an existing nix-darwin/Home Manager configuration:
 home-manager.users.lefant = {
   imports = [ inputs.toolnix.homeManagerModules.agents ];
   home.stateVersion = "25.05"; # Retain the user's existing value when present.
-  toolnix.agentBrowser.enable = true;
 };
 ```
 
@@ -74,10 +94,8 @@ verify the actual runner's PATH as well as an interactive terminal.
 
 The portable module omits VM permission bypasses, project trust, MCP approvals,
 and Claude onboarding seeds. Codex's active `~/.codex/config.toml` stays writable
-and unmanaged because Codex stores project trust there. A wrapper supplies the
-declared model, effort, and personality via leading `-c` arguments. Explicit
-`-m` or later `-c` arguments can override them; profile/project preferences do
-not override these invocation settings. Claude and Pi preferences remain
+and unmanaged because Codex stores project trust there. Its former preference
+wrapper is not installed while Codex is disabled. Claude and Pi preferences remain
 read-only Nix files: in-app preference changes may be session-only or report a
 save failure. Change their persistent preferences in Toolnix. Auth and history
 are not managed.
@@ -134,7 +152,21 @@ Top-level opt-out:
 }
 ```
 
-Optional Nix-managed `agent-browser` support for project consumers:
+### Paused browser integrations
+
+`toolnix.agentBrowser.enable`, `toolnix.browserTools.enable`, and
+`toolnix.hitlBrowserAutomation.enable` are compatibility no-ops while browser
+automation is paused. Existing `true` values remain accepted but contribute no
+packages or browser environment variables. This includes Chromium, `vhs`, and
+the dependent HITL runtime. Shared skills and user state remain intact.
+Independently installed copies are not removed; check the actual runner's PATH
+before assuming a tool is absent. Re-enablement needs explicit owner approval
+and runtime trust verification, not just a newer version number.
+
+The following opt-ins and usage examples document the **paused integration**;
+they do not install or enable it today.
+
+Legacy `agent-browser` opt-in (paused):
 
 ```nix
 { inputs, ... }: {
@@ -143,7 +175,7 @@ Optional Nix-managed `agent-browser` support for project consumers:
 }
 ```
 
-Optional full browser-tools support for project consumers:
+Legacy full browser-tools opt-in (paused):
 
 ```nix
 { inputs, ... }: {
@@ -152,7 +184,7 @@ Optional full browser-tools support for project consumers:
 }
 ```
 
-Optional human-in-the-loop browser automation runtime support:
+Legacy human-in-the-loop browser automation opt-in (paused):
 
 ```nix
 { inputs, ... }: {
@@ -161,11 +193,15 @@ Optional human-in-the-loop browser automation runtime support:
 }
 ```
 
-This provides the skill-owned `hitl-browser-hub` command plus `agent-browser`, Toolnix Chromium env, Node.js, Python, `jq`, and VNC/display tools. In Home Manager, shared skills are installed persistently for supported agents. In `devenv`, Toolnix provides shell-local commands and dependencies; agent skill discovery still depends on the host agent configuration or direct skill-path use.
+Before the pause, this provided the skill-owned `hitl-browser-hub` command plus `agent-browser`, Toolnix Chromium env, Node.js, Python, `jq`, and VNC/display tools. Home Manager still installs shared skills persistently for supported agents. Project `devenv` skill discovery still depends on host agent configuration or direct skill-path use; skill availability does not mean the paused runtime is installed.
 
-### Browser Tools First Run
+### Browser Tools First Run (paused reference)
 
-`toolnix.agentBrowser.enable` provides the Nix-packaged `agent-browser` CLI and points it at Toolnix's Nix-managed Chromium. No npm first-run install or `agent-browser install` browser download is required for normal use.
+These commands are retained for an explicitly approved future re-enablement,
+not as instructions to bypass the pause with an npm or browser download.
+The former integration provided the Nix-packaged `agent-browser` CLI and pointed
+it at Toolnix's Nix-managed Chromium, without an npm first-run install or
+`agent-browser install` download.
 
 Minimal first-run flow:
 
@@ -182,11 +218,11 @@ agent-browser get title
 agent-browser close
 ```
 
-On Apple Silicon, the basic flag installs Nix's fixed-source Chrome for Testing
-component and binds the CLI to its app-bundle executable. It does not use the
-everyday Chrome profile or install VNC.
+Before the pause, the Apple Silicon flag installed Nix's fixed-source Chrome for
+Testing component and bound the CLI to its app-bundle executable. It did not use
+the everyday Chrome profile or install VNC.
 
-For the pinned agent-browser 0.38.1, `--session work` names a live temporary
+For the previously documented agent-browser 0.38.1, `--session work` names a live temporary
 session, not persistent storage. Reuse that name within a run, then `close` it.
 A new run starts empty. Explicit persistence uses a separate restore name:
 
@@ -201,7 +237,7 @@ point automation at an everyday browser profile. The disposable proof script
 `scripts/check-agent-browser-sessions.sh /absolute/path/to/agent-browser`
 checks cookies/localStorage retention, fresh loss, named restoration, and isolation.
 
-`toolnix.browserTools.enable` implies the `agent-browser` behavior above and also provides `vhs` plus the shared Chromium package:
+Before the pause, `toolnix.browserTools.enable` implied the `agent-browser` behavior above and also provided `vhs` plus the shared Chromium package:
 
 ```bash
 vhs --version
@@ -218,7 +254,7 @@ Older hosts that used the previous lazy npm wrapper may still have cleanup-safe 
 - npm prefix: `~/.local/share/toolnix/agent-browser/npm-prefix`
 - npm cache: `~/.cache/toolnix-agent-browser/npm`
 
-HITL browser automation first-run flow in an enabled environment:
+Legacy HITL browser automation first-run flow (paused):
 
 ```bash
 hitl-browser-hub check
@@ -288,7 +324,9 @@ For direct use, prefer:
 nix run --accept-flake-config github:lefant/toolnix#toolnix-pi
 ```
 
-On first use, `--accept-flake-config` ensures Nix accepts the flake-provided cache settings instead of falling back to local source builds.
+`--accept-flake-config` accepts the flake-provided cache settings, subject to
+daemon trust. It does not guarantee a substitute for the requested output;
+follow the [build approval rule](#build-approval) before running it.
 
 Important multi-user Nix note:
 

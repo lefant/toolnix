@@ -22,8 +22,12 @@
       url = "github:EveryInc/compound-engineering-plugin";
       flake = false;
     };
-    llm-agents.url = "github:numtide/llm-agents.nix";
-    nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # The compatibility flake imports its own lock, bypassing nested overrides.
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
